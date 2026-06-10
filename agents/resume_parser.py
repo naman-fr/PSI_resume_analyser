@@ -21,33 +21,15 @@ logger = logging.getLogger(__name__)
 # ── LLM factory (reused by other agent modules) ────────────────────────────
 
 def get_llm() -> Tuple[BaseChatModel, str]:
-    """Return an LLM instance and the provider name.
+    """Return the Groq LLM instance.
 
-    Tries **Google Gemini** first (via ``langchain-google-genai``).  If that
-    import or instantiation fails for any reason, falls back to **Groq**.
+    Uses Groq (via ``langchain-groq``) as the sole LLM provider.
 
     Returns
     -------
     (llm, provider_name)
         A ready-to-invoke ``BaseChatModel`` and a human-readable provider tag.
     """
-    # --- Attempt 1: Gemini ------------------------------------------------
-    try:
-        from langchain_google_genai import ChatGoogleGenerativeAI
-        from config.settings import settings
-
-        llm = ChatGoogleGenerativeAI(
-            model=settings.models.gemini_model,
-            google_api_key=settings.models.gemini_api_key,
-            temperature=0.0,
-            convert_system_message_to_human=True,
-        )
-        logger.info("LLM provider: Gemini (%s)", settings.models.gemini_model)
-        return llm, "gemini"
-    except Exception as exc:
-        logger.warning("Gemini unavailable (%s), falling back to Groq.", exc)
-
-    # --- Attempt 2: Groq --------------------------------------------------
     try:
         from langchain_groq import ChatGroq
         from config.settings import settings
@@ -61,7 +43,7 @@ def get_llm() -> Tuple[BaseChatModel, str]:
         return llm, "groq"
     except Exception as exc:
         raise RuntimeError(
-            "No LLM provider available. Set GOOGLE_API_KEY or GROQ_API_KEY."
+            "No LLM provider available. Set GROQ_API_KEY."
         ) from exc
 
 

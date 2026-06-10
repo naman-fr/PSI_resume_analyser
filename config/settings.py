@@ -58,7 +58,7 @@ class AppConfig:
 
     def has_gemini(self) -> bool:
         """Check if Gemini API key is configured."""
-        return bool(self.models.gemini_api_key)
+        return False
 
     def has_groq(self) -> bool:
         """Check if Groq API key is configured."""
@@ -66,12 +66,10 @@ class AppConfig:
 
     def get_available_provider(self) -> str:
         """Get the best available LLM provider."""
-        if self.has_gemini():
-            return "gemini"
-        elif self.has_groq():
+        if self.has_groq():
             return "groq"
         else:
-            raise ValueError("No LLM API key configured. Set GOOGLE_API_KEY or GROQ_API_KEY.")
+            raise ValueError("No LLM API key configured. Set GROQ_API_KEY.")
 
 
 # Global settings instance
