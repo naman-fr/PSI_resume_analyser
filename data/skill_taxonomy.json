@@ -1,0 +1,98 @@
+{
+  "programming_languages": {
+    "Python": ["python", "python3", "py"],
+    "JavaScript": ["javascript", "js", "es6", "es2015", "ecmascript"],
+    "TypeScript": ["typescript", "ts"],
+    "Java": ["java", "java8", "java11", "java17"],
+    "C++": ["c++", "cpp", "c plus plus"],
+    "C#": ["c#", "csharp", "c sharp"],
+    "Go": ["go", "golang"],
+    "Rust": ["rust", "rust-lang"],
+    "Ruby": ["ruby", "rb"],
+    "PHP": ["php"],
+    "Swift": ["swift"],
+    "Kotlin": ["kotlin", "kt"],
+    "Scala": ["scala"],
+    "R": ["r", "r-lang", "rlang"]
+  },
+  "web_frameworks": {
+    "React": ["react", "react.js", "reactjs", "react js"],
+    "Angular": ["angular", "angular.js", "angularjs", "angular2"],
+    "Vue": ["vue", "vue.js", "vuejs", "vue3"],
+    "Next.js": ["next.js", "nextjs", "next"],
+    "Django": ["django"],
+    "Flask": ["flask"],
+    "FastAPI": ["fastapi", "fast api", "fast-api"],
+    "Express": ["express", "express.js", "expressjs"],
+    "Spring": ["spring", "spring boot", "springboot"],
+    "Node.js": ["node.js", "nodejs", "node"]
+  },
+  "databases": {
+    "PostgreSQL": ["postgresql", "postgres", "psql", "pg"],
+    "MySQL": ["mysql", "my sql"],
+    "MongoDB": ["mongodb", "mongo"],
+    "Redis": ["redis"],
+    "SQLite": ["sqlite", "sqlite3"],
+    "DynamoDB": ["dynamodb", "dynamo db", "dynamo"],
+    "Cassandra": ["cassandra", "apache cassandra"],
+    "Elasticsearch": ["elasticsearch", "elastic search", "es"]
+  },
+  "cloud_platforms": {
+    "AWS": ["aws", "amazon web services", "amazon aws"],
+    "Azure": ["azure", "microsoft azure", "ms azure"],
+    "Google Cloud": ["gcp", "google cloud", "google cloud platform"],
+    "Heroku": ["heroku"],
+    "Vercel": ["vercel"]
+  },
+  "devops": {
+    "Docker": ["docker", "dockerfile", "docker-compose"],
+    "Kubernetes": ["kubernetes", "k8s", "kube"],
+    "CI/CD": ["ci/cd", "cicd", "ci cd", "continuous integration", "continuous deployment"],
+    "Jenkins": ["jenkins"],
+    "GitHub Actions": ["github actions", "gh actions"],
+    "Terraform": ["terraform", "tf"],
+    "Ansible": ["ansible"]
+  },
+  "data_science": {
+    "Machine Learning": ["machine learning", "ml"],
+    "Deep Learning": ["deep learning", "dl"],
+    "Natural Language Processing": ["natural language processing", "nlp"],
+    "Computer Vision": ["computer vision", "cv", "image recognition"],
+    "TensorFlow": ["tensorflow", "tf", "tensor flow"],
+    "PyTorch": ["pytorch", "torch"],
+    "Scikit-learn": ["scikit-learn", "sklearn", "scikit learn"],
+    "Pandas": ["pandas", "pd"],
+    "NumPy": ["numpy", "np"],
+    "Spark": ["spark", "apache spark", "pyspark"],
+    "Hadoop": ["hadoop", "apache hadoop"],
+    "Tableau": ["tableau"],
+    "Power BI": ["power bi", "powerbi"]
+  },
+  "ai_llm": {
+    "LangChain": ["langchain", "lang chain"],
+    "LangGraph": ["langgraph", "lang graph"],
+    "LLM": ["llm", "large language model", "large language models"],
+    "GPT": ["gpt", "gpt-4", "gpt4", "chatgpt", "openai gpt"],
+    "RAG": ["rag", "retrieval augmented generation"],
+    "Prompt Engineering": ["prompt engineering", "prompt design"],
+    "Hugging Face": ["hugging face", "huggingface", "hf"],
+    "Transformers": ["transformers", "transformer models"]
+  },
+  "tools": {
+    "Git": ["git", "github", "gitlab", "bitbucket", "version control"],
+    "Linux": ["linux", "unix", "ubuntu", "centos", "debian"],
+    "Jira": ["jira", "atlassian jira"],
+    "Confluence": ["confluence"],
+    "Figma": ["figma"],
+    "Postman": ["postman"],
+    "VS Code": ["vscode", "vs code", "visual studio code"]
+  },
+  "soft_skills": {
+    "Leadership": ["leadership", "team lead", "team leadership", "leading teams"],
+    "Communication": ["communication", "verbal communication", "written communication"],
+    "Problem Solving": ["problem solving", "problem-solving", "analytical thinking"],
+    "Project Management": ["project management", "pm", "agile", "scrum", "kanban"],
+    "Teamwork": ["teamwork", "collaboration", "team player", "cross-functional"]
+  }
+}
+

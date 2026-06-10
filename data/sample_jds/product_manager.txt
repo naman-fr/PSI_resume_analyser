@@ -1,0 +1,36 @@
+Product Manager - SaaS Platform
+
+Company: CloudSuite Technologies
+Location: San Francisco, CA
+Experience: 4-7 years
+
+About the Role:
+We need an experienced Product Manager to lead our B2B SaaS platform strategy. You'll own the product roadmap and work cross-functionally to deliver features that delight customers.
+
+Required Skills:
+- Product strategy and roadmap planning
+- Agile/Scrum methodology
+- User research and customer interviews
+- Data analysis and metrics-driven decision making
+- Wireframing tools (Figma, Sketch)
+- Jira and Confluence
+- A/B testing and experimentation
+
+Preferred Skills:
+- Technical background (can read code)
+- SQL for data querying
+- Experience with analytics tools (Mixpanel, Amplitude)
+- B2B SaaS experience
+- API product management
+
+Education:
+- Bachelor's degree required
+- MBA or technical degree preferred
+
+Responsibilities:
+- Define product vision and strategy
+- Prioritize features based on user research and data
+- Write PRDs and user stories
+- Coordinate with engineering, design, and marketing
+- Track KPIs and product metrics
+- Conduct competitive analysis

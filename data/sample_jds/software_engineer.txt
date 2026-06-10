@@ -1,0 +1,33 @@
+Software Engineer - Full Stack
+
+Company: TechCorp Inc.
+Location: Remote
+Experience: 3-5 years
+
+About the Role:
+We are looking for a skilled Full Stack Software Engineer to join our product team. You will work on building and maintaining web applications that serve millions of users.
+
+Required Skills:
+- Python, JavaScript/TypeScript
+- React.js or Angular for frontend
+- Django or FastAPI for backend
+- PostgreSQL or MongoDB
+- REST APIs and GraphQL
+- Git and CI/CD pipelines
+- Docker and basic cloud (AWS/GCP)
+
+Preferred Skills:
+- Kubernetes experience
+- Redis for caching
+- Experience with microservices architecture
+- Unit testing (pytest, jest)
+
+Education:
+- Bachelor's degree in Computer Science or related field
+
+Responsibilities:
+- Design and develop scalable web applications
+- Write clean, maintainable, and well-tested code
+- Collaborate with product and design teams
+- Participate in code reviews and architectural decisions
+- Deploy and monitor applications in production

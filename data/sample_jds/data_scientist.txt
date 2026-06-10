@@ -1,0 +1,35 @@
+Data Scientist - ML Engineering
+
+Company: DataDriven Analytics
+Location: Hybrid (New York)
+Experience: 2-4 years
+
+About the Role:
+Join our data science team to build and deploy machine learning models that drive business decisions. You will work with large datasets and cutting-edge ML techniques.
+
+Required Skills:
+- Python (NumPy, Pandas, Scikit-learn)
+- Machine Learning and Deep Learning
+- TensorFlow or PyTorch
+- SQL and database querying
+- Statistical analysis and A/B testing
+- Data visualization (Matplotlib, Seaborn, Tableau)
+- Git version control
+
+Preferred Skills:
+- NLP or Computer Vision experience
+- Apache Spark or Hadoop
+- MLflow for experiment tracking
+- Cloud ML services (AWS SageMaker, GCP Vertex AI)
+- LLM and RAG applications
+
+Education:
+- Master's degree in Data Science, Statistics, CS, or related field preferred
+- Bachelor's degree required
+
+Responsibilities:
+- Build and validate predictive models
+- Design data pipelines and ETL processes
+- Present findings to stakeholders
+- Collaborate with engineering for model deployment
+- Stay current with ML research
