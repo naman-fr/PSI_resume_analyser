@@ -79,7 +79,7 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
     taxonomy = SkillTaxonomy()
 
     # ── Resume skills ────────────────────────────────────────────────────
-    raw_resume_skills: List[str] = resume_parsed.get("skills", [])
+    raw_resume_skills: List[str] = resume_parsed.get("skills") or []
     resume_norm, resume_unresolved = _normalize_skill_list(raw_resume_skills, taxonomy)
     if resume_unresolved:
         llm_resolved = _llm_normalize(resume_unresolved)
@@ -87,8 +87,8 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
 
     # ── JD skills ────────────────────────────────────────────────────────
     raw_jd_skills: List[str] = (
-        jd_extracted.get("required_skills", [])
-        + jd_extracted.get("preferred_skills", [])
+        (jd_extracted.get("required_skills") or [])
+        + (jd_extracted.get("preferred_skills") or [])
     )
     jd_norm, jd_unresolved = _normalize_skill_list(raw_jd_skills, taxonomy)
     if jd_unresolved:

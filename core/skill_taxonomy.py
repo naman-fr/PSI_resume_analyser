@@ -147,6 +147,8 @@ class SkillTaxonomy:
         Matching is case-insensitive.  If the skill is not found in the
         taxonomy, the original string is returned unchanged.
         """
+        if not skill or not isinstance(skill, str):
+            return ""
         self._ensure_loaded()
         return self._alias_map.get(skill.strip().lower(), skill.strip())
 
@@ -157,6 +159,8 @@ class SkillTaxonomy:
         Matching is case-insensitive. Returns None if the skill is not found
         in the taxonomy.
         """
+        if not skill or not isinstance(skill, str):
+            return None
         self._ensure_loaded()
         return self._alias_map.get(skill.strip().lower(), None)
 
@@ -166,6 +170,8 @@ class SkillTaxonomy:
 
         Falls back to ``"Unknown"`` when the skill is not in the taxonomy.
         """
+        if not skill or not isinstance(skill, str):
+            return "Unknown"
         self._ensure_loaded()
         canonical = self.normalize_skill(skill)
         return self._skill_to_category.get(canonical.lower(), "Unknown")
@@ -174,6 +180,8 @@ class SkillTaxonomy:
         """
         Return sibling skills in the same category (excluding *skill* itself).
         """
+        if not skill or not isinstance(skill, str):
+            return []
         self._ensure_loaded()
         category = self.get_parent_skill(skill)
         if category == "Unknown":
@@ -190,10 +198,14 @@ class SkillTaxonomy:
         Normalise every skill in *skills* and deduplicate while
         preserving order.
         """
+        if not skills:
+            return []
         self._ensure_loaded()
         seen: set[str] = set()
         result: list[str] = []
         for skill in skills:
+            if not skill or not isinstance(skill, str):
+                continue
             normalised = self.normalize_skill(skill)
             key = normalised.lower()
             if key not in seen:

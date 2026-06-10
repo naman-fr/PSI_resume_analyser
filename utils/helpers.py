@@ -17,13 +17,19 @@ def format_score(score: float) -> str:
         - Yellow (🟡) for scores >= 50
         - Red (🔴) for scores < 50
     """
-    if score >= 70:
+    if score is None:
+        return "⚪ N/A"
+    try:
+        score_val = float(score)
+    except (TypeError, ValueError):
+        return "⚪ N/A"
+    if score_val >= 70:
         emoji = "🟢"
-    elif score >= 50:
+    elif score_val >= 50:
         emoji = "🟡"
     else:
         emoji = "🔴"
-    return f"{emoji} {score:.1f}/100"
+    return f"{emoji} {score_val:.1f}/100"
 
 
 def truncate_text(text: str, max_length: int = 500) -> str:
@@ -119,7 +125,13 @@ def create_score_bar(score: float, max_width: int = 20) -> str:
     Returns:
         A string like ``[████████░░░░░░░░░░░░] 40%``.
     """
-    clamped = max(0.0, min(100.0, score))
+    if score is None:
+        score = 0.0
+    try:
+        score_val = float(score)
+    except (TypeError, ValueError):
+        score_val = 0.0
+    clamped = max(0.0, min(100.0, score_val))
     filled = int(round(clamped / 100 * max_width))
     empty = max_width - filled
     bar = "█" * filled + "░" * empty

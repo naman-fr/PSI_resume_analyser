@@ -55,12 +55,12 @@ def _degree_level(degree_str: str) -> int:
 
 def _compute_education_score(resume_parsed: dict, jd_extracted: dict) -> Dict[str, Any]:
     """Compare highest resume degree against JD requirement."""
-    education_entries: list = resume_parsed.get("education", [])
-    resume_degrees = [e.get("degree", "") for e in education_entries]
+    education_entries = resume_parsed.get("education") or []
+    resume_degrees = [e.get("degree", "") for e in education_entries if e and isinstance(e, dict)]
     resume_max_level = max((_degree_level(d) for d in resume_degrees), default=0)
     resume_best = max(resume_degrees, key=_degree_level, default="Not specified")
 
-    required_degree: str = jd_extracted.get("education_requirement", "")
+    required_degree: str = jd_extracted.get("education_requirement", "") or ""
     required_level = _degree_level(required_degree)
 
     if required_level == 0:
@@ -116,10 +116,10 @@ def _compute_experience_score_llm(
         prompt = (
             f"{SCORER_PROMPT}\n\n"
             f"## Inputs\n"
-            f"Resume Experience: {json.dumps(resume_parsed.get('experience', []), default=str)}\n"
+            f"Resume Experience: {json.dumps(resume_parsed.get('experience') or [], default=str)}\n"
             f"Resume Total Experience Years: {resume_years}\n"
             f"JD Required Experience Years: {required_years}\n"
-            f"JD Responsibilities: {json.dumps(jd_extracted.get('responsibilities', []), default=str)}"
+            f"JD Responsibilities: {json.dumps(jd_extracted.get('responsibilities') or [], default=str)}"
         )
         response = llm.invoke(prompt)
         data = resume_parser._extract_json(response.content)  # type: ignore[union-attr]

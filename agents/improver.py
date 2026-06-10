@@ -33,10 +33,12 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
     missing_skills: List[str] = skill_match.get("missing", [])
 
     # Collect existing resume bullets for rewriting
-    experience_entries: list = resume_parsed.get("experience", [])
+    experience_entries = resume_parsed.get("experience") or []
     existing_bullets: List[str] = []
     for entry in experience_entries:
-        existing_bullets.extend(entry.get("bullets", []))
+        if entry and isinstance(entry, dict):
+            bullets = entry.get("bullets") or []
+            existing_bullets.extend(b for b in bullets if b)
 
     try:
         llm, provider = resume_parser.get_llm()
