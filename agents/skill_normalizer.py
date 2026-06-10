@@ -41,14 +41,13 @@ def _normalize_skill_list(
     return normalized, unresolved  # type: ignore[return-value]
 
 
-def _llm_normalize(skills: List[str]) -> List[str]:
-    """Use the LLM to normalize skills the taxonomy could not resolve.
+def _llm_normalize_mapping(skills: List[str]) -> Dict[str, str]:
+    """Use the LLM to normalize a list of unresolved skill strings.
 
-    Asks the LLM to map each raw skill string to its most common canonical
-    name or to confirm it as-is.
+    Returns a mapping of original_skill -> canonical_form.
     """
     if not skills:
-        return []
+        return {}
 
     try:
         llm, _ = resume_parser.get_llm()
@@ -57,14 +56,22 @@ def _llm_normalize(skills: List[str]) -> List[str]:
         raw: str = response.content  # type: ignore[union-attr]
 
         data = resume_parser._extract_json(raw)
-        if isinstance(data, list):
-            return [str(s) for s in data]
-        if isinstance(data, dict) and "skills" in data:
-            return [str(s) for s in data["skills"]]
-        return skills  # fallback: return originals
+        mapping = {}
+        if isinstance(data, dict):
+            if "mapping" in data and isinstance(data["mapping"], dict):
+                mapping = {str(k): str(v) for k, v in data["mapping"].items()}
+            
+            if not mapping:
+                norm_list = data.get("normalized_skills") or data.get("skills") or []
+                if isinstance(norm_list, list) and len(norm_list) == len(skills):
+                    mapping = {skills[i]: str(norm_list[i]) for i in range(len(skills))}
+        elif isinstance(data, list) and len(data) == len(skills):
+            mapping = {skills[i]: str(data[i]) for i in range(len(skills))}
+            
+        return mapping
     except Exception as exc:
         logger.warning("LLM skill normalization failed (%s); keeping originals.", exc)
-        return skills
+        return {}
 
 
 def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
@@ -81,9 +88,6 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
     # ── Resume skills ────────────────────────────────────────────────────
     raw_resume_skills: List[str] = resume_parsed.get("skills") or []
     resume_norm, resume_unresolved = _normalize_skill_list(raw_resume_skills, taxonomy)
-    if resume_unresolved:
-        llm_resolved = _llm_normalize(resume_unresolved)
-        resume_norm.extend(llm_resolved)
 
     # ── JD skills ────────────────────────────────────────────────────────
     raw_jd_skills: List[str] = (
@@ -91,9 +95,23 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
         + (jd_extracted.get("preferred_skills") or [])
     )
     jd_norm, jd_unresolved = _normalize_skill_list(raw_jd_skills, taxonomy)
-    if jd_unresolved:
-        llm_resolved = _llm_normalize(jd_unresolved)
-        jd_norm.extend(llm_resolved)
+
+    # Combine all unresolved skills to perform a single LLM call
+    combined_unresolved = list(set(resume_unresolved + jd_unresolved))
+    if combined_unresolved:
+        mapping = _llm_normalize_mapping(combined_unresolved)
+        
+        # Map resume unresolved skills
+        for skill in resume_unresolved:
+            canonical = mapping.get(skill) or skill
+            if canonical:
+                resume_norm.append(canonical)
+                
+        # Map JD unresolved skills
+        for skill in jd_unresolved:
+            canonical = mapping.get(skill) or skill
+            if canonical:
+                jd_norm.append(canonical)
 
     # Deduplicate while preserving order
     resume_skills_final = list(dict.fromkeys(s.lower() for s in resume_norm))

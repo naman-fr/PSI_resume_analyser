@@ -885,6 +885,12 @@ def create_app() -> gr.Blocks:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    import threading
+    from core.embeddings import get_embedding_model
+    
+    # Pre-load embedding model during startup to avoid delaying the first request
+    threading.Thread(target=get_embedding_model, daemon=True).start()
+
     app = create_app()
     app.launch(
         server_name="0.0.0.0",

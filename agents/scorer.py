@@ -86,6 +86,53 @@ def _compute_education_score(resume_parsed: dict, jd_extracted: dict) -> Dict[st
     }
 
 
+def _compute_experience_score(
+    resume_parsed: dict,
+    jd_extracted: dict,
+) -> Dict[str, Any]:
+    """Compare experience years and calculate relevance locally.
+
+    This replaces the slow LLM experience scoring node, reducing pipeline latency
+    by avoiding a roundtrip HTTP request and rate limit penalties.
+    """
+    res_years_val = resume_parsed.get("total_experience_years", 0)
+    resume_years: float = float(res_years_val) if res_years_val is not None else 0.0
+
+    req_years_val = jd_extracted.get("min_experience_years", 0)
+    required_years: float = float(req_years_val) if req_years_val is not None else 0.0
+
+    # Quick path: if no experience required, full marks
+    if required_years <= 0:
+        return {
+            "score": 100.0,
+            "detail": {
+                "resume_years": resume_years,
+                "required_years": required_years,
+                "verdict": "No minimum experience requirement.",
+            },
+        }
+
+    # Meets or exceeds: base 85 points + surplus years scaling up to 100
+    if resume_years >= required_years:
+        surplus = resume_years - required_years
+        score = min(85.0 + surplus * 3.0, 100.0)
+        verdict = f"Meets or exceeds minimum requirement ({resume_years:.1f} of {required_years:.1f} years)."
+    else:
+        # Below: scale proportionally up to 75
+        ratio = resume_years / required_years
+        score = round(ratio * 75.0, 1)
+        verdict = f"Below minimum requirement: has {resume_years:.1f} of {required_years:.1f} required years."
+
+    return {
+        "score": min(max(round(score, 1), 0.0), 100.0),
+        "detail": {
+            "resume_years": resume_years,
+            "required_years": required_years,
+            "verdict": verdict,
+        },
+    }
+
+
 def _compute_experience_score_llm(
     resume_parsed: dict,
     jd_extracted: dict,
@@ -124,8 +171,15 @@ def _compute_experience_score_llm(
         response = llm.invoke(prompt)
         data = resume_parser._extract_json(response.content)  # type: ignore[union-attr]
         exp_score_val = data.get("experience_score", 0)
-        score = float(exp_score_val) if exp_score_val is not None else 0.0
-        verdict = data.get("verdict", "")
+        
+        if isinstance(exp_score_val, dict):
+            score_val = exp_score_val.get("score", 0)
+            score = float(score_val) if score_val is not None else 0.0
+            verdict = exp_score_val.get("verdict", "")
+        else:
+            score = float(exp_score_val) if exp_score_val is not None else 0.0
+            verdict = data.get("verdict", "") or ""
+
         return {
             "score": min(max(round(score, 1), 0), 100),
             "detail": {
@@ -138,22 +192,7 @@ def _compute_experience_score_llm(
         logger.warning("LLM experience scoring failed (%s); using numeric fallback.", exc)
 
     # Numeric fallback
-    if resume_years >= required_years:
-        score = 100.0
-        verdict = "Meets experience requirement."
-    else:
-        ratio = resume_years / required_years
-        score = round(ratio * 100, 1)
-        verdict = f"Has {resume_years} of {required_years} required years."
-
-    return {
-        "score": min(max(score, 0), 100),
-        "detail": {
-            "resume_years": resume_years,
-            "required_years": required_years,
-            "verdict": verdict,
-        },
-    }
+    return _compute_experience_score(resume_parsed, jd_extracted)
 
 
 def _identify_strengths_and_gaps(
@@ -212,7 +251,7 @@ def score_match(state: ResumeJDState) -> Dict[str, Any]:
     semantic_score: float = compute_semantic_score(resume_text, jd_text)
 
     # ── Experience ───────────────────────────────────────────────────────
-    exp_result = _compute_experience_score_llm(resume_parsed, jd_extracted)
+    exp_result = _compute_experience_score(resume_parsed, jd_extracted)
     experience_score: float = exp_result["score"]
 
     # ── Education ────────────────────────────────────────────────────────
