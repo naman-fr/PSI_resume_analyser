@@ -94,8 +94,11 @@ def _compute_experience_score_llm(
 
     Falls back to a simple numeric comparison if the LLM is unavailable.
     """
-    resume_years: float = float(resume_parsed.get("total_experience_years", 0))
-    required_years: float = float(jd_extracted.get("min_experience_years", 0))
+    res_years_val = resume_parsed.get("total_experience_years", 0)
+    resume_years: float = float(res_years_val) if res_years_val is not None else 0.0
+
+    req_years_val = jd_extracted.get("min_experience_years", 0)
+    required_years: float = float(req_years_val) if req_years_val is not None else 0.0
 
     # Quick path: if no experience required, full marks
     if required_years <= 0:
@@ -120,7 +123,8 @@ def _compute_experience_score_llm(
         )
         response = llm.invoke(prompt)
         data = resume_parser._extract_json(response.content)  # type: ignore[union-attr]
-        score = float(data.get("experience_score", 0))
+        exp_score_val = data.get("experience_score", 0)
+        score = float(exp_score_val) if exp_score_val is not None else 0.0
         verdict = data.get("verdict", "")
         return {
             "score": min(max(round(score, 1), 0), 100),
