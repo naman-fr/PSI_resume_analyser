@@ -2222,10 +2222,11 @@ def create_app() -> gr.Blocks:
                 gan_bias_display,
                 gan_status,
             ],
-            js="""() => {
+            js="""(...args) => {
                 if (window.startATSGame) {
                     window.startATSGame();
                 }
+                return args;
             }"""
         )
 
