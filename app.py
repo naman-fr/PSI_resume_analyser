@@ -620,6 +620,8 @@ def analyze_resume(
     jd_text: str,
     fallback_pdf_1: Any = None,
     fallback_pdf_2: Any = None,
+    fallback_jd_1: str = None,
+    fallback_jd_2: str = None,
 ) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """
     Run the full resume analysis pipeline.
@@ -638,6 +640,12 @@ def analyze_resume(
     """
     if pdf_file is None:
         pdf_file = fallback_pdf_1 or fallback_pdf_2
+
+    if not jd_text or not jd_text.strip():
+        for f_jd in [fallback_jd_1, fallback_jd_2]:
+            if f_jd and f_jd.strip():
+                jd_text = f_jd
+                break
 
     # ── 1. Validate inputs ────────────────────────────────────────────────
     valid, err = validate_pdf(pdf_file)
@@ -803,6 +811,8 @@ def get_improvements(
     jd_text: str,
     fallback_pdf_1: Any = None,
     fallback_pdf_2: Any = None,
+    fallback_jd_1: str = None,
+    fallback_jd_2: str = None,
 ) -> Tuple[str, str, str]:
     """
     Run analysis and return improvement suggestions.
@@ -814,6 +824,12 @@ def get_improvements(
     """
     if pdf_file is None:
         pdf_file = fallback_pdf_1 or fallback_pdf_2
+
+    if not jd_text or not jd_text.strip():
+        for f_jd in [fallback_jd_1, fallback_jd_2]:
+            if f_jd and f_jd.strip():
+                jd_text = f_jd
+                break
 
     valid, err = validate_pdf(pdf_file)
     if not valid:
@@ -1268,12 +1284,20 @@ def run_gan_audit(
     jd_text: str,
     fallback_pdf_1: Any = None,
     fallback_pdf_2: Any = None,
+    fallback_jd_1: str = None,
+    fallback_jd_2: str = None,
 ) -> Tuple[str, str, str, str]:
     """
     Simulate the GAN Generative Adversarial stress test.
     """
     if pdf_file is None:
         pdf_file = fallback_pdf_1 or fallback_pdf_2
+
+    if not jd_text or not jd_text.strip():
+        for f_jd in [fallback_jd_1, fallback_jd_2]:
+            if f_jd and f_jd.strip():
+                jd_text = f_jd
+                break
 
     valid, err = validate_pdf(pdf_file)
     if not valid:
@@ -2138,7 +2162,7 @@ def create_app() -> gr.Blocks:
 
         analyze_btn.click(
             fn=analyze_resume,
-            inputs=[pdf_input, jd_input, improve_pdf, gan_pdf],
+            inputs=[pdf_input, jd_input, improve_pdf, gan_pdf, improve_jd, gan_jd],
             outputs=[
                 overall_score_display,
                 score_breakdown_display,
@@ -2161,7 +2185,7 @@ def create_app() -> gr.Blocks:
 
         improve_btn.click(
             fn=get_improvements,
-            inputs=[improve_pdf, improve_jd, pdf_input, gan_pdf],
+            inputs=[improve_pdf, improve_jd, pdf_input, gan_pdf, jd_input, gan_jd],
             outputs=[suggestions_display, ats_bullets_display, improve_status],
         )
 
@@ -2191,7 +2215,7 @@ def create_app() -> gr.Blocks:
 
         gan_run_btn.click(
             fn=run_gan_audit,
-            inputs=[gan_pdf, gan_jd, pdf_input, improve_pdf],
+            inputs=[gan_pdf, gan_jd, pdf_input, improve_pdf, jd_input, improve_jd],
             outputs=[
                 gan_generator_display,
                 gan_discriminator_display,
@@ -2256,40 +2280,6 @@ def create_app() -> gr.Blocks:
                 rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
                 rb_output, rb_status,
             ],
-        )
-
-        # Synchronize PDF inputs across tabs on upload & clear
-        pdf_input.upload(
-            fn=lambda x: (x, x),
-            inputs=[pdf_input],
-            outputs=[improve_pdf, gan_pdf],
-        )
-        pdf_input.clear(
-            fn=lambda: (None, None),
-            inputs=[],
-            outputs=[improve_pdf, gan_pdf],
-        )
-
-        improve_pdf.upload(
-            fn=lambda x: (x, x),
-            inputs=[improve_pdf],
-            outputs=[pdf_input, gan_pdf],
-        )
-        improve_pdf.clear(
-            fn=lambda: (None, None),
-            inputs=[],
-            outputs=[pdf_input, gan_pdf],
-        )
-
-        gan_pdf.upload(
-            fn=lambda x: (x, x),
-            inputs=[gan_pdf],
-            outputs=[pdf_input, improve_pdf],
-        )
-        gan_pdf.clear(
-            fn=lambda: (None, None),
-            inputs=[],
-            outputs=[pdf_input, improve_pdf],
         )
 
         # ── Footer ────────────────────────────────────────────────────────
