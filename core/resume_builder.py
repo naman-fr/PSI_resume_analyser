@@ -16,6 +16,40 @@ from fpdf import FPDF
 logger = logging.getLogger(__name__)
 
 
+def sanitize_text(text: str) -> str:
+    """Replace common unicode characters with their Latin-1 / ASCII equivalents."""
+    if not text:
+        return ""
+    # Map common unicode quotes and bullet characters
+    replacements = {
+        "\u2022": "-",      # Bullet point
+        "\u2023": "-",      # Triangular bullet
+        "\u2043": "-",      # Hyphen bullet
+        "\u2011": "-",      # Non-breaking hyphen
+        "\u2013": "-",      # En-dash
+        "\u2014": "-",      # Em-dash
+        "\u2018": "'",      # Left single quote
+        "\u2019": "'",      # Right single quote
+        "\u201a": "'",      # Single low-9 quote
+        "\u201b": "'",      # Single high-reversed-9 quote
+        "\u201c": '"',      # Left double quote
+        "\u201d": '"',      # Right double quote
+        "\u201e": '"',      # Double low-9 quote
+        "\u201f": '"',      # Double high-reversed-9 quote
+        "\xa0": " ",        # Non-breaking space
+        "\u200b": "",       # Zero-width space
+    }
+    for orig, repl in replacements.items():
+        text = text.replace(orig, repl)
+        
+    # Final check: encode as latin-1, ignore characters that cannot be encoded
+    try:
+        text.encode('latin-1')
+        return text
+    except UnicodeEncodeError:
+        return text.encode('latin-1', errors='ignore').decode('latin-1')
+
+
 class ResumePDF(FPDF):
     """Custom FPDF class for generating ATS-optimized resumes."""
 
@@ -51,7 +85,7 @@ class ResumePDF(FPDF):
         self.set_font("Helvetica", "", 10)
         self.set_x(indent)
         # Bullet character
-        bullet = chr(8226)
+        bullet = "-"
         self.cell(5, 5, bullet)
         self.set_x(indent + 6)
         # Calculate available width
@@ -104,6 +138,53 @@ def generate_resume_pdf(
         Absolute path to the generated PDF, or None on failure.
     """
     try:
+        # Sanitize all incoming text fields to latin-1 / ASCII safe format
+        full_name = sanitize_text(full_name)
+        email = sanitize_text(email)
+        phone = sanitize_text(phone)
+        location = sanitize_text(location)
+        linkedin = sanitize_text(linkedin)
+        portfolio = sanitize_text(portfolio)
+        summary = sanitize_text(summary)
+        skills = sanitize_text(skills)
+        certifications = sanitize_text(certifications)
+
+        # Sanitize experience entries
+        sanitized_experience_entries = []
+        for entry in experience_entries:
+            if isinstance(entry, dict):
+                sanitized_experience_entries.append({
+                    "company": sanitize_text(entry.get("company", "")),
+                    "role": sanitize_text(entry.get("role", "")),
+                    "start_date": sanitize_text(entry.get("start_date", "")),
+                    "end_date": sanitize_text(entry.get("end_date", "")),
+                    "bullets": sanitize_text(entry.get("bullets", "")),
+                })
+        experience_entries = sanitized_experience_entries
+
+        # Sanitize education entries
+        sanitized_education_entries = []
+        for entry in education_entries:
+            if isinstance(entry, dict):
+                sanitized_education_entries.append({
+                    "degree": sanitize_text(entry.get("degree", "")),
+                    "institution": sanitize_text(entry.get("institution", "")),
+                    "year": sanitize_text(entry.get("year", "")),
+                    "gpa": sanitize_text(entry.get("gpa", "")),
+                })
+        education_entries = sanitized_education_entries
+
+        # Sanitize project entries
+        sanitized_projects = []
+        for proj in projects:
+            if isinstance(proj, dict):
+                sanitized_projects.append({
+                    "name": sanitize_text(proj.get("name", "")),
+                    "description": sanitize_text(proj.get("description", "")),
+                    "technologies": sanitize_text(proj.get("technologies", "")),
+                })
+        projects = sanitized_projects
+
         pdf = ResumePDF()
         pdf.add_page()
 
@@ -168,11 +249,11 @@ def generate_resume_pdf(
             for skill in skill_list:
                 row_items.append(skill)
                 if len(row_items) >= 5:
-                    pdf.cell(0, 5, "  •  ".join(row_items),
+                    pdf.cell(0, 5, "  |  ".join(row_items),
                              new_x="LMARGIN", new_y="NEXT")
                     row_items = []
             if row_items:
-                pdf.cell(0, 5, "  •  ".join(row_items),
+                pdf.cell(0, 5, "  |  ".join(row_items),
                          new_x="LMARGIN", new_y="NEXT")
             pdf.ln(2)
 

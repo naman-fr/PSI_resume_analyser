@@ -178,7 +178,7 @@ def get_game_html() -> str:
   </div>
 </div>
 
-<script>
+<script id="ats-game-script">
 (function() {
     let canvas, ctx, animationId;
     let score = 0;
@@ -203,10 +203,14 @@ def get_game_html() -> str:
         if (!canvas) return;
         ctx = canvas.getContext('2d');
         
-        // Handle high-density screens
+        // Handle high-density screens and layout sizing
         const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        let w = rect.width || canvas.offsetWidth || 400;
+        let h = rect.height || canvas.offsetHeight || 220;
+        if (w === 0) w = 400;
+        if (h === 0) h = 220;
+        canvas.width = w;
+        canvas.height = h;
         playerX = canvas.width / 2 - playerWidth / 2;
         
         // Track mouse and touch positions
@@ -422,6 +426,15 @@ def get_game_html() -> str:
     }
 })();
 </script>
+<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onload="
+    const oldScript = document.getElementById('ats-game-script');
+    if (oldScript && !window.atsGameLoaded) {
+        window.atsGameLoaded = true;
+        const newScript = document.createElement('script');
+        newScript.textContent = oldScript.textContent;
+        document.body.appendChild(newScript);
+    }
+" style="display:none;" />
 """
 
 # Built-in fallback sample JD if no files found
@@ -1918,6 +1931,40 @@ def create_app() -> gr.Blocks:
                         rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
                     ],
                     outputs=[rb_output, rb_status],
+                )
+
+                # Synchronize PDF inputs across tabs on upload & clear
+                pdf_input.upload(
+                    fn=lambda x: (x, x),
+                    inputs=[pdf_input],
+                    outputs=[improve_pdf, gan_pdf],
+                )
+                pdf_input.clear(
+                    fn=lambda: (None, None),
+                    inputs=[],
+                    outputs=[improve_pdf, gan_pdf],
+                )
+
+                improve_pdf.upload(
+                    fn=lambda x: (x, x),
+                    inputs=[improve_pdf],
+                    outputs=[pdf_input, gan_pdf],
+                )
+                improve_pdf.clear(
+                    fn=lambda: (None, None),
+                    inputs=[],
+                    outputs=[pdf_input, gan_pdf],
+                )
+
+                gan_pdf.upload(
+                    fn=lambda x: (x, x),
+                    inputs=[gan_pdf],
+                    outputs=[pdf_input, improve_pdf],
+                )
+                gan_pdf.clear(
+                    fn=lambda: (None, None),
+                    inputs=[],
+                    outputs=[pdf_input, improve_pdf],
                 )
 
             # ══════════════════════════════════════════════════════════════
