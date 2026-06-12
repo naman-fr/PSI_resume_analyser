@@ -1,0 +1,68 @@
+Job Title: Full Stack Developer - MERN Stack
+Company: ShopStream Commerce
+Location: Chicago, IL (Hybrid - 2 days in office)
+
+Job Description:
+ShopStream Commerce is a high-growth e-commerce technology company that provides a headless
+commerce platform enabling brands to build customized, high-performance online shopping experiences.
+Our platform powers over 500 direct-to-consumer brands and processes more than $2 billion in
+annual gross merchandise value (GMV). We integrate seamlessly with payment gateways, shipping
+providers, inventory management systems, and marketing automation tools to provide an end-to-end
+e-commerce solution.
+
+We are looking for a Full Stack Developer proficient in the MERN stack (MongoDB, Express.js,
+React, Node.js) to join our Storefront Engineering team. You will build and maintain the
+customer-facing storefront experiences that millions of shoppers interact with daily. This
+includes product pages, search and filtering functionality, shopping cart and checkout flows,
+and order tracking features. You will work across the entire stack, from designing MongoDB schemas
+to building responsive React components.
+
+This role is ideal for a developer who enjoys the variety of full-stack work and wants to see
+the direct impact of their code on business outcomes. You will be part of a collaborative team
+of 8 engineers that ships weekly and values code quality, performance, and developer experience.
+We offer a supportive environment where engineers are encouraged to experiment with new
+technologies and contribute to our open-source projects.
+
+Requirements:
+• 3-5 years of full-stack web development experience with the MERN stack
+• Strong proficiency in React.js including hooks, context API, and functional component patterns
+• Solid experience with Node.js and Express.js for building backend APIs and server-side logic
+• Hands-on experience with MongoDB including schema design, aggregation pipelines, and indexing strategies
+• Proficiency in JavaScript (ES6+) and TypeScript for both frontend and backend development
+• Experience with RESTful API design and implementation, including authentication (JWT, OAuth 2.0)
+• Familiarity with frontend build tools and bundlers (Webpack, Vite, or Turbopack)
+• Experience with Git version control and branching strategies (GitFlow or trunk-based development)
+• Understanding of responsive web design and cross-browser compatibility
+• Knowledge of web performance optimization techniques (lazy loading, code splitting, caching)
+• Bachelor's degree in Computer Science, Software Engineering, or equivalent experience
+
+Nice to Have:
+• Experience with e-commerce platforms (Shopify, Magento, BigCommerce) or headless commerce architecture
+• Familiarity with Redis for caching and session management
+• Experience with server-side rendering using Next.js
+• Knowledge of Elasticsearch or Algolia for search functionality
+• Experience with payment gateway integrations (Stripe, PayPal, Braintree)
+• Familiarity with containerization using Docker and orchestration with Kubernetes
+
+Responsibilities:
+• Develop and maintain full-stack features across the React frontend and Node.js/Express backend
+• Design and optimize MongoDB database schemas and queries for scalability and performance
+• Build responsive, accessible, and performant storefront UI components using React and TypeScript
+• Implement RESTful APIs for product catalog, cart management, checkout, and order processing
+• Integrate with third-party services including payment processors, shipping APIs, and analytics platforms
+• Write unit tests, integration tests, and end-to-end tests using Jest, React Testing Library, and Supertest
+• Optimize page load times and Core Web Vitals metrics to improve SEO and user experience
+• Participate in code reviews, pair programming, and technical design discussions
+• Debug and resolve production issues across the full stack, including database performance bottlenecks
+• Contribute to internal developer tools, shared libraries, and documentation
+• Collaborate with product managers and designers to estimate, plan, and deliver features in 2-week sprints
+• Monitor application health using logging and APM tools such as LogRocket, Sentry, and New Relic
+
+Benefits:
+• Salary range: $110,000 - $145,000 based on experience
+• Annual performance bonus up to 10% of base salary
+• Stock options with a 4-year vesting schedule
+• Health, dental, and vision insurance with employer covering 90% of premiums
+• 401(k) with 3% company match
+• 20 days of PTO plus 10 company holidays
+• Employee discount on all brands hosted on the ShopStream platform

@@ -1,0 +1,66 @@
+Job Title: Software Engineer - Python Backend
+Company: Nimbus Technologies Inc.
+Location: Austin, TX (Hybrid - 3 days in office)
+
+Job Description:
+Nimbus Technologies is a fast-growing Series B startup revolutionizing the way small and mid-sized
+businesses manage their supply chain operations. Our platform processes over 2 million transactions
+daily and serves more than 10,000 businesses across North America. We are backed by top-tier
+venture capital firms including Sequoia Capital and Andreessen Horowitz, and we are scaling rapidly
+to meet increasing demand.
+
+We are looking for a talented Mid-Level Python Backend Engineer to join our Core Platform team.
+In this role, you will design, build, and maintain the backend services that power our supply chain
+management platform. You will work closely with frontend engineers, data scientists, and product
+managers to deliver high-quality features that directly impact our customers' operations. Our tech
+stack is modern and developer-friendly, and we believe in giving engineers autonomy to make
+technical decisions.
+
+This is an exciting opportunity to work on challenging distributed systems problems at scale while
+being part of a collaborative, engineering-driven culture. You will have the chance to influence
+architecture decisions, mentor junior engineers, and contribute to the technical direction of the
+company as we grow from startup to scale-up.
+
+Requirements:
+• 3-5 years of professional software engineering experience with Python as the primary language
+• Strong experience with Django or FastAPI for building RESTful APIs and web services
+• Proficiency with PostgreSQL or similar relational databases, including query optimization and schema design
+• Experience with Docker for containerization and local development environments
+• Solid understanding of software design patterns, SOLID principles, and clean code practices
+• Experience with Git version control and collaborative development workflows (pull requests, code reviews)
+• Familiarity with message queues such as RabbitMQ, Kafka, or Redis Pub/Sub
+• Experience writing unit tests and integration tests using pytest or unittest
+• Bachelor's degree in Computer Science, Software Engineering, or a related field (or equivalent practical experience)
+• Strong problem-solving skills and the ability to debug complex distributed systems issues
+• Excellent written and verbal communication skills
+
+Nice to Have:
+• Experience with microservices architecture and service-oriented design
+• Familiarity with cloud platforms, especially AWS (EC2, S3, Lambda, RDS)
+• Knowledge of GraphQL or gRPC for API design
+• Experience with Celery for asynchronous task processing
+• Contributions to open-source Python projects
+• Prior experience working in a startup environment with fast iteration cycles
+
+Responsibilities:
+• Design, develop, and maintain Python backend services using Django and FastAPI frameworks
+• Build and optimize RESTful APIs that serve our web and mobile applications
+• Write efficient PostgreSQL queries and design database schemas to support new features
+• Collaborate with frontend engineers to define API contracts and ensure seamless integration
+• Participate in architecture discussions and contribute to technical design documents
+• Write comprehensive unit tests, integration tests, and end-to-end tests to ensure code quality
+• Conduct thorough code reviews for team members and provide constructive feedback
+• Monitor application performance using tools like Datadog and New Relic, and troubleshoot production issues
+• Participate in on-call rotations to ensure platform reliability and uptime
+• Contribute to CI/CD pipeline improvements and deployment automation
+• Mentor junior engineers through pair programming and knowledge-sharing sessions
+• Document technical decisions, API specifications, and system architecture
+
+Benefits:
+• Competitive salary range: $120,000 - $155,000 base, depending on experience
+• Equity package: 0.05% - 0.15% stock options with a 4-year vesting schedule
+• Comprehensive health, dental, and vision insurance (100% premium covered for employees)
+• 401(k) plan with 4% company match
+• Unlimited PTO policy with a minimum of 15 days encouraged per year
+• $2,000 annual learning and development budget for conferences, courses, and books
+• Home office setup stipend of $1,500 for new hires

@@ -1,0 +1,70 @@
+Job Title: Cybersecurity Analyst
+Company: Pinnacle National Bank
+Location: Charlotte, NC (On-site)
+
+Job Description:
+Pinnacle National Bank is one of the largest regional banks in the southeastern United States,
+with over $80 billion in total assets, 1,200 branch locations, and 15,000 employees. We serve
+millions of retail and commercial banking customers and are committed to maintaining the highest
+standards of security and trust. Our Information Security division is responsible for protecting
+customer data, financial systems, and digital banking infrastructure from an ever-evolving
+landscape of cyber threats.
+
+We are hiring a Cybersecurity Analyst to join our Security Operations Center (SOC). In this role,
+you will monitor, detect, analyze, and respond to cybersecurity threats targeting our banking
+infrastructure and customer-facing applications. You will work with enterprise-grade security
+tools including SIEM platforms, endpoint detection and response (EDR) solutions, and threat
+intelligence feeds to identify and mitigate security incidents in real time. This is a hands-on
+technical role that requires vigilance, analytical thinking, and the ability to act quickly under
+pressure.
+
+The ideal candidate has a solid foundation in cybersecurity principles, experience with security
+monitoring and incident response, and a strong understanding of the regulatory landscape in
+financial services. You will be part of a team of 12 security professionals and will report to
+the SOC Manager. This position requires working in rotating shifts to ensure 24/7 security
+coverage, including occasional nights and weekends.
+
+Requirements:
+• 3+ years of professional experience in cybersecurity, information security, or security operations
+• Hands-on experience with SIEM platforms such as Splunk, IBM QRadar, or Microsoft Sentinel
+• Strong knowledge of incident response procedures, including detection, containment, eradication, and recovery
+• Experience with endpoint detection and response (EDR) tools such as CrowdStrike Falcon, Carbon Black, or SentinelOne
+• Understanding of network security concepts including firewalls, IDS/IPS, VPNs, and network segmentation
+• Familiarity with common attack frameworks (MITRE ATT&CK) and threat intelligence analysis
+• Knowledge of regulatory compliance frameworks relevant to banking: PCI DSS, SOX, GLBA, FFIEC
+• Experience with vulnerability scanning tools such as Nessus, Qualys, or Rapid7
+• Strong understanding of TCP/IP networking, DNS, HTTP/HTTPS, and common network protocols
+• Bachelor's degree in Cybersecurity, Computer Science, Information Technology, or a related field
+• One or more professional certifications: CISSP, CompTIA Security+, CEH, GIAC (GSEC, GCIH, or GCIA)
+
+Nice to Have:
+• Experience working in a financial services or banking SOC environment
+• Familiarity with digital forensics tools and techniques (EnCase, FTK, Volatility)
+• Knowledge of cloud security in AWS, Azure, or GCP environments
+• Experience with security automation and orchestration (SOAR) platforms
+• Understanding of identity and access management (IAM) solutions and privileged access management
+• Experience with penetration testing or red team exercises
+
+Responsibilities:
+• Monitor security alerts and events from SIEM, EDR, and other security tools on a continuous basis
+• Investigate and triage security incidents, determining severity, scope, and root cause
+• Execute incident response playbooks for containment, eradication, and recovery of security incidents
+• Analyze network traffic, system logs, and endpoint telemetry to detect indicators of compromise (IoCs)
+• Conduct threat hunting activities to proactively identify advanced persistent threats (APTs) and insider threats
+• Maintain and tune SIEM correlation rules, alerts, and dashboards to reduce false positives
+• Produce detailed incident reports and post-incident reviews for management and compliance teams
+• Collaborate with IT operations, network engineering, and application teams on remediation efforts
+• Perform regular vulnerability assessments and coordinate patching activities with system administrators
+• Stay current with emerging cyber threats, vulnerabilities, and attack techniques through threat intelligence feeds
+• Support internal and external audits by providing security documentation and evidence
+• Participate in tabletop exercises and incident response drills to improve team readiness
+
+Benefits:
+• Salary range: $95,000 - $130,000 based on experience and certifications
+• Annual performance bonus of 8-15%
+• Comprehensive medical, dental, and vision insurance for employees and families
+• Pension plan with 7% employer contribution
+• 401(k) with 5% company match
+• 22 days of PTO plus 11 bank holidays
+• Tuition reimbursement up to $8,000 per year for relevant degree programs or certifications
+• Shift differential pay for evening and weekend rotations

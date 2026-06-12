@@ -1,0 +1,69 @@
+Job Title: Senior Frontend Developer - React
+Company: Meridian Financial Technologies
+Location: New York, NY (Hybrid - 2 days in office)
+
+Job Description:
+Meridian Financial Technologies is a leading fintech company that provides institutional-grade
+trading platforms and portfolio management tools to hedge funds, asset managers, and family offices
+worldwide. Our platform handles over $50 billion in assets under management and supports
+real-time trading across equities, fixed income, derivatives, and cryptocurrency markets. We are
+a profitable, rapidly growing company with over 300 employees and offices in New York, London,
+and Singapore.
+
+We are seeking an experienced Senior Frontend Developer to join our Trading Experience team. You
+will lead the development of our next-generation trading dashboard, a high-performance web
+application that enables traders to execute complex strategies with millisecond-level responsiveness.
+This role demands deep expertise in React, TypeScript, and modern frontend architecture, as well
+as a passion for building performant, accessible, and visually polished user interfaces in a
+data-intensive domain.
+
+As a senior member of the team, you will be expected to set technical standards, drive architectural
+decisions, and mentor mid-level and junior developers. You will collaborate closely with backend
+engineers, UX designers, quantitative analysts, and product stakeholders to deliver features that
+directly impact our clients' trading operations. This is a high-impact role where your work will
+be used daily by professional traders managing billions of dollars.
+
+Requirements:
+• 5+ years of professional frontend development experience with React and the modern JavaScript ecosystem
+• Expert-level proficiency in TypeScript, including advanced types, generics, and utility types
+• Strong experience with Next.js for server-side rendering, static generation, and API routes
+• Hands-on experience with GraphQL (Apollo Client or Relay) for data fetching and state management
+• Deep understanding of React performance optimization techniques (memoization, virtualization, code splitting)
+• Experience building complex, data-heavy UIs such as dashboards, tables, charts, and real-time feeds
+• Proficiency with modern CSS solutions including CSS Modules, Tailwind CSS, or styled-components
+• Strong experience with state management libraries (Redux Toolkit, Zustand, or Recoil)
+• Familiarity with testing frameworks such as Jest, React Testing Library, and Cypress
+• Experience with WebSocket connections for real-time data streaming
+• Bachelor's degree in Computer Science or equivalent professional experience
+• Excellent communication skills and experience working in cross-functional teams
+
+Nice to Have:
+• Experience in the fintech, trading, or financial services industry
+• Knowledge of data visualization libraries such as D3.js, Highcharts, or Recharts
+• Experience with micro-frontend architecture and module federation
+• Familiarity with accessibility standards (WCAG 2.1) and inclusive design principles
+• Understanding of financial instruments, market data feeds, and FIX protocol
+• Experience with design systems and component library development (Storybook)
+
+Responsibilities:
+• Lead the frontend architecture and development of our real-time trading dashboard application
+• Build reusable, well-documented React component libraries that follow our design system
+• Optimize application performance to achieve sub-100ms rendering for complex data grids and charts
+• Collaborate with UX designers to translate wireframes and prototypes into pixel-perfect implementations
+• Integrate with GraphQL APIs and WebSocket streams to display real-time market data and order updates
+• Write comprehensive unit tests, integration tests, and end-to-end tests to maintain high code quality
+• Conduct code reviews and establish frontend coding standards, best practices, and style guides
+• Mentor and coach junior and mid-level frontend developers on the team
+• Participate in sprint planning, backlog grooming, and retrospectives as part of the Agile development process
+• Evaluate and introduce new frontend tools, libraries, and technologies to improve developer productivity
+• Work with the DevOps team to optimize CI/CD pipelines for frontend builds and deployments
+• Contribute to technical documentation including architecture decision records (ADRs) and API integration guides
+
+Benefits:
+• Base salary range: $165,000 - $210,000, commensurate with experience and qualifications
+• Annual performance bonus: 15-25% of base salary
+• Restricted Stock Units (RSUs) with a 4-year vesting schedule
+• Comprehensive medical, dental, and vision insurance with low employee contributions
+• 401(k) with 6% company match, fully vested from day one
+• 25 days of paid time off plus 10 company holidays
+• Commuter benefits and subsidized gym membership

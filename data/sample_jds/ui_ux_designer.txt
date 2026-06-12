@@ -1,0 +1,71 @@
+Job Title: UI/UX Designer
+Company: Prism Digital Agency
+Location: Portland, OR (Hybrid - 3 days in office)
+
+Job Description:
+Prism Digital Agency is a full-service digital design and development agency that creates
+award-winning digital experiences for clients across technology, healthcare, education, and
+non-profit sectors. With a team of 80 creatives, strategists, and technologists, we have
+delivered over 300 successful projects for clients ranging from early-stage startups to
+established brands like REI, Providence Health, and the Bill & Melinda Gates Foundation.
+Our work has been recognized by Webby Awards, Awwwards, and Communication Arts.
+
+We are looking for a talented UI/UX Designer to join our Product Design team. You will work on
+a diverse portfolio of client projects, designing user interfaces and experiences for web
+applications, mobile apps, and e-commerce platforms. This role requires a strong foundation in
+user-centered design principles, proficiency with modern design tools, and the ability to
+translate complex requirements into intuitive, visually compelling interfaces. You will be
+involved in every stage of the design process, from initial research and discovery to final
+pixel-perfect handoff to development.
+
+The ideal candidate is a creative problem-solver who is equally comfortable conducting user
+research as they are crafting high-fidelity prototypes. You should have a strong visual design
+sensibility, an understanding of interaction design patterns, and a portfolio that demonstrates
+your ability to solve real user problems with thoughtful design. This is an excellent opportunity
+for a designer who thrives on variety and wants to work across multiple industries and project
+types.
+
+Requirements:
+• 3-5 years of professional UI/UX design experience, preferably at a digital agency or design consultancy
+• Expert proficiency with Figma for interface design, prototyping, and design system management
+• Strong portfolio demonstrating end-to-end design process from research and wireframes to high-fidelity mockups
+• Experience conducting user research methods including user interviews, surveys, usability testing, and card sorting
+• Deep understanding of user-centered design (UCD) principles, information architecture, and interaction design
+• Experience creating and maintaining scalable design systems and component libraries
+• Knowledge of accessibility standards (WCAG 2.1) and inclusive design practices
+• Understanding of responsive design principles across desktop, tablet, and mobile breakpoints
+• Ability to create interactive prototypes for user testing and stakeholder presentations
+• Strong visual design skills including typography, color theory, layout, and iconography
+• Excellent communication and presentation skills for client-facing interactions
+• Bachelor's degree in Graphic Design, Interaction Design, HCI, or a related field
+
+Nice to Have:
+• Experience with motion design and micro-interaction design using tools like Principle, After Effects, or Rive
+• Knowledge of front-end development basics (HTML, CSS, JavaScript) for better designer-developer collaboration
+• Experience with analytics tools (Hotjar, FullStory, Google Analytics) for data-informed design decisions
+• Familiarity with design thinking workshops and facilitation techniques
+• Experience designing for e-commerce, SaaS, or healthcare applications
+• Knowledge of A/B testing methodologies and conversion rate optimization (CRO)
+
+Responsibilities:
+• Lead the UI/UX design process for client projects from discovery and research through delivery and handoff
+• Conduct user research including interviews, competitive analysis, heuristic evaluations, and usability testing
+• Create user personas, journey maps, information architecture diagrams, and task flows
+• Design wireframes, user flows, and interactive prototypes using Figma
+• Develop high-fidelity visual designs that align with client brand guidelines and design best practices
+• Build and maintain design systems with reusable components, tokens, and documentation
+• Present design concepts and rationale to clients, incorporating feedback through iterative design cycles
+• Collaborate with frontend and backend developers to ensure accurate implementation of designs
+• Ensure all designs meet WCAG 2.1 accessibility standards and are inclusive for diverse user populations
+• Participate in design critiques and contribute to the team's collective design quality and knowledge
+• Stay current with design trends, tools, and best practices through continuous learning and industry engagement
+• Manage design deliverables across multiple concurrent projects while meeting deadlines and quality standards
+
+Benefits:
+• Salary range: $85,000 - $120,000 based on experience and portfolio strength
+• Annual performance bonus up to 10%
+• Health, dental, and vision insurance with employer covering 80% of premiums
+• 401(k) with 3% employer match
+• 20 days of PTO plus 10 company holidays and the week between Christmas and New Year off
+• $1,500 annual creative development stipend for design tools, courses, and conference attendance
+• Sabbatical program: 4 weeks of paid sabbatical after 5 years of continuous service

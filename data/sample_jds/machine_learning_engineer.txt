@@ -1,0 +1,69 @@
+Job Title: Machine Learning Engineer
+Company: Cortex AI Labs
+Location: San Francisco, CA (Remote-friendly within the US)
+
+Job Description:
+Cortex AI Labs is a cutting-edge artificial intelligence startup focused on building large
+language models (LLMs) and generative AI solutions for enterprise applications. Founded by
+former researchers from Google DeepMind and Meta AI, our team of 45 engineers and researchers
+is pushing the boundaries of what is possible with foundation models. We have raised $60 million
+in Series A funding and are working with Fortune 500 clients in legal, finance, and healthcare
+to deploy customized AI solutions that automate complex knowledge work.
+
+We are seeking a Machine Learning Engineer to join our Model Deployment and Infrastructure team.
+In this role, you will bridge the gap between research and production, taking state-of-the-art
+machine learning models developed by our research team and deploying them as scalable, reliable
+services that enterprise customers depend on. You will build and maintain the MLOps infrastructure
+that enables our team to train, evaluate, version, and serve models efficiently. This includes
+working with large language models, fine-tuning pipelines, and inference optimization.
+
+The ideal candidate has strong software engineering skills combined with deep ML knowledge. You
+should be comfortable working with GPU clusters, distributed training, model serving frameworks,
+and cloud infrastructure. You will work closely with research scientists, backend engineers, and
+product teams to ensure our models deliver exceptional performance in production environments.
+This is a high-impact role at a company that is at the forefront of the AI revolution.
+
+Requirements:
+• 3+ years of experience as a Machine Learning Engineer, ML Infrastructure Engineer, or Applied Scientist
+• Strong proficiency in Python and experience with ML frameworks (PyTorch, TensorFlow, JAX)
+• Hands-on experience with MLOps tools and practices: experiment tracking (MLflow, Weights & Biases), model versioning, and feature stores
+• Experience deploying ML models to production using serving frameworks (TorchServe, TensorFlow Serving, Triton Inference Server, or vLLM)
+• Familiarity with large language models (LLMs), transformer architectures, and fine-tuning techniques (LoRA, QLoRA, RLHF)
+• Experience with containerization (Docker) and orchestration (Kubernetes) for ML workloads
+• Knowledge of cloud platforms (AWS, GCP, or Azure) and GPU compute infrastructure
+• Strong software engineering fundamentals: data structures, algorithms, testing, and version control
+• Experience with distributed computing frameworks for model training (Horovod, DeepSpeed, or PyTorch FSDP)
+• Understanding of model optimization techniques: quantization, pruning, distillation, and ONNX export
+• Master's degree or PhD in Computer Science, Machine Learning, or a related field (or equivalent experience)
+
+Nice to Have:
+• Experience building Retrieval-Augmented Generation (RAG) systems and vector databases (Pinecone, Weaviate, Milvus)
+• Familiarity with prompt engineering and evaluation frameworks for LLMs
+• Experience with streaming inference and real-time ML serving at scale
+• Knowledge of data annotation pipelines and human-in-the-loop ML workflows
+• Publications at top ML conferences (NeurIPS, ICML, ICLR, ACL, EMNLP)
+• Experience with multi-modal models (text, image, audio)
+
+Responsibilities:
+• Deploy and serve machine learning models including LLMs in production with high availability and low latency
+• Build and maintain MLOps pipelines for model training, evaluation, versioning, and monitoring
+• Optimize model inference performance through quantization, batching, caching, and hardware-specific optimizations
+• Design and implement fine-tuning pipelines for customizing foundation models on client-specific datasets
+• Collaborate with research scientists to productionize new model architectures and training techniques
+• Build automated evaluation frameworks to measure model quality, safety, and performance across benchmarks
+• Manage GPU compute infrastructure and optimize resource utilization for training and inference workloads
+• Implement model monitoring and observability to detect data drift, performance degradation, and failure modes
+• Develop APIs and SDKs for internal and external consumption of ML model capabilities
+• Contribute to the design of our AI platform architecture, including RAG systems and agent frameworks
+• Write technical documentation for model deployment procedures, API specifications, and architecture decisions
+• Participate in on-call rotations for ML infrastructure and production model serving systems
+
+Benefits:
+• Salary range: $170,000 - $230,000 based on experience and qualifications
+• Significant equity package: 0.1% - 0.5% stock options with a 4-year vesting schedule
+• Comprehensive health, dental, and vision insurance (employee + dependents covered)
+• Unlimited PTO with a minimum of 20 days strongly encouraged
+• $5,000 annual conference and learning budget for ML conferences, courses, and research
+• $3,000 home office setup stipend
+• Weekly team lunches and monthly company-wide events
+• Visa sponsorship available for exceptional candidates

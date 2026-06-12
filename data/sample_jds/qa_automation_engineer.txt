@@ -1,0 +1,71 @@
+Job Title: QA Automation Engineer
+Company: Lumenwork SaaS Solutions
+Location: Denver, CO (Remote-first)
+
+Job Description:
+Lumenwork SaaS Solutions provides a cloud-based workforce management platform used by over
+2,000 mid-market and enterprise companies to manage employee scheduling, time tracking, payroll
+integration, and compliance reporting. Our platform serves industries including healthcare,
+hospitality, retail, and manufacturing, handling the scheduling needs of over 5 million workers.
+We are a profitable, bootstrapped company with 200 employees and a strong culture of engineering
+excellence and quality.
+
+We are looking for a QA Automation Engineer to join our Quality Engineering team and help us
+build and scale our automated testing infrastructure. In this role, you will design, develop,
+and maintain automated test suites across our web application, REST APIs, and backend services.
+You will work closely with development teams to embed quality practices into every stage of the
+software development lifecycle, from feature design through production deployment. Our goal is
+to achieve comprehensive automated test coverage that enables confident, rapid releases.
+
+The ideal candidate has deep experience with test automation frameworks, a strong understanding
+of software testing principles, and the ability to think critically about edge cases and failure
+modes. You should be comfortable writing code in Python or JavaScript, working with CI/CD
+pipelines, and advocating for quality best practices across the engineering organization. This
+role offers the opportunity to shape our testing strategy and have a direct impact on the
+reliability and quality of our product.
+
+Requirements:
+• 3-5 years of professional experience in QA engineering with a strong focus on test automation
+• Proficiency with Selenium WebDriver or Playwright for web UI test automation
+• Experience with Cypress for end-to-end testing of modern web applications
+• Strong programming skills in Python (pytest) or JavaScript/TypeScript for writing test scripts and frameworks
+• Experience with API testing using tools such as Postman, REST Assured, or requests library
+• Hands-on experience integrating automated tests into CI/CD pipelines (Jenkins, GitHub Actions, GitLab CI, or CircleCI)
+• Solid understanding of software testing methodologies: functional, regression, integration, performance, and smoke testing
+• Experience with test management tools such as TestRail, Zephyr, or Xray
+• Knowledge of version control systems (Git) and collaborative development workflows
+• Strong analytical and problem-solving skills with attention to detail
+• Excellent communication skills for reporting bugs, test results, and quality metrics to stakeholders
+• Bachelor's degree in Computer Science, Software Engineering, or a related field
+
+Nice to Have:
+• Experience with performance testing tools such as JMeter, k6, or Locust
+• Knowledge of mobile testing frameworks (Appium, XCUITest, Espresso)
+• Experience with contract testing using Pact or similar frameworks
+• Familiarity with Docker and Kubernetes for managing test environments
+• ISTQB certification (Foundation or Advanced level)
+• Experience with behavior-driven development (BDD) using Cucumber or Behave
+
+Responsibilities:
+• Design, develop, and maintain automated test suites for web UI, APIs, and backend services
+• Create and execute comprehensive test plans and test cases for new features and regression testing
+• Integrate automated tests into CI/CD pipelines to enable continuous testing on every code commit
+• Identify, document, and track bugs with clear reproduction steps, severity, and expected vs. actual behavior
+• Collaborate with developers during feature development to define testability requirements and acceptance criteria
+• Develop and maintain test data management strategies and test environment configurations
+• Perform manual exploratory testing for complex features and edge cases that are difficult to automate
+• Create and maintain API test suites to validate endpoint functionality, error handling, and data integrity
+• Monitor test execution results, analyze flaky tests, and improve test reliability and stability
+• Generate and present quality metrics and test coverage reports to engineering leadership
+• Participate in sprint planning and backlog grooming to estimate testing effort for upcoming features
+• Contribute to the team's QA best practices, testing standards, and knowledge base documentation
+
+Benefits:
+• Salary range: $100,000 - $140,000 based on experience
+• Annual performance bonus of 8-12%
+• Health, dental, and vision insurance with employer covering 85% of premiums
+• 401(k) with 4% company match
+• Remote work stipend of $100 per month for internet and home office expenses
+• 4 weeks of PTO plus 10 company holidays
+• $2,000 annual professional development budget for certifications, courses, and conferences
+• Quarterly company retreats at various locations across the US

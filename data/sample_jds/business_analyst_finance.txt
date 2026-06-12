@@ -1,0 +1,69 @@
+Job Title: Business Analyst - Financial Services
+Company: Hargrove & Associates Investment Bank
+Location: New York, NY (On-site, 5 days per week)
+
+Job Description:
+Hargrove & Associates is a mid-tier investment bank with a distinguished 35-year history in
+mergers and acquisitions, equity capital markets, and debt advisory services. Headquartered in
+Manhattan with offices in London, Hong Kong, and Dubai, we advise corporate clients, private
+equity firms, and sovereign wealth funds on transactions ranging from $50 million to $5 billion.
+Our firm manages approximately $15 billion in client assets and has been recognized as one of
+the top 25 investment banks globally by Institutional Investor.
+
+We are seeking a Business Analyst to join our Strategy and Operations team within the Investment
+Banking Division. In this role, you will support senior bankers and managing directors by
+conducting financial analysis, building models, preparing client presentations, and generating
+data-driven insights that inform strategic decisions. You will work across multiple deal teams
+and functional areas, gaining broad exposure to the investment banking business and developing
+a strong foundation in financial services.
+
+This role is ideal for a detail-oriented, analytically rigorous professional who thrives in a
+fast-paced, high-stakes environment. You will interact regularly with senior stakeholders,
+so strong communication and presentation skills are essential. The position offers excellent
+opportunities for career advancement, with a clear path to Senior Analyst and Associate roles
+based on performance. We value intellectual curiosity, work ethic, and a commitment to excellence.
+
+Requirements:
+• 2-4 years of experience as a Business Analyst, Financial Analyst, or similar role in financial services
+• Advanced proficiency in Microsoft Excel including complex financial modeling, pivot tables, VBA macros, and data analysis
+• Strong SQL skills for querying databases and extracting data from internal and third-party data sources
+• Experience with data visualization and business intelligence tools, preferably Tableau or Power BI
+• Solid understanding of financial statements (income statement, balance sheet, cash flow) and key financial metrics
+• Experience creating polished executive presentations and client deliverables using Microsoft PowerPoint
+• Strong quantitative and analytical skills with attention to detail and accuracy
+• Knowledge of valuation methodologies including DCF, comparable company analysis, and precedent transactions
+• Excellent written and verbal communication skills for stakeholder presentations and report writing
+• Bachelor's degree in Finance, Economics, Accounting, Business Administration, or a related field
+• Ability to manage multiple workstreams simultaneously and deliver under tight deadlines
+
+Nice to Have:
+• CFA Level I or II candidate, or completion of the CFA program
+• Experience with Bloomberg Terminal, Capital IQ, FactSet, or PitchBook for financial data research
+• Knowledge of Python or R for data analysis and automation of recurring analytical workflows
+• MBA or master's degree in a quantitative or business discipline
+• Prior experience in investment banking, private equity, or management consulting
+• Familiarity with regulatory reporting requirements (SEC filings, Basel III, Dodd-Frank)
+
+Responsibilities:
+• Build and maintain detailed financial models including DCF, LBO, merger, and accretion/dilution analyses
+• Prepare client-ready pitch books, information memoranda, and management presentations using PowerPoint
+• Conduct industry research and competitive analysis to support deal origination and client advisory engagements
+• Extract, clean, and analyze data from internal databases, Bloomberg, Capital IQ, and other financial data providers
+• Create and maintain Tableau dashboards to track deal pipeline, revenue metrics, and operational KPIs
+• Support due diligence processes by compiling and analyzing financial and operational data for potential transactions
+• Collaborate with deal teams across M&A, equity capital markets, and debt advisory on active transactions
+• Automate recurring reporting workflows using Excel VBA and SQL to improve efficiency and reduce manual effort
+• Present analytical findings and recommendations to senior bankers and managing directors
+• Monitor market trends, economic indicators, and regulatory developments relevant to client sectors
+• Maintain and update the firm's internal deal database and CRM system with accurate transaction information
+• Assist in the preparation of quarterly business reviews and strategic planning materials for senior leadership
+
+Benefits:
+• Base salary range: $90,000 - $130,000 depending on experience and qualifications
+• Annual discretionary bonus of 20-50% of base salary based on individual and firm performance
+• Comprehensive health, dental, and vision insurance
+• 401(k) with 5% employer match
+• 20 days of PTO plus 10 bank holidays
+• Sponsorship for CFA exam fees and study materials
+• Subsidized commuter benefits and parking
+• Access to firm-sponsored networking events and industry conferences

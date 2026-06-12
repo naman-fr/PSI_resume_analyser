@@ -1,0 +1,72 @@
+Job Title: Technical Project Manager
+Company: Stratos Consulting Group
+Location: Washington, DC (Hybrid - 3 days in office, client site as needed)
+
+Job Description:
+Stratos Consulting Group is a technology consulting firm specializing in digital transformation,
+cloud migration, and custom software development for federal government agencies and large
+commercial enterprises. With over 600 consultants and offices in Washington DC, Atlanta, and
+Reston, Virginia, we have been delivering complex technology projects for over 15 years. Our
+clients include the Department of Defense, Department of Homeland Security, NASA, and Fortune
+500 companies in the defense, healthcare, and financial services sectors.
+
+We are seeking an experienced Technical Project Manager to lead complex, multi-workstream
+technology projects for our government and commercial clients. In this role, you will be
+responsible for the end-to-end management of software development and infrastructure projects,
+from initial scoping and planning through delivery and post-deployment support. You will
+manage cross-functional teams of 10-25 engineers, designers, and analysts, ensuring projects
+are delivered on time, within budget, and to the highest quality standards.
+
+The ideal candidate has a proven track record of managing technical projects in a consulting
+or professional services environment. You should be deeply familiar with Agile and Scrum
+methodologies, have excellent stakeholder management skills, and be comfortable navigating
+the complexities of government contracting or large enterprise engagements. This role requires
+a blend of technical understanding, leadership ability, and business acumen. Strong candidates
+will have PMP or CSM certification and experience managing projects with budgets exceeding
+$2 million.
+
+Requirements:
+• 5-8 years of experience managing technology projects, preferably in a consulting or professional services firm
+• Deep expertise in Agile/Scrum methodologies, including experience as a Scrum Master or Agile Coach
+• Proficiency with project management tools: JIRA, Confluence, Microsoft Project, or Smartsheet
+• Proven track record of delivering complex software development projects on time and within budget
+• Strong stakeholder management skills with experience interfacing with C-level executives and government officials
+• Experience managing project budgets, forecasts, resource allocation, and profitability
+• Understanding of software development lifecycle (SDLC) and ability to communicate effectively with technical teams
+• Experience managing distributed and cross-functional teams of 10+ people across multiple workstreams
+• PMP (Project Management Professional) or CSM (Certified Scrum Master) certification
+• Strong risk identification, mitigation planning, and issue resolution capabilities
+• Excellent written and verbal communication skills, including experience with executive-level reporting
+• Bachelor's degree in Computer Science, Engineering, Business, or a related field
+
+Nice to Have:
+• Experience with federal government contracting, including FAR/DFAR regulations and security clearances
+• SAFe (Scaled Agile Framework) certification or experience implementing SAFe in large organizations
+• Technical background in software development, cloud infrastructure, or data engineering
+• Experience with DevOps practices and CI/CD pipeline management
+• Knowledge of ITIL framework for IT service management
+• Active Secret or Top Secret security clearance (or ability to obtain one)
+
+Responsibilities:
+• Lead end-to-end project delivery for complex technology engagements from initiation through closure
+• Define project scope, objectives, deliverables, and success criteria in collaboration with clients and stakeholders
+• Develop and maintain detailed project plans, schedules, and work breakdown structures (WBS)
+• Facilitate Agile ceremonies including sprint planning, daily standups, sprint reviews, and retrospectives
+• Manage project budgets, track actuals vs. forecasts, and report financial status to leadership
+• Identify, assess, and mitigate project risks and issues, escalating to senior leadership when necessary
+• Coordinate cross-functional teams including developers, QA engineers, UX designers, and DevOps engineers
+• Serve as the primary point of contact for client stakeholders, maintaining regular communication and managing expectations
+• Prepare and deliver project status reports, dashboards, and executive briefings for internal and client leadership
+• Manage resource allocation and capacity planning across multiple concurrent projects
+• Ensure project deliverables meet quality standards through regular reviews and acceptance testing
+• Drive continuous improvement by conducting project retrospectives and implementing lessons learned
+
+Benefits:
+• Salary range: $120,000 - $165,000 depending on experience and certifications
+• Annual performance bonus of 10-20% based on project delivery and client satisfaction
+• Comprehensive health, dental, and vision insurance for employees and dependents
+• 401(k) with 5% employer match, fully vested after 2 years
+• 25 days of PTO plus 11 federal holidays
+• $4,000 annual professional development budget for certifications, training, and conferences
+• Company-paid PMP, CSM, and SAFe certification exams and renewal fees
+• Monthly cell phone and internet reimbursement

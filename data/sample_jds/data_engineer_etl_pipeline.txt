@@ -1,0 +1,69 @@
+Job Title: Data Engineer - ETL & Data Pipelines
+Company: TransGlobal Logistics Corp.
+Location: Dallas, TX (Hybrid - 3 days in office)
+
+Job Description:
+TransGlobal Logistics Corp. is one of the largest freight and supply chain management companies
+in North America, operating a network of over 500 distribution centers and managing the movement
+of goods for Fortune 500 retailers, manufacturers, and e-commerce companies. Our operations
+generate terabytes of data daily from GPS tracking, warehouse management systems, route
+optimization engines, and customer order platforms. Data is at the heart of our competitive
+advantage, enabling us to optimize delivery routes, predict demand, and reduce operational costs.
+
+We are seeking a Data Engineer to join our Enterprise Data Platform team. You will be responsible
+for designing, building, and maintaining the data pipelines and infrastructure that power our
+analytics, reporting, and machine learning capabilities. You will work with massive datasets
+from diverse sources including IoT sensors, transactional databases, third-party APIs, and
+streaming event platforms. Your work will directly impact decisions made by operations managers,
+route planners, and executive leadership across the organization.
+
+The ideal candidate has strong experience with modern data engineering tools and practices,
+including batch and streaming ETL pipelines, cloud data warehouses, and data orchestration
+frameworks. You should be comfortable working with both structured and semi-structured data,
+and you should have a passion for building reliable, scalable data systems. This role offers
+the opportunity to work on high-impact data problems in an industry undergoing rapid digital
+transformation.
+
+Requirements:
+• 4+ years of professional experience as a Data Engineer, Analytics Engineer, or similar data-focused role
+• Strong proficiency in Python and SQL for data processing, transformation, and pipeline development
+• Hands-on experience with Apache Spark (PySpark or Spark SQL) for large-scale data processing
+• Experience with Apache Airflow or similar workflow orchestration tools (Prefect, Dagster, Luigi)
+• Proficiency with Snowflake, BigQuery, or Redshift for cloud data warehousing
+• Experience with dbt (data build tool) for data transformation and modeling
+• Knowledge of data modeling concepts including star schema, snowflake schema, and data vault methodology
+• Experience with cloud platforms (AWS, GCP, or Azure) and related data services (S3, Glue, Kinesis, Pub/Sub)
+• Familiarity with version control (Git) and CI/CD for data pipelines
+• Understanding of data quality frameworks and data governance best practices
+• Bachelor's degree in Computer Science, Data Engineering, Information Systems, or a related field
+
+Nice to Have:
+• Experience with real-time streaming data using Apache Kafka, AWS Kinesis, or Google Pub/Sub
+• Knowledge of Delta Lake, Apache Iceberg, or Apache Hudi for lakehouse architecture
+• Familiarity with containerization (Docker) and orchestration (Kubernetes) for data workloads
+• Experience with data cataloging and metadata management tools (Alation, Collibra, DataHub)
+• Understanding of logistics, supply chain, or transportation industry data
+• Experience with Great Expectations or similar data quality testing frameworks
+
+Responsibilities:
+• Design, build, and maintain scalable ETL/ELT pipelines using Python, Spark, and Airflow
+• Develop and optimize data models in Snowflake using dbt for analytics and reporting use cases
+• Ingest data from diverse sources including relational databases, REST APIs, flat files, and streaming platforms
+• Implement data quality checks and monitoring to ensure accuracy, completeness, and timeliness of data
+• Collaborate with data scientists and analysts to understand data requirements and deliver reliable datasets
+• Build and maintain data lake and data warehouse infrastructure on AWS (S3, Glue, Athena, Redshift)
+• Optimize query performance and storage costs in the cloud data warehouse through partitioning, clustering, and materialized views
+• Create and maintain documentation for data pipelines, schemas, and data dictionaries
+• Participate in data governance initiatives including data cataloging, lineage tracking, and access control
+• Troubleshoot and resolve data pipeline failures, ensuring SLAs for data freshness are consistently met
+• Support the migration of legacy data systems to modern cloud-native architectures
+• Mentor junior data engineers and conduct code reviews for data pipeline code
+
+Benefits:
+• Salary range: $125,000 - $165,000 depending on experience
+• Annual performance bonus of 10-15%
+• Comprehensive health, dental, and vision insurance
+• 401(k) with 5% employer match, vested immediately
+• 3 weeks of PTO plus 10 company holidays
+• Relocation assistance for candidates moving to the Dallas metro area
+• Professional development budget of $3,000 per year for certifications and conferences

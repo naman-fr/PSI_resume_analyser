@@ -1,0 +1,66 @@
+Job Title: Data Scientist - Machine Learning
+Company: Veridian Health Analytics
+Location: Boston, MA (Hybrid - 3 days in office)
+
+Job Description:
+Veridian Health Analytics is a healthcare technology company dedicated to improving patient outcomes
+through advanced data science and machine learning. We partner with leading hospital systems,
+pharmaceutical companies, and health insurance providers to build predictive models that identify
+at-risk patients, optimize treatment plans, and reduce healthcare costs. Our platform currently
+serves over 40 million patient records across 200+ healthcare facilities in the United States.
+
+We are looking for a Data Scientist with a strong machine learning background to join our Clinical
+Insights team. In this role, you will develop and deploy predictive models that power clinical
+decision support tools used by doctors and nurses at the point of care. You will work with
+large-scale electronic health record (EHR) data, claims data, and genomic data to uncover
+patterns that lead to better patient outcomes. Our team operates at the intersection of
+cutting-edge AI research and real-world clinical impact.
+
+The ideal candidate combines strong statistical foundations with practical machine learning
+engineering skills. You should be comfortable working with messy, real-world healthcare data,
+navigating regulatory requirements such as HIPAA, and communicating complex technical findings
+to non-technical stakeholders including clinicians and hospital administrators. This role offers
+the rare opportunity to apply your data science expertise to problems that genuinely save lives.
+
+Requirements:
+• 3+ years of professional experience as a Data Scientist, Machine Learning Engineer, or similar role
+• Strong proficiency in Python for data analysis and machine learning (NumPy, pandas, scikit-learn)
+• Hands-on experience with deep learning frameworks such as TensorFlow or PyTorch
+• Solid foundation in statistics, probability, and experimental design (A/B testing, hypothesis testing)
+• Proficiency in SQL for querying large datasets from relational databases and data warehouses
+• Experience with the full machine learning lifecycle: data collection, feature engineering, model training, evaluation, and deployment
+• Familiarity with data visualization tools and libraries (Matplotlib, Seaborn, Plotly, or Tableau)
+• Experience working with large-scale, structured and unstructured datasets (1M+ records)
+• Master's degree or PhD in Computer Science, Statistics, Mathematics, Biostatistics, or a related quantitative field
+• Strong communication skills with the ability to present findings to both technical and non-technical audiences
+• Understanding of model interpretability and explainability techniques (SHAP, LIME)
+
+Nice to Have:
+• Experience working with healthcare data such as EHR, claims, or clinical trial data
+• Knowledge of HIPAA regulations and data privacy best practices in healthcare
+• Experience with natural language processing (NLP) for clinical text mining
+• Familiarity with cloud-based ML platforms (AWS SageMaker, Google Vertex AI, or Azure ML)
+• Publications in peer-reviewed journals or presentations at ML/AI conferences
+• Experience with time-series analysis and survival analysis methods
+
+Responsibilities:
+• Develop and validate predictive models for clinical risk stratification and patient outcome prediction
+• Perform exploratory data analysis on large-scale healthcare datasets to identify trends and insights
+• Engineer features from raw EHR data, claims data, and laboratory results for model development
+• Collaborate with clinical advisors and domain experts to ensure models are clinically relevant and actionable
+• Design and conduct A/B tests and statistical experiments to measure the impact of model-driven interventions
+• Build automated data pipelines for model training, validation, and monitoring using Python and SQL
+• Present research findings and model performance metrics to stakeholders through reports and presentations
+• Ensure all data handling and model development complies with HIPAA and other healthcare regulations
+• Contribute to the team's research agenda by staying current with the latest ML and healthcare AI literature
+• Work with ML engineers to deploy models into production systems and monitor their real-world performance
+• Document methodologies, assumptions, and results in technical reports and internal knowledge bases
+
+Benefits:
+• Salary range: $130,000 - $170,000 based on experience and qualifications
+• Annual performance bonus of 10-20% based on individual and company performance
+• Comprehensive health insurance including medical, dental, vision, and mental health coverage
+• 401(k) retirement plan with 5% employer match
+• 20 days PTO plus 12 company holidays and 5 sick days
+• Tuition reimbursement program up to $10,000 per year for continuing education
+• Flexible work schedule with the option to work remotely 2 days per week

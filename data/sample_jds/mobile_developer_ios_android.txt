@@ -1,0 +1,68 @@
+Job Title: Mobile Developer - iOS & Android
+Company: VibeCheck Social Inc.
+Location: Los Angeles, CA (Hybrid - 2 days in office)
+
+Job Description:
+VibeCheck Social is a fast-growing consumer social media company that connects people through
+short-form video content and real-time interactive experiences. Our flagship app has over 25
+million monthly active users and is consistently ranked among the top 50 social networking apps
+on both the App Store and Google Play. We have raised $120 million in funding to date and are
+backed by premier investors including Benchmark, Lightspeed Venture Partners, and SV Angel.
+
+We are looking for a talented Mobile Developer to join our Core Experience team. You will work
+on building and enhancing the features that millions of users interact with daily, including
+video creation tools, real-time messaging, social feeds, push notifications, and in-app
+purchases. This role requires experience with both iOS (Swift) and Android (Kotlin) development,
+as well as cross-platform frameworks like Flutter. You should be passionate about mobile user
+experiences and motivated by building products that people love.
+
+As part of a team of 10 mobile engineers, you will collaborate closely with backend engineers,
+product designers, data scientists, and content moderation specialists. We operate in a
+fast-paced, experiment-driven culture where we ship multiple app updates per week and
+continuously optimize based on user data. The ideal candidate is someone who takes pride in
+writing clean, performant code and is excited about the unique challenges of building a social
+platform at scale.
+
+Requirements:
+• 3+ years of professional mobile development experience shipping consumer-facing applications
+• Proficiency in Swift for native iOS development, including UIKit and SwiftUI
+• Proficiency in Kotlin for native Android development, including Jetpack Compose and Android Architecture Components
+• Experience with Flutter or React Native for cross-platform mobile development
+• Strong understanding of mobile app architecture patterns (MVVM, MVI, Clean Architecture)
+• Experience with RESTful APIs and real-time communication protocols (WebSockets, MQTT)
+• Familiarity with mobile CI/CD pipelines and automated testing frameworks (XCTest, Espresso, Appium)
+• Experience with app store submission processes for both Apple App Store and Google Play Store
+• Understanding of mobile performance optimization including memory management, battery consumption, and network efficiency
+• Knowledge of mobile analytics and crash reporting tools (Firebase, Crashlytics, Mixpanel)
+• Bachelor's degree in Computer Science, Software Engineering, or equivalent experience
+
+Nice to Have:
+• Experience with video processing, encoding, and playback on mobile (AVFoundation, ExoPlayer)
+• Knowledge of augmented reality frameworks (ARKit, ARCore) or camera SDKs
+• Experience with push notification services (APNs, FCM) and deep linking
+• Familiarity with in-app purchase and subscription management (StoreKit, Google Play Billing)
+• Experience with accessibility features and inclusive mobile design
+• Knowledge of GraphQL for mobile API consumption
+
+Responsibilities:
+• Design, develop, and ship new features for our iOS and Android applications
+• Build smooth, performant UI components using SwiftUI, Jetpack Compose, and Flutter widgets
+• Integrate mobile apps with backend services through RESTful APIs and WebSocket connections
+• Optimize app performance including startup time, frame rate, memory usage, and network requests
+• Write unit tests, UI tests, and integration tests to maintain high code quality and prevent regressions
+• Collaborate with UX designers to implement pixel-perfect designs and micro-interactions
+• Participate in A/B testing and feature flagging to validate new features with user segments
+• Monitor app health using crash reporting and analytics dashboards, and address top crashers promptly
+• Manage app releases through TestFlight (iOS) and Google Play Beta tracks for staged rollouts
+• Contribute to shared mobile libraries and SDKs used across multiple apps and features
+• Stay current with the latest iOS and Android platform updates, APIs, and design guidelines
+• Participate in code reviews, architecture discussions, and sprint planning ceremonies
+
+Benefits:
+• Salary range: $125,000 - $165,000 based on experience
+• Equity package: stock options with a 4-year vesting schedule
+• Health, dental, and vision insurance fully covered for employees
+• Unlimited PTO with a minimum of 15 days encouraged per year
+• $2,500 annual learning and development budget
+• Free lunch 3 days per week and fully stocked kitchen
+• Dog-friendly office with rooftop terrace in downtown LA

@@ -1,0 +1,74 @@
+Job Title: Cloud Solutions Architect
+Company: Vanguard Industrial Technologies
+Location: Houston, TX (Hybrid - 3 days in office, travel up to 15%)
+
+Job Description:
+Vanguard Industrial Technologies is a Fortune 500 diversified industrial conglomerate with
+annual revenues exceeding $35 billion. We operate across four major business segments: energy
+infrastructure, advanced manufacturing, aerospace components, and industrial automation. With
+over 80,000 employees in 45 countries, we are a global leader in industrial innovation. Our
+IT organization is undergoing a multi-year digital transformation initiative to modernize our
+technology landscape, migrate to the cloud, and enable data-driven decision making across all
+business segments.
+
+We are seeking a Cloud Solutions Architect to join our Enterprise Architecture team within our
+Corporate IT division. In this senior-level role, you will be responsible for designing
+enterprise-grade cloud architectures that support our business-critical applications, data
+platforms, and digital transformation initiatives. You will work across all three major cloud
+providers (AWS, Azure, and GCP) and will be expected to make strategic recommendations on cloud
+adoption, migration strategies, and multi-cloud governance. Your designs must meet stringent
+requirements for scalability, reliability, security, and regulatory compliance.
+
+This is a highly visible, strategic role where you will collaborate with business unit CIOs,
+VP-level stakeholders, application development teams, cybersecurity, and vendor partners. The
+ideal candidate has broad and deep experience in cloud architecture, a strong understanding of
+enterprise systems integration, and the ability to translate complex technical concepts into
+business-friendly language. You should be a thought leader who can influence technology strategy
+at the highest levels of the organization while also being hands-on enough to create detailed
+architecture diagrams and proof-of-concept implementations.
+
+Requirements:
+• 8+ years of experience in IT architecture, with at least 5 years focused on cloud solutions architecture
+• Expert-level knowledge of at least one major cloud platform (AWS, Azure, or GCP) with working knowledge of the other two
+• Strong experience designing microservices architectures using containers, Kubernetes, and serverless technologies
+• Deep understanding of system design principles: scalability, high availability, fault tolerance, and disaster recovery
+• Experience with cloud migration strategies (6 Rs: rehost, replatform, refactor, repurchase, retire, retain)
+• Knowledge of enterprise integration patterns, API management (Apigee, Kong, AWS API Gateway), and event-driven architectures
+• Experience with infrastructure as code (Terraform, CloudFormation, Bicep) and GitOps practices
+• Strong understanding of cloud security architecture: identity federation, zero-trust networking, encryption, and compliance
+• Experience with data architecture including data lakes, data warehouses, streaming platforms, and analytics solutions
+• Excellent communication and presentation skills for engaging with executive stakeholders and technical teams
+• Relevant cloud certifications: AWS Solutions Architect Professional, Azure Solutions Architect Expert, or GCP Professional Cloud Architect
+• Bachelor's degree in Computer Science, Engineering, or a related field; Master's degree preferred
+
+Nice to Have:
+• Experience in industrial, energy, manufacturing, or aerospace sectors
+• Knowledge of OT (Operational Technology) and IoT architecture for industrial applications
+• Experience with SAP integration and migration to cloud (SAP on AWS, Azure, or GCP)
+• TOGAF or Zachman enterprise architecture framework certification
+• Experience with FinOps practices and cloud cost optimization at enterprise scale
+• Knowledge of compliance frameworks: SOX, ITAR, NIST 800-53, FedRAMP
+
+Responsibilities:
+• Design enterprise-grade cloud architectures for business-critical applications and data platforms across AWS, Azure, and GCP
+• Lead cloud migration initiatives, defining target-state architectures and migration roadmaps for legacy systems
+• Create detailed architecture documents including solution designs, sequence diagrams, data flow diagrams, and network topologies
+• Evaluate and recommend cloud services, tools, and technologies that align with enterprise standards and business requirements
+• Establish and enforce cloud architecture governance standards, reference architectures, and design patterns
+• Conduct architecture reviews and provide guidance to application development teams on cloud-native design principles
+• Collaborate with cybersecurity teams to ensure cloud architectures comply with security policies and regulatory requirements
+• Develop proof-of-concept implementations to validate architectural decisions and demonstrate feasibility
+• Present architecture strategies and recommendations to business unit CIOs and VP-level stakeholders
+• Work with cloud vendors (AWS, Microsoft, Google) and system integrators on strategic technology partnerships
+• Mentor and coach junior architects and engineers on cloud architecture best practices
+• Drive cloud cost optimization by designing efficient architectures and implementing FinOps governance processes
+
+Benefits:
+• Salary range: $175,000 - $240,000 depending on experience and qualifications
+• Annual performance bonus of 15-25% tied to individual and business segment performance
+• Long-term incentive plan with restricted stock units (RSUs)
+• Comprehensive medical, dental, vision, and life insurance for employees and dependents
+• 401(k) with 6% employer match plus additional employer contribution of 3% of salary
+• 4 weeks of PTO plus 12 company holidays and 2 floating holidays
+• Executive health screening program
+• Relocation assistance package for candidates outside the Houston metro area

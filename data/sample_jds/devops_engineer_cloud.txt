@@ -1,0 +1,67 @@
+Job Title: DevOps Engineer - Cloud Infrastructure
+Company: Axiom Enterprise Solutions
+Location: Seattle, WA (Remote-friendly)
+
+Job Description:
+Axiom Enterprise Solutions is a global enterprise software company providing mission-critical
+ERP and CRM solutions to Fortune 1000 companies. With over 5,000 employees across 20 countries,
+we serve clients in manufacturing, retail, and financial services industries. Our cloud platform
+processes billions of API requests daily and maintains 99.99% uptime SLAs for our enterprise
+customers. We are in the midst of a large-scale cloud migration initiative, moving our legacy
+on-premise infrastructure to a fully cloud-native architecture on AWS.
+
+We are seeking a skilled DevOps Engineer to join our Cloud Infrastructure team. You will play a
+critical role in designing, building, and maintaining the cloud infrastructure that supports our
+SaaS platform serving thousands of enterprise clients. This position requires deep hands-on
+experience with AWS services, container orchestration with Kubernetes, infrastructure as code
+with Terraform, and CI/CD pipeline design and optimization.
+
+You will work in a fast-paced environment alongside software engineers, site reliability engineers,
+and security teams to ensure our infrastructure is scalable, resilient, and cost-efficient. The
+ideal candidate is someone who thrives on automation, has a strong security mindset, and is
+passionate about building reliable systems at scale. You will have significant influence over
+our infrastructure strategy and will be instrumental in shaping the future of our cloud platform.
+
+Requirements:
+• 4+ years of professional experience in DevOps, Cloud Engineering, or Site Reliability Engineering
+• Expert-level knowledge of AWS services including EC2, ECS, EKS, Lambda, S3, RDS, CloudFront, IAM, and VPC
+• Strong hands-on experience with Kubernetes for container orchestration (deployment, scaling, monitoring, troubleshooting)
+• Proficiency with Terraform for infrastructure as code (modules, workspaces, state management, drift detection)
+• Experience designing and maintaining CI/CD pipelines using tools such as Jenkins, GitLab CI, GitHub Actions, or CircleCI
+• Strong scripting skills in Bash, Python, or Go for automation tasks
+• Deep understanding of networking concepts including DNS, load balancing, VPNs, firewalls, and TLS/SSL
+• Experience with monitoring and observability tools such as Prometheus, Grafana, CloudWatch, or Datadog
+• Knowledge of security best practices including secrets management (Vault, AWS Secrets Manager), IAM policies, and network segmentation
+• Experience with configuration management tools such as Ansible, Chef, or Puppet
+• Bachelor's degree in Computer Science, Information Technology, or equivalent experience
+
+Nice to Have:
+• AWS certifications such as Solutions Architect Professional or DevOps Engineer Professional
+• Experience with service mesh technologies (Istio, Linkerd)
+• Knowledge of GitOps practices and tools (ArgoCD, Flux)
+• Experience with cost optimization strategies and FinOps principles
+• Familiarity with compliance frameworks such as SOC 2, ISO 27001, or PCI DSS
+• Experience with multi-region and disaster recovery architecture design
+
+Responsibilities:
+• Design, provision, and manage AWS cloud infrastructure using Terraform and CloudFormation
+• Build and maintain Kubernetes clusters for running containerized microservices at scale
+• Design and optimize CI/CD pipelines to enable fast, reliable, and secure software deployments
+• Implement infrastructure monitoring, alerting, and logging using Prometheus, Grafana, and ELK Stack
+• Automate operational tasks including server provisioning, configuration management, and secret rotation
+• Collaborate with development teams to containerize applications and define Kubernetes deployment manifests
+• Conduct capacity planning and implement auto-scaling strategies to handle variable workloads
+• Perform security hardening of cloud infrastructure and ensure compliance with SOC 2 and ISO 27001 standards
+• Manage DNS, CDN, load balancer, and SSL certificate configurations for production services
+• Participate in incident response and post-mortem processes to improve system reliability
+• Maintain documentation for infrastructure architecture, runbooks, and disaster recovery procedures
+• Evaluate and recommend new tools and technologies to improve infrastructure efficiency and developer experience
+
+Benefits:
+• Salary range: $140,000 - $185,000 depending on experience and location
+• Annual bonus of 10-15% tied to company and individual performance
+• Stock purchase plan with 15% discount on company shares
+• Full medical, dental, and vision coverage for employees and dependents
+• 401(k) with dollar-for-dollar match up to 6% of salary
+• 4 weeks of PTO plus 11 company holidays
+• $3,000 annual professional development budget for certifications and conferences

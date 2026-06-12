@@ -93,17 +93,336 @@ def validate_jd_text(text: str) -> Tuple[bool, str]:
 # ---------------------------------------------------------------------------
 
 
-def _list_sample_jds() -> Dict[str, str]:
-    """Discover sample JD files under data/sample_jds/."""
-    samples: Dict[str, str] = {}
+def _list_sample_jds_structured() -> Tuple[Dict[str, str], List[List[str]]]:
+    """Discover sample JD files under data/sample_jds/.
+    
+    Returns:
+        samples_dict: Dict mapping friendly label -> raw text
+        dataset_rows: List of rows [Index, Job Title, Company, Location, Filename]
+    """
+    samples_dict: Dict[str, str] = {}
+    dataset_rows: List[List[str]] = []
+    
     if SAMPLE_JD_DIR.is_dir():
-        for f in sorted(SAMPLE_JD_DIR.glob("*.txt")):
+        for i, f in enumerate(sorted(SAMPLE_JD_DIR.glob("*.txt")), 1):
+            text = f.read_text(encoding="utf-8")
             label = f.stem.replace("_", " ").title()
-            samples[label] = f.read_text(encoding="utf-8")
-    return samples
+            samples_dict[label] = text
+            
+            # Extract structured headers if present
+            title = label
+            company = "Enterprise"
+            location = "Hybrid/Remote"
+            
+            # Parse top lines
+            lines = text.split("\n")
+            for line in lines[:8]:
+                line_lower = line.lower()
+                if line_lower.startswith("job title:"):
+                    title = line.split(":", 1)[1].strip()
+                elif line_lower.startswith("company:"):
+                    company = line.split(":", 1)[1].strip()
+                elif line_lower.startswith("location:"):
+                    location = line.split(":", 1)[1].strip()
+            
+            dataset_rows.append([f"JD #{i}", title, company, location, f.name])
+            
+    return samples_dict, dataset_rows
 
 
-SAMPLE_JDS = _list_sample_jds()
+SAMPLE_JDS, JD_DATASET_ROWS = _list_sample_jds_structured()
+
+
+def load_jd_from_dataset(evt: gr.SelectData) -> str:
+    """Load the JD text based on the selected row in the dataframe."""
+    row_idx = evt.index[0]
+    if 0 <= row_idx < len(JD_DATASET_ROWS):
+        filename = JD_DATASET_ROWS[row_idx][4]  # Column 4 contains filename
+        file_path = SAMPLE_JD_DIR / filename
+        if file_path.exists():
+            return file_path.read_text(encoding="utf-8")
+    return ""
+
+
+def get_game_html() -> str:
+    """Return the HTML/CSS/JS for the ATS Skill Catcher mini-game."""
+    return r"""
+<div class="ats-game-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px; margin-top: 16px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+    <span style="font-weight: 700; color: #a78bfa; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+      🎮 ATS SKILL CATCHER MINI-GAME
+    </span>
+    <span id="game-status-text" style="font-size: 0.85rem; color: #94a3b8; font-style: italic;">Ready</span>
+  </div>
+  
+  <div style="position: relative; width: 100%; height: 220px; background: #0c081e; border-radius: 8px; overflow: hidden; border: 1px solid rgba(124, 58, 237, 0.25);">
+    <canvas id="ats-game-canvas" style="display: block; width: 100%; height: 100%;"></canvas>
+    
+    <!-- Game Overlay (Splash and End Screen) -->
+    <div id="game-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(12, 8, 30, 0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 16px; box-sizing: border-box; transition: all 0.3s;">
+      <h4 id="overlay-title" style="margin: 0 0 8px 0; color: #f8fafc; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em;">
+        Beat the Loading Time!
+      </h4>
+      <p id="overlay-desc" style="margin: 0 0 16px 0; color: #94a3b8; font-size: 0.85rem; max-width: 280px; line-height: 1.5;">
+        Audit takes ~20s. Slide the basket using your <strong>mouse or touch</strong> to catch good skills (green) and filter out buzzwords (red)!
+      </p>
+      <button id="start-game-btn" onclick="if(window.startATSGame) window.startATSGame();" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(124,58,237,0.3); transition: all 0.2s;">
+        Play Game
+      </button>
+    </div>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.9rem;">
+    <div>Score: <strong id="game-score-val" style="color: #34d399; font-size: 1rem;">0</strong></div>
+    <div>Time Left: <strong id="game-timer-val" style="color: #fbbf24; font-size: 1rem;">20s</strong></div>
+  </div>
+</div>
+
+<script>
+(function() {
+    let canvas, ctx, animationId;
+    let score = 0;
+    let timer = 20;
+    let timerInterval = null;
+    let gameRunning = false;
+    
+    // Player catcher
+    let playerX = 100;
+    const playerWidth = 80;
+    const playerHeight = 16;
+    
+    // Falling objects
+    let objects = [];
+    const goodSkills = ["Python", "React", "Docker", "Machine Learning", "SQL", "Git", "FastAPI", "Kubernetes", "AWS", "NoSQL", "CI/CD", "TypeScript"];
+    const badFlags = ["Synergy", "Results-driven", "Detail-oriented", "Team-player", "10+ years exp", "Fake Certs", "Hardworker", "Dynamic", "Self-starter"];
+    
+    let floatTexts = [];
+    
+    function initCanvas() {
+        canvas = document.getElementById('ats-game-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+        
+        // Handle high-density screens
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        playerX = canvas.width / 2 - playerWidth / 2;
+        
+        // Track mouse and touch positions
+        canvas.removeEventListener('mousemove', onMouseMove);
+        canvas.addEventListener('mousemove', onMouseMove);
+        canvas.removeEventListener('touchmove', onTouchMove);
+        canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    }
+    
+    function onMouseMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        playerX = mouseX - playerWidth / 2;
+        clampPlayer();
+    }
+    
+    function onTouchMove(e) {
+        if (e.touches.length > 0) {
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            playerX = touchX - playerWidth / 2;
+            clampPlayer();
+        }
+    }
+    
+    function clampPlayer() {
+        if (playerX < 0) playerX = 0;
+        if (playerX + playerWidth > canvas.width) playerX = canvas.width - playerWidth;
+    }
+    
+    function spawnObject() {
+        if (!gameRunning) return;
+        
+        const isGood = Math.random() > 0.45;
+        const text = isGood 
+            ? goodSkills[Math.floor(Math.random() * goodSkills.length)]
+            : badFlags[Math.floor(Math.random() * badFlags.length)];
+        
+        ctx.font = "bold 11px sans-serif";
+        const textWidth = ctx.measureText(text).width;
+        
+        objects.push({
+            x: Math.random() * (canvas.width - textWidth - 14) + 7,
+            y: -20,
+            text: text,
+            isGood: isGood,
+            speed: Math.random() * 1.5 + 1.2,
+            width: textWidth + 14,
+            height: 20
+        });
+        
+        // Schedule next spawn
+        setTimeout(spawnObject, Math.random() * 800 + 600);
+    }
+    
+    function updateGame() {
+        if (!gameRunning) return;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw space background
+        ctx.fillStyle = "#0c081e";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw catcher basket (glassmorphic gradient)
+        const grad = ctx.createLinearGradient(playerX, canvas.height - playerHeight - 10, playerX + playerWidth, canvas.height - 10);
+        grad.addColorStop(0, '#7c3aed');
+        grad.addColorStop(1, '#22d3ee');
+        ctx.fillStyle = grad;
+        
+        drawRoundedRect(ctx, playerX, canvas.height - playerHeight - 10, playerWidth, playerHeight, 5);
+        ctx.fill();
+        
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 9px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("ATS FILTER", playerX + playerWidth/2, canvas.height - playerHeight/2 - 6);
+        
+        // Update & draw falling objects
+        for (let i = objects.length - 1; i >= 0; i--) {
+            let obj = objects[i];
+            obj.y += obj.speed;
+            
+            // Collision detection
+            const catcherY = canvas.height - playerHeight - 10;
+            if (obj.y + obj.height >= catcherY && 
+                obj.y <= catcherY + playerHeight && 
+                obj.x + obj.width >= playerX && 
+                obj.x <= playerX + playerWidth) {
+                // Catch event
+                if (obj.isGood) {
+                    score += 10;
+                    showFloatText("+10 " + obj.text, obj.x + obj.width/2, catcherY, "#34d399");
+                } else {
+                    score = Math.max(0, score - 15);
+                    showFloatText("-15 BUZZWORD!", obj.x + obj.width/2, catcherY, "#ef4444");
+                }
+                document.getElementById('game-score-val').innerText = score;
+                objects.splice(i, 1);
+                continue;
+            }
+            
+            // Out of bounds
+            if (obj.y > canvas.height) {
+                objects.splice(i, 1);
+                continue;
+            }
+            
+            // Draw item badge
+            ctx.strokeStyle = obj.isGood ? "rgba(16,185,129,0.5)" : "rgba(239,68,68,0.5)";
+            ctx.fillStyle = obj.isGood ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.15)";
+            drawRoundedRect(ctx, obj.x, obj.y, obj.width, obj.height, 4);
+            ctx.fill();
+            ctx.stroke();
+            
+            ctx.fillStyle = obj.isGood ? "#34d399" : "#f87171";
+            ctx.font = "bold 10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(obj.text, obj.x + obj.width/2, obj.y + 14);
+        }
+        
+        // Update floating scores
+        updateFloatTexts();
+        
+        animationId = requestAnimationFrame(updateGame);
+    }
+    
+    function showFloatText(text, x, y, color) {
+        floatTexts.push({ text, x, y, color, alpha: 1, ySpeed: -1 });
+    }
+    
+    function updateFloatTexts() {
+        for (let i = floatTexts.length - 1; i >= 0; i--) {
+            let ft = floatTexts[i];
+            ft.y += ft.ySpeed;
+            ft.alpha -= 0.03;
+            if (ft.alpha <= 0) {
+                floatTexts.splice(i, 1);
+            } else {
+                ctx.fillStyle = ft.color;
+                ctx.globalAlpha = ft.alpha;
+                ctx.font = "bold 10px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.globalAlpha = 1;
+            }
+        }
+    }
+    
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+    
+    window.startATSGame = function() {
+        if (gameRunning) return;
+        initCanvas();
+        if (!canvas) return;
+        
+        score = 0;
+        timer = 20;
+        objects = [];
+        floatTexts = [];
+        gameRunning = true;
+        
+        document.getElementById('game-score-val').innerText = score;
+        document.getElementById('game-timer-val').innerText = timer + "s";
+        document.getElementById('game-status-text').innerText = "Processing Audit... Catch Skills!";
+        
+        const overlay = document.getElementById('game-overlay');
+        if (overlay) overlay.style.display = 'none';
+        
+        spawnObject();
+        updateGame();
+        
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timer--;
+            document.getElementById('game-timer-val').innerText = timer + "s";
+            if (timer <= 0) {
+                endATSGame();
+            }
+        }, 1000);
+    };
+    
+    function endATSGame() {
+        gameRunning = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        if (timerInterval) clearInterval(timerInterval);
+        
+        const overlay = document.getElementById('game-overlay');
+        const title = document.getElementById('overlay-title');
+        const desc = document.getElementById('overlay-desc');
+        const btn = document.getElementById('start-game-btn');
+        const statusText = document.getElementById('game-status-text');
+        
+        if (overlay) {
+            overlay.style.display = 'flex';
+            title.innerText = "Time's Up!";
+            desc.innerHTML = `You caught ATS skills and scored <strong style="color:#34d399;font-size:1.15rem;">\${score}</strong> points!<br>Still auditing demographic profiles...`;
+            btn.innerText = "Play Again";
+            statusText.innerText = "Game Paused";
+        }
+    }
+})();
+</script>
+"""
 
 # Built-in fallback sample JD if no files found
 DEFAULT_SAMPLE_JD = """\
@@ -631,6 +950,91 @@ def batch_analyze(
 
     return (ranked_rows, " ".join(status_parts))
 
+# ---------------------------------------------------------------------------
+# PDF Resume Builder Function
+# ---------------------------------------------------------------------------
+
+
+def build_resume_pdf(
+    full_name: str, email: str, phone: str, location: str,
+    linkedin: str, portfolio: str, summary: str, skills: str,
+    # Experience 1
+    exp1_company: str, exp1_role: str, exp1_start: str, exp1_end: str, exp1_bullets: str,
+    # Experience 2
+    exp2_company: str, exp2_role: str, exp2_start: str, exp2_end: str, exp2_bullets: str,
+    # Experience 3
+    exp3_company: str, exp3_role: str, exp3_start: str, exp3_end: str, exp3_bullets: str,
+    # Education 1
+    edu1_degree: str, edu1_institution: str, edu1_year: str, edu1_gpa: str,
+    # Education 2
+    edu2_degree: str, edu2_institution: str, edu2_year: str, edu2_gpa: str,
+    # Certifications
+    certifications: str,
+    # Project 1
+    proj1_name: str, proj1_desc: str, proj1_tech: str,
+    # Project 2
+    proj2_name: str, proj2_desc: str, proj2_tech: str,
+) -> Tuple[Any, str]:
+    """Build a PDF resume from structured inputs. Returns (file_path, status)."""
+    if not full_name or not full_name.strip():
+        return None, "⚠️ Please enter your full name."
+
+    # Assemble experience entries
+    experience_entries = []
+    for company, role, start, end, bullets in [
+        (exp1_company, exp1_role, exp1_start, exp1_end, exp1_bullets),
+        (exp2_company, exp2_role, exp2_start, exp2_end, exp2_bullets),
+        (exp3_company, exp3_role, exp3_start, exp3_end, exp3_bullets),
+    ]:
+        if company and company.strip() and role and role.strip():
+            experience_entries.append({
+                "company": company, "role": role,
+                "start_date": start or "", "end_date": end or "",
+                "bullets": bullets or "",
+            })
+
+    # Assemble education entries
+    education_entries = []
+    for degree, inst, year, gpa in [
+        (edu1_degree, edu1_institution, edu1_year, edu1_gpa),
+        (edu2_degree, edu2_institution, edu2_year, edu2_gpa),
+    ]:
+        if degree and degree.strip():
+            education_entries.append({
+                "degree": degree, "institution": inst or "",
+                "year": year or "", "gpa": gpa or "",
+            })
+
+    # Assemble project entries
+    projects = []
+    for name, desc, tech in [
+        (proj1_name, proj1_desc, proj1_tech),
+        (proj2_name, proj2_desc, proj2_tech),
+    ]:
+        if name and name.strip():
+            projects.append({
+                "name": name, "description": desc or "",
+                "technologies": tech or "",
+            })
+
+    try:
+        from core.resume_builder import generate_resume_pdf
+
+        file_path = generate_resume_pdf(
+            full_name=full_name, email=email or "", phone=phone or "",
+            location=location or "", linkedin=linkedin or "",
+            portfolio=portfolio or "", summary=summary or "",
+            skills=skills or "", experience_entries=experience_entries,
+            education_entries=education_entries,
+            certifications=certifications or "", projects=projects,
+        )
+        if file_path:
+            return file_path, f"✅ Resume PDF generated successfully! Click the download link above."
+        else:
+            return None, "⚠️ Failed to generate PDF. Please check your inputs."
+    except Exception as exc:
+        logger.exception("Resume PDF generation failed.")
+        return None, f"⚠️ PDF generation failed: {exc}"
 
 
 
@@ -1019,6 +1423,16 @@ def create_app() -> gr.Blocks:
                                 scale=1,
                             )
 
+                        with gr.Accordion("📂 Browse & Search Job Description Dataset (28+ Real Roles)", open=False):
+                            gr.Markdown("Click on any row in the dataset below to instantly load its Job Description:")
+                            display_rows = [[r[0], r[1], r[2], r[3]] for r in JD_DATASET_ROWS]
+                            jd_dataset_table = gr.Dataframe(
+                                headers=["ID", "Job Title", "Company", "Location"],
+                                value=display_rows,
+                                interactive=False,
+                                wrap=True,
+                            )
+
                         analyze_btn = gr.Button(
                             "🚀 Analyze Resume",
                             variant="primary",
@@ -1082,6 +1496,12 @@ def create_app() -> gr.Blocks:
                     outputs=[jd_input],
                 )
 
+                jd_dataset_table.select(
+                    fn=load_jd_from_dataset,
+                    inputs=[],
+                    outputs=[jd_input],
+                )
+
                 analyze_btn.click(
                     fn=analyze_resume,
                     inputs=[pdf_input, jd_input],
@@ -1121,6 +1541,15 @@ def create_app() -> gr.Blocks:
                             placeholder="Paste the job description here…",
                             lines=8,
                         )
+                        with gr.Accordion("📂 Browse & Search Job Description Dataset (28+ Real Roles)", open=False):
+                            gr.Markdown("Click on any row in the dataset below to instantly load its Job Description:")
+                            display_rows = [[r[0], r[1], r[2], r[3]] for r in JD_DATASET_ROWS]
+                            improve_jd_dataset_table = gr.Dataframe(
+                                headers=["ID", "Job Title", "Company", "Location"],
+                                value=display_rows,
+                                interactive=False,
+                                wrap=True,
+                            )
                         improve_btn = gr.Button(
                             "✨ Get Improvement Tips",
                             variant="primary",
@@ -1138,6 +1567,12 @@ def create_app() -> gr.Blocks:
 
                         with gr.Accordion("🎯 ATS-Optimized Bullets", open=True):
                             ats_bullets_display = gr.HTML()
+
+                improve_jd_dataset_table.select(
+                    fn=load_jd_from_dataset,
+                    inputs=[],
+                    outputs=[improve_jd],
+                )
 
                 improve_btn.click(
                     fn=get_improvements,
@@ -1167,6 +1602,15 @@ def create_app() -> gr.Blocks:
                             placeholder="Paste the job description here…",
                             lines=8,
                         )
+                        with gr.Accordion("📂 Browse & Search Job Description Dataset (28+ Real Roles)", open=False):
+                            gr.Markdown("Click on any row in the dataset below to instantly load its Job Description:")
+                            display_rows = [[r[0], r[1], r[2], r[3]] for r in JD_DATASET_ROWS]
+                            batch_jd_dataset_table = gr.Dataframe(
+                                headers=["ID", "Job Title", "Company", "Location"],
+                                value=display_rows,
+                                interactive=False,
+                                wrap=True,
+                            )
                         batch_btn = gr.Button(
                             "📊 Analyze All",
                             variant="primary",
@@ -1186,6 +1630,12 @@ def create_app() -> gr.Blocks:
                             wrap=True,
                         )
 
+                batch_jd_dataset_table.select(
+                    fn=load_jd_from_dataset,
+                    inputs=[],
+                    outputs=[batch_jd],
+                )
+
                 batch_btn.click(
                     fn=batch_analyze,
                     inputs=[batch_files, batch_jd],
@@ -1203,6 +1653,31 @@ def create_app() -> gr.Blocks:
                     "while the **Discriminator** intercepting the profile flags structural issues. "
                     "It also audits pronoun and demographic bias (EEOC check)."
                 )
+
+                with gr.Accordion("🔍 What is a GAN Stress-Test & EEOC Demographic Audit? (Read details)", open=False):
+                    gr.Markdown(
+                        """
+                        ### 🛡️ Core Concepts Explained
+
+                        This tab performs two advanced evaluation procedures:
+
+                        #### 1. 🤖 Generative Adversarial Network (GAN) Stress-Tester
+                        In machine learning, a **Generative Adversarial Network (GAN)** consists of two neural networks contesting with each other:
+                        *   **The Generator (The Hacker):** An LLM agent trained to craft adversarial, "hacked" resume content. It repeats technical keywords, injects excessive corporate buzzwords (like *synergy*, *results-oriented*), uses vague timeline descriptions, and attempts to trick the scoring system into giving it a perfect match.
+                        *   **The Discriminator (The Gatekeeper):** Our ATS parser and scorer. It reviews the generated resume text, flags suspicious patterns (such as buzzword overload or timeline inconsistency), and applies realistic penalties (sometimes auto-disqualifying the candidate) to neutralize the hack.
+
+                        *By pitting the Generator against the Discriminator, we prove that our parser is robust enough to spot and penalize keyword stuffing rather than being blindly fooled by it.*
+
+                        ---
+
+                        #### 2. ⚖️ EEOC Demographic Fairness Audit (Counterfactual Evaluation)
+                        Automated tools must comply with the **Equal Employment Opportunity Commission (EEOC)** guidelines to prevent hiring bias.
+                        *   **The Problem:** LLM extraction engines might inadvertently favor certain genders or cultural groups based on pronouns (he/she/they), honorifics (Mr./Ms./Mrs.), or names (e.g., John vs. Aisha).
+                        *   **Our Solution (Counterfactual Test):** We create **5 identical copies** of the resume's skills, experience, and education, but programmatically swap only the names, honorifics, and pronouns to represent different demographic profiles. We then re-execute the entire pipeline for each.
+                        *   **The Metric:** If the scorer is truly bias-free, the scoring variance should be zero (or near-zero). The audit measures the **Bias Immunity Index** based on the statistical range and standard deviation across these variants:
+                            *   **EEOC Standard:** Requires a score deviation of **< 3.0 points** per profile and a **standard deviation < 2.0**.
+                        """
+                    )
 
                 with gr.Row():
                     with gr.Column(scale=2):
@@ -1231,6 +1706,16 @@ def create_app() -> gr.Blocks:
                                 scale=1,
                             )
 
+                        with gr.Accordion("📂 Browse & Search Job Description Dataset (28+ Real Roles)", open=False):
+                            gr.Markdown("Click on any row in the dataset below to instantly load its Job Description:")
+                            display_rows = [[r[0], r[1], r[2], r[3]] for r in JD_DATASET_ROWS]
+                            gan_jd_dataset_table = gr.Dataframe(
+                                headers=["ID", "Job Title", "Company", "Location"],
+                                value=display_rows,
+                                interactive=False,
+                                wrap=True,
+                            )
+
                         gan_run_btn = gr.Button(
                             "🔥 Run Generative Adversarial Audit",
                             variant="primary",
@@ -1240,6 +1725,12 @@ def create_app() -> gr.Blocks:
                             label="Status",
                             interactive=False,
                             max_lines=2,
+                        )
+
+                        # Mini-game container
+                        game_html = gr.HTML(
+                            value=get_game_html(),
+                            elem_id="gan-game-wrapper"
                         )
 
                     with gr.Column(scale=3):
@@ -1258,6 +1749,12 @@ def create_app() -> gr.Blocks:
                     outputs=[gan_jd],
                 )
 
+                gan_jd_dataset_table.select(
+                    fn=load_jd_from_dataset,
+                    inputs=[],
+                    outputs=[gan_jd],
+                )
+
                 gan_run_btn.click(
                     fn=run_gan_audit,
                     inputs=[gan_pdf, gan_jd],
@@ -1267,10 +1764,164 @@ def create_app() -> gr.Blocks:
                         gan_bias_display,
                         gan_status,
                     ],
+                    js="""() => {
+                        if (window.startATSGame) {
+                            window.startATSGame();
+                        }
+                    }"""
                 )
 
             # ══════════════════════════════════════════════════════════════
-            #  TAB 5 — About
+            #  TAB 5 — Resume Builder
+            # ══════════════════════════════════════════════════════════════
+            with gr.Tab("📝 Build Resume"):
+                gr.Markdown(
+                    "### 📝 PDF Resume Builder\n"
+                    "Fill in your details below and generate a **professionally formatted, "
+                    "ATS-optimized PDF resume**. Download it instantly."
+                )
+
+                with gr.Row():
+                    with gr.Column(scale=3):
+                        gr.Markdown("#### 👤 Personal Information")
+                        with gr.Row():
+                            rb_name = gr.Textbox(label="Full Name *", placeholder="John Doe", scale=2)
+                            rb_email = gr.Textbox(label="Email", placeholder="john@example.com", scale=2)
+                        with gr.Row():
+                            rb_phone = gr.Textbox(label="Phone", placeholder="+1 (555) 123-4567", scale=1)
+                            rb_location = gr.Textbox(label="Location", placeholder="New York, NY", scale=1)
+                        with gr.Row():
+                            rb_linkedin = gr.Textbox(label="LinkedIn URL", placeholder="linkedin.com/in/johndoe", scale=1)
+                            rb_portfolio = gr.Textbox(label="Portfolio / GitHub", placeholder="github.com/johndoe", scale=1)
+
+                        gr.Markdown("#### 📋 Professional Summary")
+                        rb_summary = gr.Textbox(
+                            label="Summary",
+                            placeholder="Experienced software engineer with 5+ years building scalable web applications...",
+                            lines=3,
+                        )
+
+                        gr.Markdown("#### 🔧 Technical Skills")
+                        rb_skills = gr.Textbox(
+                            label="Skills (comma-separated)",
+                            placeholder="Python, JavaScript, React, Docker, AWS, PostgreSQL, Git, CI/CD",
+                            lines=2,
+                        )
+
+                        gr.Markdown("#### 💼 Experience")
+                        with gr.Accordion("Experience #1", open=True):
+                            with gr.Row():
+                                rb_exp1_company = gr.Textbox(label="Company", placeholder="Acme Corp", scale=2)
+                                rb_exp1_role = gr.Textbox(label="Role", placeholder="Senior Software Engineer", scale=2)
+                            with gr.Row():
+                                rb_exp1_start = gr.Textbox(label="Start Date", placeholder="Jan 2022", scale=1)
+                                rb_exp1_end = gr.Textbox(label="End Date", placeholder="Present", scale=1)
+                            rb_exp1_bullets = gr.Textbox(
+                                label="Key Achievements (one per line)",
+                                placeholder="Led migration of monolith to microservices, reducing deploy time by 60%\nDesigned REST APIs serving 10M+ requests/day\nMentored 3 junior engineers",
+                                lines=4,
+                            )
+
+                        with gr.Accordion("Experience #2", open=False):
+                            with gr.Row():
+                                rb_exp2_company = gr.Textbox(label="Company", placeholder="Previous Corp")
+                                rb_exp2_role = gr.Textbox(label="Role", placeholder="Software Engineer")
+                            with gr.Row():
+                                rb_exp2_start = gr.Textbox(label="Start Date", placeholder="Jun 2019")
+                                rb_exp2_end = gr.Textbox(label="End Date", placeholder="Dec 2021")
+                            rb_exp2_bullets = gr.Textbox(label="Key Achievements", lines=3)
+
+                        with gr.Accordion("Experience #3", open=False):
+                            with gr.Row():
+                                rb_exp3_company = gr.Textbox(label="Company")
+                                rb_exp3_role = gr.Textbox(label="Role")
+                            with gr.Row():
+                                rb_exp3_start = gr.Textbox(label="Start Date")
+                                rb_exp3_end = gr.Textbox(label="End Date")
+                            rb_exp3_bullets = gr.Textbox(label="Key Achievements", lines=3)
+
+                        gr.Markdown("#### 🎓 Education")
+                        with gr.Accordion("Education #1", open=True):
+                            with gr.Row():
+                                rb_edu1_degree = gr.Textbox(label="Degree", placeholder="B.S. Computer Science", scale=2)
+                                rb_edu1_institution = gr.Textbox(label="Institution", placeholder="MIT", scale=2)
+                            with gr.Row():
+                                rb_edu1_year = gr.Textbox(label="Year", placeholder="2019", scale=1)
+                                rb_edu1_gpa = gr.Textbox(label="GPA (optional)", placeholder="3.8/4.0", scale=1)
+
+                        with gr.Accordion("Education #2", open=False):
+                            with gr.Row():
+                                rb_edu2_degree = gr.Textbox(label="Degree")
+                                rb_edu2_institution = gr.Textbox(label="Institution")
+                            with gr.Row():
+                                rb_edu2_year = gr.Textbox(label="Year")
+                                rb_edu2_gpa = gr.Textbox(label="GPA (optional)")
+
+                        gr.Markdown("#### 📜 Certifications")
+                        rb_certs = gr.Textbox(
+                            label="Certifications (one per line)",
+                            placeholder="AWS Solutions Architect Professional\nGoogle Cloud Professional Data Engineer",
+                            lines=2,
+                        )
+
+                        gr.Markdown("#### 🚀 Projects")
+                        with gr.Accordion("Project #1", open=False):
+                            rb_proj1_name = gr.Textbox(label="Project Name", placeholder="E-Commerce Platform")
+                            rb_proj1_desc = gr.Textbox(label="Description", placeholder="Built a full-stack e-commerce platform with real-time inventory management", lines=2)
+                            rb_proj1_tech = gr.Textbox(label="Technologies", placeholder="React, Node.js, MongoDB, Redis")
+
+                        with gr.Accordion("Project #2", open=False):
+                            rb_proj2_name = gr.Textbox(label="Project Name")
+                            rb_proj2_desc = gr.Textbox(label="Description", lines=2)
+                            rb_proj2_tech = gr.Textbox(label="Technologies")
+
+                    with gr.Column(scale=1):
+                        gr.Markdown("#### 📄 Generated Resume")
+                        build_btn = gr.Button(
+                            "📄 Generate PDF Resume",
+                            variant="primary",
+                            size="lg",
+                        )
+                        rb_output = gr.File(
+                            label="Download Your Resume",
+                            interactive=False,
+                        )
+                        rb_status = gr.Textbox(
+                            label="Status",
+                            interactive=False,
+                            max_lines=2,
+                        )
+
+                        gr.Markdown(
+                            """
+                            **Tips for ATS-Optimized Resumes:**
+                            - Use action verbs: *Led, Built, Designed, Optimized*
+                            - Include metrics: *Reduced costs by 30%*
+                            - Mirror JD keywords in your skills
+                            - Keep bullets concise (1-2 lines)
+                            - Use standard section headers
+                            """
+                        )
+
+                build_btn.click(
+                    fn=build_resume_pdf,
+                    inputs=[
+                        rb_name, rb_email, rb_phone, rb_location,
+                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                        rb_certs,
+                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+                    ],
+                    outputs=[rb_output, rb_status],
+                )
+
+            # ══════════════════════════════════════════════════════════════
+            #  TAB 6 — About
             # ══════════════════════════════════════════════════════════════
             with gr.Tab("ℹ️ About"):
                 gr.Markdown(ABOUT_MD)

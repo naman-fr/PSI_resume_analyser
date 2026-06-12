@@ -1,0 +1,67 @@
+Job Title: Product Manager - B2B SaaS Platform
+Company: Cloudbridge Software
+Location: San Francisco, CA (Hybrid - 3 days in office)
+
+Job Description:
+Cloudbridge Software is a venture-backed B2B SaaS company that provides an all-in-one project
+management and collaboration platform for mid-market professional services firms. Our platform
+is used by over 3,000 companies including consulting firms, marketing agencies, and IT services
+providers to manage projects, track time, allocate resources, and invoice clients. We have grown
+revenue by 80% year-over-year and recently closed a $75 million Series C round led by Insight
+Partners.
+
+We are looking for an experienced Product Manager to own the Resource Management and Capacity
+Planning module of our platform. This is one of our highest-value product areas and is critical
+to customer retention and expansion. You will be responsible for defining the product vision,
+building the roadmap, and driving execution from ideation through launch. You will work in a
+cross-functional pod with dedicated engineers, designers, and data analysts.
+
+The ideal candidate has a proven track record of shipping impactful B2B software products, a
+deep understanding of Agile development methodologies, and strong analytical skills to make
+data-driven decisions. You should be comfortable engaging directly with enterprise customers
+to understand their workflows, pain points, and unmet needs. This role reports to the VP of
+Product and offers a clear path to senior leadership within the product organization.
+
+Requirements:
+• 3-5 years of experience as a Product Manager at a B2B SaaS or enterprise software company
+• Demonstrated track record of successfully launching and iterating on software products
+• Strong understanding of Agile and Scrum methodologies, including sprint planning, backlog grooming, and retrospectives
+• Experience with product analytics tools such as Amplitude, Mixpanel, Pendo, or Google Analytics
+• Ability to create detailed product requirements documents (PRDs), user stories, and acceptance criteria
+• Experience building and communicating product roadmaps to internal and external stakeholders
+• Strong quantitative and analytical skills with the ability to define and track key product metrics (KPIs, OKRs)
+• Excellent written and verbal communication skills for executive presentations and customer-facing interactions
+• Experience conducting user research, customer interviews, and competitive analysis
+• Bachelor's degree in Business, Computer Science, Engineering, or a related field
+• Familiarity with basic SQL for querying product data and extracting insights
+
+Nice to Have:
+• MBA or advanced degree in a relevant field
+• Experience in the professional services, project management, or resource planning domain
+• Knowledge of product-led growth (PLG) strategies and freemium/trial conversion optimization
+• Experience with product management tools such as Productboard, Aha!, or Jira Product Discovery
+• Understanding of API design and technical architecture at a conceptual level
+• Previous experience as a software engineer, designer, or consultant before transitioning to product management
+
+Responsibilities:
+• Define and own the product vision and roadmap for the Resource Management module, aligned with company strategy
+• Conduct ongoing customer discovery through interviews, surveys, and data analysis to identify user needs and pain points
+• Write detailed product requirements documents (PRDs) and user stories with clear acceptance criteria
+• Prioritize the product backlog using data-driven frameworks (RICE, MoSCoW) and customer impact analysis
+• Lead sprint planning, daily standups, and sprint reviews with the cross-functional development pod
+• Collaborate with UX designers to create wireframes, prototypes, and validate designs through user testing
+• Partner with engineering leads to scope features, estimate effort, and manage technical trade-offs
+• Track product metrics and KPIs (adoption rate, time-to-value, NPS, churn) using analytics dashboards
+• Communicate product updates, launches, and strategy to leadership, sales, marketing, and customer success teams
+• Manage beta programs and early access releases with key customers to gather feedback before general availability
+• Conduct competitive analysis and market research to inform product positioning and differentiation
+• Present quarterly product strategy and roadmap updates to the executive leadership team
+
+Benefits:
+• Base salary range: $135,000 - $170,000 depending on experience
+• Annual performance bonus of 15-20%
+• Equity compensation: stock options with a 4-year vesting schedule and 1-year cliff
+• Comprehensive health, dental, and vision insurance with HSA option
+• 401(k) plan with 4% employer match
+• Flexible PTO policy with minimum 3 weeks encouraged per year
+• Monthly wellness stipend of $150 for gym, mental health, or wellness activities
