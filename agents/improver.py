@@ -23,6 +23,9 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
     score fields.  Writes ``improvement_suggestions`` and
     ``ats_optimized_bullets``.
     """
+    if state.get("error"):
+        return {}
+
     gaps: List[str] = state.get("gaps", [])
     skill_match: dict = state.get("skill_match", {})
     resume_parsed: dict = state.get("resume_parsed", {})
@@ -189,6 +192,13 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
 
     except Exception as exc:
         logger.exception("Improvement generation failed.")
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            return {
+                "improvement_suggestions": [],
+                "ats_optimized_bullets": [],
+                "error": "API Quota Exhausted: Groq/Gemini rate limit exceeded. Please wait 1-2 minutes and try again.",
+            }
         return {
             "improvement_suggestions": [
                 {

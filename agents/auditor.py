@@ -47,6 +47,9 @@ def generate_adversarial_resume(jd_text: str) -> str:
         return str(response.content).strip()
     except Exception as exc:
         logger.exception("Failed to generate adversarial resume.")
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            return "API Quota Exhausted: Groq/Gemini rate limit exceeded. Please wait 1-2 minutes and try again."
         return f"Error generating adversarial resume: {exc}"
 
 
@@ -196,6 +199,8 @@ def _run_score_for_profile(
     # Re-parse the resume with the injected identity
     try:
         parse_res = parse_resume(state)
+        if "error" in parse_res:
+            return {"error": parse_res["error"], "match_score": 0.0, "component_scores": {}}
         state.update(parse_res)
     except Exception as exc:
         logger.warning("Profile re-parse failed: %s", exc)
@@ -206,9 +211,14 @@ def _run_score_for_profile(
         # Pre-fill JD extracted data (same for all profiles)
         state["jd_extracted"] = jd_extracted
         norm_res = normalize_skills(state)
+        if "error" in norm_res:
+            return {"error": norm_res["error"], "match_score": 0.0, "component_scores": {}}
         state.update(norm_res)
     except Exception as exc:
         logger.warning("Profile skill normalization failed: %s", exc)
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            return {"error": "API Quota Exhausted: Groq/Gemini rate limit exceeded. Please wait 1-2 minutes and try again.", "match_score": 0.0, "component_scores": {}}
 
     # Ensure JD skills are set
     if not state.get("jd_skills_normalized"):
@@ -217,6 +227,8 @@ def _run_score_for_profile(
     # Score
     try:
         score_res = score_match(state)
+        if "error" in score_res:
+            return {"error": score_res["error"], "match_score": 0.0, "component_scores": {}}
         return score_res
     except Exception as exc:
         logger.warning("Profile scoring failed: %s", exc)
@@ -269,6 +281,9 @@ def run_demographic_bias_audit(
             jd_extracted=jd_extracted,
             jd_skills=jd_skills,
         )
+        
+        if "error" in result:
+            return {"error": result["error"]}
         
         m_score = result.get("match_score", 0.0)
         scores.append(m_score)

@@ -129,6 +129,9 @@ def parse_resume(state: ResumeJDState) -> Dict[str, Any]:
 
     except Exception as exc:
         logger.exception("Resume parsing failed.")
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            return {"error": "API Quota Exhausted: Groq/Gemini rate limit exceeded. Resume parsing failed. Please wait 1-2 minutes and try again."}
         return {"error": f"Resume parsing failed: {exc}"}
 
 # fix: replace .format() with f-string to prevent KeyError on literal braces

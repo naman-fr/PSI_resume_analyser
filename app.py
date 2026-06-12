@@ -1321,6 +1321,21 @@ def run_gan_audit(
         # Generator creates hacked resume text
         hacked_text = generate_adversarial_resume(jd_text)
         
+        # Check if hacked_text is a rate limit or error
+        if "API Quota Exhausted" in hacked_text or hacked_text.startswith("Error generating"):
+            err_msg = hacked_text
+            warning_html = (
+                f'<div class="result-card" style="border-color:#eab308;background:rgba(234,179,8,0.05);margin-bottom:15px">'
+                f'  <h3 style="color:#eab308">⚠️ GAN Simulation Paused</h3>'
+                f'  <p style="color:#fef08a;margin-bottom:8px"><strong>API Quota / Rate Limit Exceeded:</strong></p>'
+                f'  <p style="color:#e2e8f0;font-size:0.9rem">{err_msg}</p>'
+                f'  <p style="color:#94a3b8;font-size:0.8rem;margin-top:10px">'
+                f'    Groq/Gemini free tiers have strict rate limits. Please wait 1-2 minutes and click "Run Adversarial Audit" again.'
+                f'  </p>'
+                f'</div>'
+            )
+            return (warning_html, warning_html, warning_html, "⚠️ Rate limit hit. Simulation aborted.")
+
         # 2. Discriminator audits it
         discriminator_res = audit_adversarial_resume(hacked_text, jd_text)
     except Exception as exc:
@@ -1342,7 +1357,20 @@ def run_gan_audit(
 
     # Format Discriminator Output
     if "error" in discriminator_res:
-        discriminator_html = f'<p style="color:#ef4444">Discriminator Error: {discriminator_res["error"]}</p>'
+        err_msg = str(discriminator_res["error"])
+        if any(term in err_msg.lower() for term in ["quota", "rate limit", "429", "rate_limit"]):
+            discriminator_html = (
+                f'<div class="result-card" style="border-color:#eab308;background:rgba(234,179,8,0.05);margin-bottom:15px">'
+                f'  <h3 style="color:#eab308">⚠️ Discriminator Audit Paused</h3>'
+                f'  <p style="color:#fef08a;margin-bottom:8px"><strong>API Quota / Rate Limit Exceeded:</strong></p>'
+                f'  <p style="color:#e2e8f0;font-size:0.9rem">{err_msg}</p>'
+                f'  <p style="color:#94a3b8;font-size:0.8rem;margin-top:10px">'
+                f'    Groq/Gemini free tiers have strict rate limits. Please wait 1-2 minutes and click "Run Adversarial Audit" again.'
+                f'  </p>'
+                f'</div>'
+            )
+        else:
+            discriminator_html = f'<p style="color:#ef4444">Discriminator Error: {discriminator_res["error"]}</p>'
     else:
         m_score = discriminator_res.get("match_score", 0.0)
         disqualified = discriminator_res.get("disqualified", False)
@@ -1382,7 +1410,20 @@ def run_gan_audit(
         # We need to run normal analysis first to get parsed data
         baseline_res = run_analysis(resume_text=resume_text, jd_text=jd_text)
         if baseline_res.get("error"):
-            bias_html = f'<p style="color:#ef4444">Bias Audit failed: {baseline_res["error"]}</p>'
+            err_msg = str(baseline_res["error"])
+            if any(term in err_msg.lower() for term in ["quota", "rate limit", "429", "rate_limit"]):
+                bias_html = (
+                    f'<div class="result-card" style="border-color:#eab308;background:rgba(234,179,8,0.05);margin-bottom:15px">'
+                    f'  <h3 style="color:#eab308">⚠️ EEOC Demographic Fairness Audit Paused</h3>'
+                    f'  <p style="color:#fef08a;margin-bottom:8px"><strong>API Quota / Rate Limit Exceeded:</strong></p>'
+                    f'  <p style="color:#e2e8f0;font-size:0.9rem">{err_msg}</p>'
+                    f'  <p style="color:#94a3b8;font-size:0.8rem;margin-top:10px">'
+                    f'    Groq/Gemini free tiers have strict rate limits. Please wait 1-2 minutes and click "Run Adversarial Audit" again.'
+                    f'  </p>'
+                    f'</div>'
+                )
+            else:
+                bias_html = f'<p style="color:#ef4444">Bias Audit failed: {baseline_res["error"]}</p>'
         else:
             skills = baseline_res.get("resume_skills_normalized", [])
             jd_sk = baseline_res.get("jd_skills_normalized", [])
@@ -1398,108 +1439,124 @@ def run_gan_audit(
                 jd_text=jd_text
             )
             
-            immunity = bias_res["bias_immunity_index"]
-            variance = bias_res["score_variance"]
-            score_stdev = bias_res.get("score_stdev", 0.0)
-            score_mean = bias_res.get("score_mean", 0.0)
-            biased_count = bias_res.get("biased_profiles_count", 0)
-            biased_factors = bias_res.get("biased_factors", [])
-            methodology = bias_res.get("methodology", "")
-            factor_analysis = bias_res.get("factor_analysis", {})
-            
-            compliance = "PASSED ✅ Bias-Immune" if bias_res["eeoc_compliance"] else "FAILED ⚠️ Demographic Skew Detected"
-            comp_class = "badge-green" if bias_res["eeoc_compliance"] else "badge-red"
-            
-            # Build per-profile audit rows with color-coded verdicts
-            audit_rows = []
-            for item in bias_res["audit_logs"]:
-                verdict = item.get("verdict", "")
-                if "Bias Detected" in verdict:
-                    verdict_class = "badge-red"
-                elif "Minor Variance" in verdict:
-                    verdict_class = "badge-yellow"
+            if "error" in bias_res:
+                err_msg = str(bias_res["error"])
+                if any(term in err_msg.lower() for term in ["quota", "rate limit", "429", "rate_limit"]):
+                    bias_html = (
+                        f'<div class="result-card" style="border-color:#eab308;background:rgba(234,179,8,0.05);margin-bottom:15px">'
+                        f'  <h3 style="color:#eab308">⚠️ EEOC Demographic Fairness Audit Paused</h3>'
+                        f'  <p style="color:#fef08a;margin-bottom:8px"><strong>API Quota / Rate Limit Exceeded:</strong></p>'
+                        f'  <p style="color:#e2e8f0;font-size:0.9rem">{err_msg}</p>'
+                        f'  <p style="color:#94a3b8;font-size:0.8rem;margin-top:10px">'
+                        f'    Groq/Gemini free tiers have strict rate limits. Please wait 1-2 minutes and click "Run Adversarial Audit" again.'
+                        f'  </p>'
+                        f'</div>'
+                    )
                 else:
-                    verdict_class = "badge-green"
+                    bias_html = f'<p style="color:#ef4444">Bias Audit failed: {bias_res["error"]}</p>'
+            else:
+                immunity = bias_res["bias_immunity_index"]
+                variance = bias_res["score_variance"]
+                score_stdev = bias_res.get("score_stdev", 0.0)
+                score_mean = bias_res.get("score_mean", 0.0)
+                biased_count = bias_res.get("biased_profiles_count", 0)
+                biased_factors = bias_res.get("biased_factors", [])
+                methodology = bias_res.get("methodology", "")
+                factor_analysis = bias_res.get("factor_analysis", {})
                 
-                deviation = abs(item["score"] - score_mean)
-                audit_rows.append(
-                    f'<tr>'
-                    f'  <td>{item["profile_label"]}</td>'
-                    f'  <td>{item["assigned_name"]}</td>'
-                    f'  <td><strong>{item["score"]:.1f}</strong></td>'
-                    f'  <td style="font-size:0.8rem;color:#94a3b8">Δ{deviation:.1f}pts</td>'
-                    f'  <td><span class="score-badge {verdict_class}" style="padding:2px 8px;font-size:0.75rem">{verdict}</span></td>'
-                    f'</tr>'
-                )
-            rows_html = "\n".join(audit_rows)
-            
-            # Build per-factor variance breakdown
-            factor_rows = []
-            for factor_key, factor_data in factor_analysis.items():
-                if isinstance(factor_data, dict):
-                    f_range = factor_data.get("range", 0.0)
-                    f_stdev = factor_data.get("stdev", 0.0)
-                    f_biased = factor_data.get("biased", False)
-                    f_status = "⚠️ Bias" if f_biased else "✅ Clean"
-                    f_class = "color:#ef4444" if f_biased else "color:#4ade80"
-                    factor_rows.append(
+                compliance = "PASSED ✅ Bias-Immune" if bias_res["eeoc_compliance"] else "FAILED ⚠️ Demographic Skew Detected"
+                comp_class = "badge-green" if bias_res["eeoc_compliance"] else "badge-red"
+                
+                # Build per-profile audit rows with color-coded verdicts
+                audit_rows = []
+                for item in bias_res["audit_logs"]:
+                    verdict = item.get("verdict", "")
+                    if "Bias Detected" in verdict:
+                        verdict_class = "badge-red"
+                    elif "Minor Variance" in verdict:
+                        verdict_class = "badge-yellow"
+                    else:
+                        verdict_class = "badge-green"
+                    
+                    deviation = abs(item["score"] - score_mean)
+                    audit_rows.append(
                         f'<tr>'
-                        f'  <td style="text-transform:capitalize">{factor_key.replace("_", " ")}</td>'
-                        f'  <td>{f_range:.2f}</td>'
-                        f'  <td>{f_stdev:.2f}</td>'
-                        f'  <td style="{f_class};font-weight:600">{f_status}</td>'
+                        f'  <td>{item["profile_label"]}</td>'
+                        f'  <td>{item["assigned_name"]}</td>'
+                        f'  <td><strong>{item["score"]:.1f}</strong></td>'
+                        f'  <td style="font-size:0.8rem;color:#94a3b8">Δ{deviation:.1f}pts</td>'
+                        f'  <td><span class="score-badge {verdict_class}" style="padding:2px 8px;font-size:0.75rem">{verdict}</span></td>'
                         f'</tr>'
                     )
-            factor_html = "\n".join(factor_rows)
-            
-            biased_factors_str = ""
-            if biased_factors:
-                factors_list = ", ".join(f.replace("_", " ").title() for f in biased_factors)
-                biased_factors_str = (
-                    f'<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);'
-                    f'border-radius:8px;padding:10px;margin:10px 0">'
-                    f'<strong style="color:#ef4444">⚠️ Bias detected in:</strong> {factors_list}'
-                    f'</div>'
-                )
-            
-            bias_html = (
-                f'<div class="result-card">'
-                f'  <h3 style="color:#22d3ee">⚖️ Demographic Fairness Audit (EEOC Compliance)</h3>'
-                f'  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-                f'    <div>'
-                f'      <p style="margin:0;font-size:0.9rem">Bias Immunity Index: <strong style="color:#22d3ee">{immunity:.1f}%</strong></p>'
-                f'      <p style="margin:0;font-size:0.9rem">Score Range: <strong>{variance:.2f} pts</strong> · Std Dev: <strong>{score_stdev:.2f}</strong> · Mean: <strong>{score_mean:.1f}</strong></p>'
-                f'      <p style="margin:0;font-size:0.9rem">Biased Profiles: <strong>{biased_count}/5</strong></p>'
-                f'    </div>'
-                f'    <span class="score-badge {comp_class}" style="font-size:0.9rem">{compliance}</span>'
-                f'  </div>'
-                f'  {biased_factors_str}'
-                f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:10px;font-style:italic">'
-                f'    {methodology}'
-                f'  </p>'
-                f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin-bottom:6px">📊 Per-Profile Counterfactual Results</p>'
-                f'  <table style="width:100%;font-size:0.88rem">'
-                f'    <thead>'
-                f'      <tr><th>Profile</th><th>Assigned Identity</th><th>Score</th><th>Deviation</th><th>Audit Status</th></tr>'
-                f'    </thead>'
-                f'    <tbody>'
-                f'{rows_html}'
-                f'    </tbody>'
-                f'  </table>'
-                + (
-                    f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin:14px 0 6px">🔬 Per-Factor Variance Breakdown</p>'
-                    f'  <table style="width:100%;font-size:0.85rem">'
+                rows_html = "\n".join(audit_rows)
+                
+                # Build per-factor variance breakdown
+                factor_rows = []
+                for factor_key, factor_data in factor_analysis.items():
+                    if isinstance(factor_data, dict):
+                        f_range = factor_data.get("range", 0.0)
+                        f_stdev = factor_data.get("stdev", 0.0)
+                        f_biased = factor_data.get("biased", False)
+                        f_status = "⚠️ Bias" if f_biased else "✅ Clean"
+                        f_class = "color:#ef4444" if f_biased else "color:#4ade80"
+                        factor_rows.append(
+                            f'<tr>'
+                            f'  <td style="text-transform:capitalize">{factor_key.replace("_", " ")}</td>'
+                            f'  <td>{f_range:.2f}</td>'
+                            f'  <td>{f_stdev:.2f}</td>'
+                            f'  <td style="{f_class};font-weight:600">{f_status}</td>'
+                            f'</tr>'
+                        )
+                factor_html = "\n".join(factor_rows)
+                
+                biased_factors_str = ""
+                if biased_factors:
+                    factors_list = ", ".join(f.replace("_", " ").title() for f in biased_factors)
+                    biased_factors_str = (
+                        f'<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);'
+                        f'border-radius:8px;padding:10px;margin:10px 0">'
+                        f'<strong style="color:#ef4444">⚠️ Bias detected in:</strong> {factors_list}'
+                        f'</div>'
+                    )
+                
+                bias_html = (
+                    f'<div class="result-card">'
+                    f'  <h3 style="color:#22d3ee">⚖️ Demographic Fairness Audit (EEOC Compliance)</h3>'
+                    f'  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
+                    f'    <div>'
+                    f'      <p style="margin:0;font-size:0.9rem">Bias Immunity Index: <strong style="color:#22d3ee">{immunity:.1f}%</strong></p>'
+                    f'      <p style="margin:0;font-size:0.9rem">Score Range: <strong>{variance:.2f} pts</strong> · Std Dev: <strong>{score_stdev:.2f}</strong> · Mean: <strong>{score_mean:.1f}</strong></p>'
+                    f'      <p style="margin:0;font-size:0.9rem">Biased Profiles: <strong>{biased_count}/5</strong></p>'
+                    f'    </div>'
+                    f'    <span class="score-badge {comp_class}" style="font-size:0.9rem">{compliance}</span>'
+                    f'  </div>'
+                    f'  {biased_factors_str}'
+                    f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:10px;font-style:italic">'
+                    f'    {methodology}'
+                    f'  </p>'
+                    f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin-bottom:6px">📊 Per-Profile Counterfactual Results</p>'
+                    f'  <table style="width:100%;font-size:0.88rem">'
                     f'    <thead>'
-                    f'      <tr><th>Scoring Factor</th><th>Range (pts)</th><th>Std Dev</th><th>Status</th></tr>'
+                    f'      <tr><th>Profile</th><th>Assigned Identity</th><th>Score</th><th>Deviation</th><th>Audit Status</th></tr>'
                     f'    </thead>'
                     f'    <tbody>'
-                    f'{factor_html}'
+                    f'{rows_html}'
                     f'    </tbody>'
                     f'  </table>'
-                    if factor_html else ""
+                    + (
+                        f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin:14px 0 6px">🔬 Per-Factor Variance Breakdown</p>'
+                        f'  <table style="width:100%;font-size:0.85rem">'
+                        f'    <thead>'
+                        f'      <tr><th>Scoring Factor</th><th>Range (pts)</th><th>Std Dev</th><th>Status</th></tr>'
+                        f'    </thead>'
+                        f'    <tbody>'
+                        f'{factor_html}'
+                        f'    </tbody>'
+                        f'  </table>'
+                        if factor_html else ""
+                    )
+                    + f'</div>'
                 )
-                + f'</div>'
-            )
     except Exception as exc:
         bias_html = f'<p style="color:#ef4444">Bias Audit failed: {exc}</p>'
 

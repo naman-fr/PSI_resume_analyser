@@ -71,6 +71,9 @@ def _llm_normalize_mapping(skills: List[str]) -> Dict[str, str]:
         return mapping
     except Exception as exc:
         logger.warning("LLM skill normalization failed (%s); keeping originals.", exc)
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            raise exc
         return {}
 
 
@@ -80,6 +83,9 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
     Reads ``resume_parsed`` and ``jd_extracted``, produces
     ``resume_skills_normalized`` and ``jd_skills_normalized``.
     """
+    if state.get("error"):
+        return {}
+
     resume_parsed: dict = state.get("resume_parsed", {})
     jd_extracted: dict = state.get("jd_extracted", {})
 
@@ -99,7 +105,14 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
     # Combine all unresolved skills to perform a single LLM call
     combined_unresolved = list(set(resume_unresolved + jd_unresolved))
     if combined_unresolved:
-        mapping = _llm_normalize_mapping(combined_unresolved)
+        try:
+            mapping = _llm_normalize_mapping(combined_unresolved)
+        except Exception as exc:
+            err_msg = str(exc).lower()
+            if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+                return {"error": "API Quota Exhausted: Groq/Gemini rate limit exceeded. Please wait 1-2 minutes and try again."}
+            logger.exception("Skill normalization LLM call failed.")
+            mapping = {}
         
         # Map resume unresolved skills
         for skill in resume_unresolved:

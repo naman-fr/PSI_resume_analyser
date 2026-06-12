@@ -32,6 +32,9 @@ def extract_jd(state: ResumeJDState) -> Dict[str, Any]:
             "certifications_required": [str, ...]
         }
     """
+    if state.get("error"):
+        return {}
+
     jd_text: str = state.get("jd_text", "")
     if not jd_text.strip():
         return {"error": "jd_text is empty — nothing to extract."}
@@ -67,6 +70,9 @@ def extract_jd(state: ResumeJDState) -> Dict[str, Any]:
 
     except Exception as exc:
         logger.exception("JD extraction failed.")
+        err_msg = str(exc).lower()
+        if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
+            return {"error": "API Quota Exhausted: Groq/Gemini rate limit exceeded. Please wait 1-2 minutes and try again."}
         return {"error": f"JD extraction failed: {exc}"}
 
 # refactor: import resume_parser module instead of function to support mock testing

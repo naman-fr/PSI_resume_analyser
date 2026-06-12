@@ -565,6 +565,9 @@ def score_match(state: ResumeJDState) -> Dict[str, Any]:
     Reads normalized skills, parsed resume, and extracted JD. Writes all
     scoring and industrial validation flags.
     """
+    if state.get("error"):
+        return {}
+
     resume_skills: List[str] = state.get("resume_skills_normalized", [])
     jd_skills: List[str] = state.get("jd_skills_normalized", [])
     resume_parsed: dict = state.get("resume_parsed", {})
