@@ -709,3 +709,115 @@ footer.svelte-1rjryqp {
     overflow-x: auto;
     white-space: pre;
 }
+
+/* ── Enterprise ATS Additions ─────────────────────────────────── */
+.disqualified-banner {
+    background: rgba(239, 68, 68, 0.12) !important;
+    border: 2px solid var(--psi-red) !important;
+    border-radius: var(--psi-radius) !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    color: var(--psi-text-bright) !important;
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.2) !important;
+    animation: borderPulseRed 2.5s ease-in-out infinite !important;
+}
+
+.disqualified-banner h3 {
+    color: #f87171 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 0.5rem 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.disqualified-banner p {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    color: var(--psi-text-dim) !important;
+}
+
+.disqualified-banner strong {
+    color: var(--psi-text-bright) !important;
+}
+
+@keyframes borderPulseRed {
+    0%, 100% { border-color: var(--psi-red); box-shadow: 0 0 16px rgba(239, 68, 68, 0.2); }
+    50% { border-color: #f87171; box-shadow: 0 0 28px rgba(239, 68, 68, 0.35); }
+}
+
+.flags-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.flag-card {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid var(--psi-glass-border) !important;
+    border-radius: var(--psi-radius-sm) !important;
+    padding: 14px 18px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: var(--psi-transition);
+}
+
+.flag-card.red-flag {
+    border-left: 4px solid var(--psi-red) !important;
+}
+
+.flag-card.red-flag:hover {
+    background: rgba(239, 68, 68, 0.04) !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.flag-card.green-flag {
+    border-left: 4px solid var(--psi-green) !important;
+}
+
+.flag-card.green-flag:hover {
+    background: rgba(16, 185, 129, 0.04) !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.flag-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flag-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--psi-text-bright);
+}
+
+.flag-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.flag-badge.red-badge {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.flag-badge.green-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.flag-evidence {
+    font-size: 0.85rem;
+    color: var(--psi-text-dim);
+    line-height: 1.4;
+}
+

@@ -221,6 +221,56 @@ def _format_skill_badges(matched: List[str], missing: List[str]) -> str:
     return "\n".join(parts)
 
 
+def _format_red_flags(red_flags: List[Dict[str, Any]]) -> str:
+    """Return HTML for Red Flags with negative penalties."""
+    if not red_flags:
+        return '<p style="color:#94a3b8;font-size:0.88rem">🟢 No Red Flags detected — candidate has a clean profile.</p>'
+    
+    html_parts = ['<div class="flags-grid">']
+    for f in red_flags:
+        flag_name = f.get("flag", "Red Flag")
+        penalty = f.get("penalty", 0.0)
+        evidence = f.get("evidence", "")
+        
+        penalty_str = "AUTO REJECT" if penalty == "AUTO_REJECT" else (f"{penalty:.1f} pts" if isinstance(penalty, (int, float)) else str(penalty))
+        html_parts.append(
+            f'<div class="flag-card red-flag">'
+            f'  <div class="flag-header">'
+            f'    <span class="flag-title">⚠️ {flag_name}</span>'
+            f'    <span class="flag-badge red-badge">{penalty_str}</span>'
+            f'  </div>'
+            f'  <div class="flag-evidence">{evidence}</div>'
+            f'</div>'
+        )
+    html_parts.append('</div>')
+    return "\n".join(html_parts)
+
+
+def _format_green_flags(green_flags: List[Dict[str, Any]]) -> str:
+    """Return HTML for Green Flags with positive bonuses."""
+    if not green_flags:
+        return '<p style="color:#94a3b8;font-size:0.88rem">⚪ No special Green Flags detected.</p>'
+    
+    html_parts = ['<div class="flags-grid">']
+    for f in green_flags:
+        flag_name = f.get("flag", "Green Flag")
+        bonus = f.get("bonus", 0.0)
+        evidence = f.get("evidence", "")
+        
+        bonus_str = f"+{bonus:.1f} pts"
+        html_parts.append(
+            f'<div class="flag-card green-flag">'
+            f'  <div class="flag-header">'
+            f'    <span class="flag-title">✨ {flag_name}</span>'
+            f'    <span class="flag-badge green-badge">{bonus_str}</span>'
+            f'  </div>'
+            f'  <div class="flag-evidence">{evidence}</div>'
+            f'</div>'
+        )
+    html_parts.append('</div>')
+    return "\n".join(html_parts)
+
+
 def _format_list_items(items: List[str], css_class: str) -> str:
     """Return HTML for a list of strength/gap items."""
     if not items:
@@ -236,11 +286,11 @@ def _format_list_items(items: List[str], css_class: str) -> str:
 def analyze_resume(
     pdf_file: Any,
     jd_text: str,
-) -> Tuple[str, str, str, str, str, str, str, str]:
+) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """
     Run the full resume analysis pipeline.
 
-    Returns eight string outputs for the Gradio UI components:
+    Returns ten string outputs for the Gradio UI components:
       0 – overall_score_html
       1 – score_breakdown_html
       2 – skill_match_html
@@ -248,16 +298,18 @@ def analyze_resume(
       4 – education_html
       5 – strengths_html
       6 – gaps_html
-      7 – status_message
+      7 – red_flags_html
+      8 – green_flags_html
+      9 – status_message
     """
     # ── 1. Validate inputs ────────────────────────────────────────────────
     valid, err = validate_pdf(pdf_file)
     if not valid:
-        return ("", "", "", "", "", "", "", f"⚠️ {err}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}")
 
     valid, err = validate_jd_text(jd_text)
     if not valid:
-        return ("", "", "", "", "", "", "", f"⚠️ {err}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}")
 
     # ── 2. Extract text from PDF ──────────────────────────────────────────
     try:
@@ -265,7 +317,7 @@ def analyze_resume(
         resume_text = extract_text_from_pdf(file_path)
     except Exception as exc:
         logger.exception("PDF extraction failed")
-        return ("", "", "", "", "", "", "", f"⚠️ Failed to extract text from PDF: {exc}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ Failed to extract text from PDF: {exc}")
 
     # ── 3. Run analysis graph ─────────────────────────────────────────────
     try:
@@ -278,51 +330,76 @@ def analyze_resume(
     except ImportError:
         logger.error("agents.graph module not available")
         return (
-            "", "", "", "", "", "", "",
+            "", "", "", "", "", "", "", "", "",
             "⚠️ Analysis engine not available. Please ensure agents/graph.py is implemented.",
         )
     except Exception as exc:
         logger.exception("Analysis pipeline failed")
-        return ("", "", "", "", "", "", "", f"⚠️ Analysis failed: {exc}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ Analysis failed: {exc}")
 
     # ── 4. Check for pipeline errors ──────────────────────────────────────
     if result.get("error"):
-        return ("", "", "", "", "", "", "", f"⚠️ {result['error']}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {result['error']}")
 
     # ── 5. Format results ─────────────────────────────────────────────────
-    overall = result.get("overall_score", 0.0)
+    match_score = result.get("match_score", 0.0)
     keyword = result.get("keyword_score", 0.0)
     semantic = result.get("semantic_score", 0.0)
     experience_score = result.get("experience_score", 0.0)
     education_score = result.get("education_score", 0.0)
+    recency_score = result.get("recency_score", 0.0)
+    achievement_score = result.get("achievement_score", 0.0)
 
     skill_match: dict = result.get("skill_match", {})
     experience_match: dict = result.get("experience_match", {})
     education_match: dict = result.get("education_match", {})
     strengths: list = result.get("strengths", [])
     gaps: list = result.get("gaps", [])
+    red_flags: list = result.get("red_flags", [])
+    green_flags: list = result.get("green_flags", [])
 
     # Overall score display
-    score_cls = _score_class(overall)
+    score_cls = _score_class(match_score)
     overall_html = (
         f'<div class="score-display score-animate">'
-        f'  <div class="score-number {score_cls}">{overall:.1f}</div>'
+        f'  <div class="score-number {score_cls}">{match_score:.1f}</div>'
         f'  <div style="font-size:1.1rem;color:#94a3b8">/100</div>'
-        f'  <div class="score-label">{_score_emoji(overall)} {_score_label(overall)}</div>'
+        f'  <div class="score-label">{_score_emoji(match_score)} {_score_label(match_score)}</div>'
         f"</div>"
     )
 
-    # Score breakdown bars
+    if result.get("disqualified", False):
+        reason = result.get("disqualification_reason", "Candidate does not meet the baseline recruitment rules.")
+        disq_html = (
+            f'<div class="disqualified-banner">'
+            f'  <h3>🚨 AUTO-DISQUALIFIED</h3>'
+            f'  <p><strong>Reason:</strong> {reason}</p>'
+            f'</div>'
+        )
+        overall_html = disq_html + overall_html
+
+    # Buzzword penalty parsing
+    buzzword_penalty = 0.0
+    for rf in red_flags:
+        if rf.get("flag") == "Buzzword Overload":
+            penalty_val = rf.get("penalty", 0.0)
+            buzzword_penalty = float(penalty_val) if isinstance(penalty_val, (int, float)) else -5.0
+            break
+
+    # Score breakdown bars (7 factors)
     breakdown_html = (
-        _format_score_bar("🎯 Keyword Match", keyword, "40%")
-        + _format_score_bar("🧠 Semantic Similarity", semantic, "25%")
-        + _format_score_bar("💼 Experience Relevance", experience_score, "25%")
+        _format_score_bar("🎯 Hard Skills Match", keyword, "35%")
+        + _format_score_bar("⏱️ Skill Recency & Proximity", recency_score, "15%")
+        + _format_score_bar("💼 Experience Relevance", experience_score, "20%")
         + _format_score_bar("🎓 Education Match", education_score, "10%")
+        + _format_score_bar("🧠 Semantic Similarity", semantic, "10%")
+        + _format_score_bar("📈 Achievement Quality (A-COE)", achievement_score, "5%")
+        + _format_score_bar("🗣️ Buzzword Compliance", 100.0 + buzzword_penalty, "5%")
     )
 
-    # Skill match
-    matched = skill_match.get("matched_skills", [])
-    missing = skill_match.get("missing_skills", [])
+    # Skill match (handle both key formats for safety)
+    matched = skill_match.get("matched", skill_match.get("matched_skills", []))
+    missing = skill_match.get("missing", skill_match.get("missing_skills", []))
     skill_html = _format_skill_badges(matched, missing)
 
     # Experience match
@@ -351,12 +428,19 @@ def analyze_resume(
         f"</div>"
     )
 
-    # Strengths & Gaps
-    strengths_html = _format_list_items(strengths, "strength-item")
-    gaps_html = _format_list_items(gaps, "gap-item")
+    # Strengths & Gaps (filter out Red/Green Flag items since they are shown separately)
+    cleaned_strengths = [s for s in strengths if not s.startswith("Green Flag:")]
+    cleaned_gaps = [g for g in gaps if not g.startswith("Red Flag:")]
+
+    strengths_html = _format_list_items(cleaned_strengths, "strength-item")
+    gaps_html = _format_list_items(cleaned_gaps, "gap-item")
+
+    # Format Red & Green Flags
+    red_flags_html = _format_red_flags(red_flags)
+    green_flags_html = _format_green_flags(green_flags)
 
     provider = result.get("provider_used", "unknown")
-    status = f"✅ Analysis complete • Provider: {provider} • Score: {overall:.1f}/100"
+    status = f"✅ Analysis complete • Provider: {provider} • Score: {match_score:.1f}/100"
 
     return (
         overall_html,
@@ -366,6 +450,8 @@ def analyze_resume(
         education_html,
         strengths_html,
         gaps_html,
+        red_flags_html,
+        green_flags_html,
         status,
     )
 
@@ -498,15 +584,22 @@ def batch_analyze(
                 errors.append(f"{file_name}: {result['error']}")
                 continue
 
-            overall = result.get("overall_score", 0.0)
-            matched = result.get("skill_match", {}).get("matched_skills", [])
+            match_score = result.get("match_score", 0.0)
+            skill_match = result.get("skill_match", {})
+            matched = skill_match.get("matched", skill_match.get("matched_skills", []))
             top_skills = ", ".join(matched[:5]) if matched else "—"
-            label = _score_label(overall)
+            
+            if result.get("disqualified", False):
+                label = "AUTO-DISQUALIFIED"
+                emoji = "🚨"
+            else:
+                label = _score_label(match_score)
+                emoji = _score_emoji(match_score)
 
             rows.append([
                 file_name,
-                f"{overall:.1f}",
-                f"{_score_emoji(overall)} {label}",
+                f"{match_score:.1f}",
+                f"{emoji} {label}",
                 top_skills,
             ])
 
@@ -744,6 +837,15 @@ def create_app() -> gr.Blocks:
                                 with gr.Accordion("⚠️ Gaps", open=False):
                                     gaps_display = gr.HTML()
 
+                        with gr.Row():
+                            with gr.Column():
+                                with gr.Accordion("🟢 ATS Green Flags", open=True):
+                                    green_flags_display = gr.HTML()
+
+                            with gr.Column():
+                                with gr.Accordion("🔴 ATS Red Flags", open=True):
+                                    red_flags_display = gr.HTML()
+
                 # Wire up events
                 load_btn.click(
                     fn=load_sample_jd,
@@ -762,6 +864,8 @@ def create_app() -> gr.Blocks:
                         education_display,
                         strengths_display,
                         gaps_display,
+                        red_flags_display,
+                        green_flags_display,
                         status_output,
                     ],
                 )

@@ -30,8 +30,18 @@ class ResumeJDState(TypedDict, total=False):
     experience_score: float   # Experience-level match score
     education_score: float    # Education-level match score
     overall_score: float      # Weighted composite score
+    recency_score: float      # Skill recency score (0-100)
+    achievement_score: float  # Achievement quality score (0-100)
+    match_score: float        # Final enterprise-grade ATS score (0-100)
 
-    # ── Detailed analysis ────────────────────────────────────────────────
+    # ── Industrial Analysis ──────────────────────────────────────────────
+    disqualified: bool               # Auto-disqualification flag
+    disqualification_reason: str     # Reason for auto-disqualification
+    job_hopping_info: dict           # {is_job_hopper, tenure_count, penalty}
+    skills_validation: dict          # {validation_ratio, unsupported_skills, penalty}
+    red_flags: list                  # Detected red flags list with penalties
+    green_flags: list                # Detected green flags list with bonuses
+    component_scores: dict           # Breakdowns of all individual factors
     skill_match: dict         # {matched, missing, overlap_pct}
     experience_match: dict    # {resume_years, required_years, verdict}
     education_match: dict     # {resume_degree, required_degree, verdict}

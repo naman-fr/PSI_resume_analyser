@@ -1,0 +1,50 @@
+Job Title: Product Analyst
+Company: Artsy
+Location: 401 Broadway FL 25, New York, NY 10013
+
+Job Description:
+   Artsy's mission is to expand the art market to support more artists and art in the world. Artsy has created the world's largest two-sided art marketplace, offering more than 1 million works by 100,000 artists from 4,000 leading galleries, fairs, auction houses, and institutions in more than 100 countries.    We are seeking a Product Analyst to join the Data Science and Analytics team. As a Product Analyst, you will translate data into insights and drive improvements to our product, operations, and strategy. You will question existing assumptions, and will set strategic frameworks to uncover and prioritize new product and business opportunities. You will focus on the consumer side of our marketplace studying user behavior and contribute to our vision for the rising number of data products we are launching. You will be embedded in a product team collaborating closely with a Product Manager, a Designer and a Technical Lead to drive the development of impactful products delighting Artsy users. 
+  The Data Science and Analytics team provides support across all of our products and operations by developing insights and enabling analytical and automated decision making. We build strong partnerships with key stakeholders and foster a data-driven culture in which analytical insights guide continuous improvements across the organization. You will join a team of experienced analysts and be a part of a fast-growing, collaborative, agile data team which fosters a culture of impact and performance, with ample opportunities for ownership and growth. You will report to the manager of the Data Science and Analytics Team. 
+  This is a full time hybrid role, with in office attendance required 3 days a week. The role is based in our New York office. 
+  What You'll Do: 
+  
+  Be a strategic partner to product and business leaders and help drive the right business and product decisions; proactively identify and champion projects that solace complex problems across multiple domains 
+  Investigate trends of key metrics such as user retention and conversion ; identify root causes and follow-through to make sure your work is understood and acted on 
+  Identify, implement, monitor, and report on team-wide Key Performance Indicators (KPIs) 
+  Ship data products that improve our understanding of the art market, Artsy's marketplace, and how to best serve our collectors and partners 
+  Work with stakeholders to instrument proper tracking and define new data models, design and implement data pipelines 
+  Design and report on A/B tests using rigorous hypothesis testing methods 
+  Apply statistical and machine learning models (ie. Regressions, Clustering, Random Forest, Natural Language Processing, etc.) to inform improvements to our business and product such as user segmentation and user preferences 
+  Build data expertise, best practices and own data quality for all analytical data needs 
+  
+ Who You Are: 
+  We welcome you to apply regardless of "checking all the boxes" below, and are excited to hear what you can bring to the team. 
+  
+  This role will be based in New York City. You are currently authorized to live and work in the United States 
+  You have previous experience spanning product analytics, data analytics and data science, and are proficient in SQL and statistical programming in Python 
+  You have a demonstrated ability to translate analytical insights into clear recommendations and to communicate them to technical and non-technical colleagues 
+  You have experience leading cross-functional projects end-to-end successfully and in a timely manner 
+  You understand what an 80/20 solution is and have experience working quickly, iteratively, and know how to prioritize for impact 
+  You have experience with applied statistics and a breadth of modeling techniques (ex. regressions, clustering, random forests, causal inference) to solve business and product problems 
+  You're energetic, curious, thoughtful and passionate about defining problems and reaching conclusions 
+  You know that data doesn't fall from the sky in .csv form. You know that there's a backstory to any data point, so you're not afraid to dig deep to understand your raw material 
+  You are a team player. You understand that being a good teammate requires a combination of soft skills & feedback, and is the key to being successful in a matrix organization 
+  You care deeply about giving and receiving feedback. (An open feedback culture at Artsy is central to how we work!) 
+  Experience with rapid product development for a consumer facing tech company and domain experience in e-commerce, marketing or SaaS is preferred and directly transferable to our environment at Artsy 
+  
+ What We Offer: 
+  
+  Opportunity to reimagine the art industry while working with a talented, diverse, international team. 
+  Competitive salary and equity 
+  Flexible time off: our culture of trust and empowerment allows employees to take the time they need away from work while still excelling in their roles 
+  We are a global hybrid team: our employees work from our NYC, London, or Berlin offices 3 days per week 
+  Comprehensive healthcare & benefit options, including: medical, dental, parental leave, short- and long-term disability, Employee Assistance Program featuring free mental health support, 401k, commuter benefits, flexible spending accounts (FSA), health savings accounts (HSA), financial wellness support & resources, and more 
+  Professional development, including: mentoring, lunch & learns, regular training, 1:1 management, and an open feedback culture 
+  Engaging opportunities and internal programming globally, to foster new relationships and build upon our collaborative community. Including: happy hours, holiday parties, global "All Hands" meetings, "Artsy Salon" (a yearly exhibition of our team's creativity), attendance to art world events, and more 
+  
+ The salary range for this role is $100,000-$130,000 annually. Artsy is committed to equitable compensation practices, and your offer will depend on the relevant experience and skillset you bring to the team. All compensation packages include meaningful Artsy equity and competitive health benefits. Please see our "What We Offer" above for more detail, or speak to our Recruiter to learn more!   
+   Artsy Values 
+   Artsy has five core values that will inform your experience at Artsy. 
+   For the Love of Art: We have relentless curiosity, empathy, and passion for collectors, artists, and the art market. We are here to make the art world more fair and welcoming. 
+   Own Our Outcomes: We are all individual owners of Artsy's shared success. We are resourceful and resilient, and to get the job done, we each take responsibility for our outcomes. 
+   Lead with Openness: We trust in our teammates. We seek diverse perspectives, communicate authentically, and act with integrity. A more open art world starts with us.   Transform Together: Our mission asks us to challenge the status quo. We embrace feedback, learning, and change so that we can transform our industry, our company, and ourselves.   Impact Over Perfection: Using both art and science, we debate and decide swiftly and iterate on our plans as we learn. To make the biggest impact, we prioritize speed and clarity of action over perfection. 

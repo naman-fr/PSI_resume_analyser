@@ -36,14 +36,26 @@ graph TD
     A[Resume PDF]:::input
     B[Job Description Text]:::input
     
-    subgraph Parallel Processing
-        C[Resume Parser Agent<br/>Groq llama-3.3-70b-versatile]:::agent
-        D[JD Extractor Agent<br/>Groq llama-3.3-70b-versatile]:::agent
+    subgraph Parallel Extraction
+        C[Resume Parser Agent<br/>Groq Llama 3]:::agent
+        D[JD Extractor Agent<br/>Groq Llama 3]:::agent
     end
     
     E[Skill Normalizer Agent]:::agent
-    F[(Skill Taxonomy JSON<br/>77 canonical, 196 aliases)]:::database
-    G[ATS Scorer Node]:::agent
+    F[(Skill Taxonomy JSON<br/>500+ Skills/Aliases)]:::database
+    
+    subgraph Enterprise ATS Scorer Node
+        G1[Hard Skills Match: 35%]:::agent
+        G2[Skill Recency & Proximity: 15%]:::agent
+        G3[Experience Relevance: 20%]:::agent
+        G4[Education Match: 10%]:::agent
+        G5[Semantic Similarity: 10%]:::agent
+        G6[Achievement Quality A-COE: 5%]:::agent
+        G7[Buzzword Compliance: 5%]:::agent
+        G8[Auto-Disqualification Logic]:::agent
+        G9[Red/Green Flag Rules]:::agent
+    end
+    
     H[Resume Improver Agent]:::agent
     
     I[Match Score Dashboard<br/>Gradio UI]:::output
@@ -55,9 +67,23 @@ graph TD
     C --> E
     D --> E
     F -.-> E
-    E --> G
-    G --> H
-    G --> I
+    E --> G1
+    E --> G2
+    C --> G3
+    D --> G3
+    C --> G4
+    D --> G4
+    A --> G5
+    B --> G5
+    C --> G6
+    A --> G7
+    C --> G8
+    C --> G9
+    
+    G1 & G2 & G3 & G4 & G5 & G6 & G7 --> G8
+    G8 --> G9
+    G9 --> H
+    G9 --> I
     H --> J
 ```
 
@@ -112,9 +138,19 @@ python app.py
 
 ## 📊 Scoring Formula
 
-The matching engine employs an industrial-standard ATS calculation:
+The matching engine employs an enterprise-grade Applicant Tracking System (ATS) calculation combining weighted scoring with business rule penalties and bonuses:
 
-$$\text{Overall Score} = (0.40 \times \text{Keyword Match}) + (0.25 \times \text{Semantic Similarity}) + (0.25 \times \text{Experience}) + (0.10 \times \text{Education})$$
+$$\text{Base Score} = 0.35 \times \text{Hard Skills} + 0.15 \times \text{Skill Recency} + 0.20 \times \text{Experience Relevance} + 0.10 \times \text{Education Match} + 0.10 \times \text{Semantic Similarity} + 0.05 \times \text{Achievement Quality} + 0.05 \times \text{Buzzword Compliance}$$
+
+$$\text{Final Match Score} = \min\left(100.0, \max\left(0.0, \text{Base Score} + \sum \text{Green Flag Bonuses} - \sum \text{Red Flag Penalties}\right)\right)$$
+
+### 🚨 Disqualification & Business Rules:
+- **AI-Resume Detection**: Template matches with $\ge 85\%$ probability triggers **AUTO-DISQUALIFICATION**.
+- **Timeline Gaps**: Unexplained career gaps $>12$ months penalize **-15.0 pts**.
+- **Job Hopping**: $3+$ consecutive tenures $<12$ months without contract/intern labels penalize **-10.0 pts**.
+- **Fabrication Detection**: $<50\%$ of listed skills supported by projects or work context penalize **-8.0 pts**.
+- **Buzzword Overload**: Excessive corporate buzzwords without quantifiable metrics penalize **-5.0 pts**.
+- **Green Flag Bonuses**: Quantitative achievements (A-COE), target-title alignment, skill mirroring, and online portfolios award up to **+17.0 pts** of bonuses.
 
 ---
 

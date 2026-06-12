@@ -16,6 +16,7 @@ from raw resume text and return it as valid JSON. Follow these rules strictly:
 5. For "present" or "current" employment, use the string "Present".
 6. Extract skills exactly as written; do not rephrase or merge them.
 7. Preserve the original order of experience entries (most recent first).
+8. Assess the probability that the resume is AI-generated (e.g. extremely generic statements like "strategic thinker driving results", empty templates, lack of numbers or specific projects) and output it as a float from 0.0 to 1.0.
 
 ## Output JSON Schema
 ```json
@@ -25,16 +26,19 @@ from raw resume text and return it as valid JSON. Follow these rules strictly:
   "phone": "string or null",
   "linkedin": "string or null",
   "location": "string or null",
+  "portfolio_links": ["string"] — list of personal website, GitHub, Behance, or other portfolio URLs found,
   "summary": "string or null — professional summary/objective if present",
+  "ai_resume_probability": "float — 0.0 to 1.0, estimating the probability that the resume was completely AI-generated/templated",
   "skills": ["string"] — flat list of all technical and soft skills mentioned,
   "experience": [
     {
       "company": "string",
       "role": "string",
-      "start_date": "string",
-      "end_date": "string or 'Present'",
-      "duration_months": "integer or null — computed if dates are clear",
-      "bullets": ["string"] — key responsibilities/achievements as listed
+      "start_date": "string — e.g. 'Jan 2020'",
+      "end_date": "string or 'Present' — e.g. 'Dec 2022'",
+      "duration_months": "integer or null — computed duration",
+      "bullets": ["string"] — key responsibilities/achievements as listed,
+      "departure_reason": "string or null — departure reason if mentioned (e.g. 'Contract finished', 'Company closed', 'Relocated')"
     }
   ],
   "education": [
