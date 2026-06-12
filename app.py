@@ -1758,35 +1758,7 @@ def create_app() -> gr.Blocks:
                                 with gr.Accordion("🔴 ATS Red Flags", open=True):
                                     red_flags_display = gr.HTML()
 
-                # Wire up events
-                load_btn.click(
-                    fn=load_sample_jd,
-                    inputs=[sample_dropdown],
-                    outputs=[jd_input],
-                )
-
-                jd_dataset_table.select(
-                    fn=load_jd_from_dataset,
-                    inputs=[],
-                    outputs=[jd_input],
-                )
-
-                analyze_btn.click(
-                    fn=analyze_resume,
-                    inputs=[pdf_input, jd_input, improve_pdf, gan_pdf],
-                    outputs=[
-                        overall_score_display,
-                        score_breakdown_display,
-                        skill_match_display,
-                        experience_display,
-                        education_display,
-                        strengths_display,
-                        gaps_display,
-                        red_flags_display,
-                        green_flags_display,
-                        status_output,
-                    ],
-                )
+                # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 2 — Improve Resume
@@ -1837,17 +1809,7 @@ def create_app() -> gr.Blocks:
                         with gr.Accordion("🎯 ATS-Optimized Bullets", open=True):
                             ats_bullets_display = gr.HTML()
 
-                improve_jd_dataset_table.select(
-                    fn=load_jd_from_dataset,
-                    inputs=[],
-                    outputs=[improve_jd],
-                )
-
-                improve_btn.click(
-                    fn=get_improvements,
-                    inputs=[improve_pdf, improve_jd, pdf_input, gan_pdf],
-                    outputs=[suggestions_display, ats_bullets_display, improve_status],
-                )
+                # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 3 — Batch Analysis
@@ -1899,17 +1861,7 @@ def create_app() -> gr.Blocks:
                             wrap=True,
                         )
 
-                batch_jd_dataset_table.select(
-                    fn=load_jd_from_dataset,
-                    inputs=[],
-                    outputs=[batch_jd],
-                )
-
-                batch_btn.click(
-                    fn=batch_analyze,
-                    inputs=[batch_files, batch_jd],
-                    outputs=[batch_results, batch_status],
-                )
+                # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 4 — GAN Stress-Tester
@@ -2012,33 +1964,7 @@ def create_app() -> gr.Blocks:
                         with gr.Accordion("⚖️ EEOC Demographic Fairness Audit", open=True):
                             gan_bias_display = gr.HTML()
 
-                gan_load_btn.click(
-                    fn=load_sample_jd,
-                    inputs=[gan_dropdown],
-                    outputs=[gan_jd],
-                )
-
-                gan_jd_dataset_table.select(
-                    fn=load_jd_from_dataset,
-                    inputs=[],
-                    outputs=[gan_jd],
-                )
-
-                gan_run_btn.click(
-                    fn=run_gan_audit,
-                    inputs=[gan_pdf, gan_jd, pdf_input, improve_pdf],
-                    outputs=[
-                        gan_generator_display,
-                        gan_discriminator_display,
-                        gan_bias_display,
-                        gan_status,
-                    ],
-                    js="""() => {
-                        if (window.startATSGame) {
-                            window.startATSGame();
-                        }
-                    }"""
-                )
+                # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 5 — Resume Builder
@@ -2189,98 +2115,182 @@ def create_app() -> gr.Blocks:
                             """
                         )
 
-                build_btn.click(
-                    fn=build_resume_pdf,
-                    inputs=[
-                        rb_name, rb_email, rb_phone, rb_location,
-                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
-                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
-                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
-                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
-                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
-                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
-                        rb_certs,
-                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
-                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
-                    ],
-                    outputs=[rb_output, rb_status],
-                )
-
-                rb_github_btn.click(
-                    fn=fetch_github_data,
-                    inputs=[rb_github_username],
-                    outputs=[
-                        rb_name, rb_email, rb_phone, rb_location,
-                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
-                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
-                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
-                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
-                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
-                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
-                        rb_certs,
-                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
-                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
-                        rb_output, rb_status,
-                    ],
-                )
-
-                rb_pdf_btn.click(
-                    fn=parse_and_autofill_pdf,
-                    inputs=[rb_autofill_file],
-                    outputs=[
-                        rb_name, rb_email, rb_phone, rb_location,
-                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
-                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
-                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
-                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
-                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
-                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
-                        rb_certs,
-                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
-                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
-                        rb_output, rb_status,
-                    ],
-                )
-
-                # Synchronize PDF inputs across tabs on upload & clear
-                pdf_input.upload(
-                    fn=lambda x: (x, x),
-                    inputs=[pdf_input],
-                    outputs=[improve_pdf, gan_pdf],
-                )
-                pdf_input.clear(
-                    fn=lambda: (None, None),
-                    inputs=[],
-                    outputs=[improve_pdf, gan_pdf],
-                )
-
-                improve_pdf.upload(
-                    fn=lambda x: (x, x),
-                    inputs=[improve_pdf],
-                    outputs=[pdf_input, gan_pdf],
-                )
-                improve_pdf.clear(
-                    fn=lambda: (None, None),
-                    inputs=[],
-                    outputs=[pdf_input, gan_pdf],
-                )
-
-                gan_pdf.upload(
-                    fn=lambda x: (x, x),
-                    inputs=[gan_pdf],
-                    outputs=[pdf_input, improve_pdf],
-                )
-                gan_pdf.clear(
-                    fn=lambda: (None, None),
-                    inputs=[],
-                    outputs=[pdf_input, improve_pdf],
-                )
+                # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 6 — About
             # ══════════════════════════════════════════════════════════════
             with gr.Tab("ℹ️ About"):
                 gr.Markdown(ABOUT_MD)
+
+        # ── Event Wireups ──────────────────────────────────────────────────
+        load_btn.click(
+            fn=load_sample_jd,
+            inputs=[sample_dropdown],
+            outputs=[jd_input],
+        )
+
+        jd_dataset_table.select(
+            fn=load_jd_from_dataset,
+            inputs=[],
+            outputs=[jd_input],
+        )
+
+        analyze_btn.click(
+            fn=analyze_resume,
+            inputs=[pdf_input, jd_input, improve_pdf, gan_pdf],
+            outputs=[
+                overall_score_display,
+                score_breakdown_display,
+                skill_match_display,
+                experience_display,
+                education_display,
+                strengths_display,
+                gaps_display,
+                red_flags_display,
+                green_flags_display,
+                status_output,
+            ],
+        )
+
+        improve_jd_dataset_table.select(
+            fn=load_jd_from_dataset,
+            inputs=[],
+            outputs=[improve_jd],
+        )
+
+        improve_btn.click(
+            fn=get_improvements,
+            inputs=[improve_pdf, improve_jd, pdf_input, gan_pdf],
+            outputs=[suggestions_display, ats_bullets_display, improve_status],
+        )
+
+        batch_jd_dataset_table.select(
+            fn=load_jd_from_dataset,
+            inputs=[],
+            outputs=[batch_jd],
+        )
+
+        batch_btn.click(
+            fn=batch_analyze,
+            inputs=[batch_files, batch_jd],
+            outputs=[batch_results, batch_status],
+        )
+
+        gan_load_btn.click(
+            fn=load_sample_jd,
+            inputs=[gan_dropdown],
+            outputs=[gan_jd],
+        )
+
+        gan_jd_dataset_table.select(
+            fn=load_jd_from_dataset,
+            inputs=[],
+            outputs=[gan_jd],
+        )
+
+        gan_run_btn.click(
+            fn=run_gan_audit,
+            inputs=[gan_pdf, gan_jd, pdf_input, improve_pdf],
+            outputs=[
+                gan_generator_display,
+                gan_discriminator_display,
+                gan_bias_display,
+                gan_status,
+            ],
+            js="""() => {
+                if (window.startATSGame) {
+                    window.startATSGame();
+                }
+            }"""
+        )
+
+        build_btn.click(
+            fn=build_resume_pdf,
+            inputs=[
+                rb_name, rb_email, rb_phone, rb_location,
+                rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                rb_certs,
+                rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+            ],
+            outputs=[rb_output, rb_status],
+        )
+
+        rb_github_btn.click(
+            fn=fetch_github_data,
+            inputs=[rb_github_username],
+            outputs=[
+                rb_name, rb_email, rb_phone, rb_location,
+                rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                rb_certs,
+                rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+                rb_output, rb_status,
+            ],
+        )
+
+        rb_pdf_btn.click(
+            fn=parse_and_autofill_pdf,
+            inputs=[rb_autofill_file],
+            outputs=[
+                rb_name, rb_email, rb_phone, rb_location,
+                rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                rb_certs,
+                rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+                rb_output, rb_status,
+            ],
+        )
+
+        # Synchronize PDF inputs across tabs on upload & clear
+        pdf_input.upload(
+            fn=lambda x: (x, x),
+            inputs=[pdf_input],
+            outputs=[improve_pdf, gan_pdf],
+        )
+        pdf_input.clear(
+            fn=lambda: (None, None),
+            inputs=[],
+            outputs=[improve_pdf, gan_pdf],
+        )
+
+        improve_pdf.upload(
+            fn=lambda x: (x, x),
+            inputs=[improve_pdf],
+            outputs=[pdf_input, gan_pdf],
+        )
+        improve_pdf.clear(
+            fn=lambda: (None, None),
+            inputs=[],
+            outputs=[pdf_input, gan_pdf],
+        )
+
+        gan_pdf.upload(
+            fn=lambda x: (x, x),
+            inputs=[gan_pdf],
+            outputs=[pdf_input, improve_pdf],
+        )
+        gan_pdf.clear(
+            fn=lambda: (None, None),
+            inputs=[],
+            outputs=[pdf_input, improve_pdf],
+        )
 
         # ── Footer ────────────────────────────────────────────────────────
         gr.HTML(
