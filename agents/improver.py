@@ -60,14 +60,122 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
 
         data: dict = resume_parser._extract_json(raw_content)
 
-        suggestions: List[str] = data.get("improvement_suggestions", [])
-        optimized_bullets: List[str] = data.get("ats_optimized_bullets", [])
+        # ── Extract improvement suggestions ───────────────────────────────
+        # The LLM prompt uses multiple output keys; we normalize them all
+        # into two unified lists for the UI.
+
+        suggestions: List[Any] = []
+
+        # 1. Section-level suggestions (from prompt schema: "section_suggestions")
+        section_suggestions = data.get("section_suggestions", [])
+        for item in section_suggestions:
+            if isinstance(item, dict):
+                section = item.get("section", "General")
+                suggestion = item.get("suggestion", "")
+                impact = item.get("impact", "Medium")
+                if suggestion:
+                    suggestions.append({
+                        "suggestion": f"[{section}] {suggestion}",
+                        "impact": impact,
+                    })
+            elif isinstance(item, str) and item:
+                suggestions.append({"suggestion": item, "impact": "Medium"})
+
+        # 2. Skills to add (from prompt schema: "skills_to_add")
+        skills_to_add = data.get("skills_to_add", [])
+        for item in skills_to_add:
+            if isinstance(item, dict):
+                skill = item.get("skill", "")
+                rationale = item.get("rationale", "")
+                evidence = item.get("evidence", "")
+                if skill:
+                    text = f"Add '{skill}' to your skills section"
+                    if evidence:
+                        text += f" — your experience ({evidence}) supports this"
+                    if rationale:
+                        text += f". {rationale}"
+                    suggestions.append({"suggestion": text, "impact": "High"})
+            elif isinstance(item, str) and item:
+                suggestions.append({"suggestion": f"Add skill: {item}", "impact": "High"})
+
+        # 3. Skills reorder (from prompt schema: "skills_to_reorder")
+        skills_reorder = data.get("skills_to_reorder", {})
+        if isinstance(skills_reorder, dict) and skills_reorder.get("suggested_order"):
+            suggested = ", ".join(skills_reorder["suggested_order"][:8])
+            rationale = skills_reorder.get("rationale", "")
+            suggestions.append({
+                "suggestion": f"Reorder your skills to lead with JD-priority items: {suggested}. {rationale}",
+                "impact": "Medium",
+            })
+
+        # 4. Missing keywords (from prompt schema: "missing_keywords")
+        missing_kw = data.get("missing_keywords", [])
+        if missing_kw:
+            kw_list = ", ".join(str(k) for k in missing_kw[:10])
+            suggestions.append({
+                "suggestion": f"Incorporate these missing JD keywords naturally into your resume: {kw_list}",
+                "impact": "High",
+            })
+
+        # 5. Overall summary (from prompt schema: "summary")
+        summary = data.get("summary", "")
+        if summary:
+            suggestions.append({
+                "suggestion": summary,
+                "impact": "General",
+            })
+
+        # 6. Score improvement estimate
+        est_improvement = data.get("estimated_score_improvement")
+        if est_improvement is not None:
+            try:
+                est_val = float(est_improvement)
+                suggestions.append({
+                    "suggestion": f"Estimated ATS score after implementing these changes: {est_val:.1f}/100 (current: {overall_score:.1f})",
+                    "impact": "Projection",
+                })
+            except (ValueError, TypeError):
+                pass
+
+        # 7. Fallback: if LLM returned flat "improvement_suggestions"
+        fallback_suggestions = data.get("improvement_suggestions", [])
+        if fallback_suggestions and not suggestions:
+            for item in fallback_suggestions:
+                if isinstance(item, dict):
+                    suggestions.append(item)
+                elif isinstance(item, str) and item:
+                    suggestions.append({"suggestion": item, "impact": "Medium"})
+
+        # ── Extract ATS-optimized bullets ─────────────────────────────────
+        optimized_bullets: List[Any] = []
+
+        # From prompt schema: "improved_bullets"
+        improved_bullets = data.get("improved_bullets", [])
+        for item in improved_bullets:
+            if isinstance(item, dict):
+                optimized_bullets.append({
+                    "original": item.get("original", ""),
+                    "improved": item.get("improved", ""),
+                    "keywords_added": item.get("keywords_added", []),
+                    "rationale": item.get("rationale", ""),
+                })
+            elif isinstance(item, str) and item:
+                optimized_bullets.append({"original": "", "improved": item, "keywords_added": []})
+
+        # Fallback: if LLM returned flat "ats_optimized_bullets"
+        fallback_bullets = data.get("ats_optimized_bullets", [])
+        if fallback_bullets and not optimized_bullets:
+            for item in fallback_bullets:
+                if isinstance(item, dict):
+                    optimized_bullets.append(item)
+                elif isinstance(item, str) and item:
+                    optimized_bullets.append({"original": "", "improved": item, "keywords_added": []})
 
         # Ensure we always have lists
         if not isinstance(suggestions, list):
-            suggestions = [str(suggestions)]
+            suggestions = [{"suggestion": str(suggestions), "impact": "Medium"}]
         if not isinstance(optimized_bullets, list):
-            optimized_bullets = [str(optimized_bullets)]
+            optimized_bullets = [{"original": "", "improved": str(optimized_bullets), "keywords_added": []}]
 
         logger.info(
             "Improvement node produced %d suggestions and %d optimized bullets.",
@@ -83,11 +191,12 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
         logger.exception("Improvement generation failed.")
         return {
             "improvement_suggestions": [
-                "Unable to generate suggestions automatically. "
-                "Review the gaps list and incorporate missing skills."
+                {
+                    "suggestion": "Unable to generate suggestions automatically. "
+                    "Review the gaps list and incorporate missing skills.",
+                    "impact": "General",
+                }
             ],
             "ats_optimized_bullets": [],
             "error": f"Improvement generation failed: {exc}",
         }
-
-# refactor: import resume_parser module to fix mock scope issues in tests

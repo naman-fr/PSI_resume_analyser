@@ -13,7 +13,9 @@ short_description: AI-powered Resume-JD matching with multi-agent LangGraph
 
 # PSI Resume Analyser 📄
 
-An industrial-grade multi-agent **ATS (Applicant Tracking System)** scoring and optimization pipeline built with **LangGraph**, **Gradio**, and **Groq (Llama 3)**.
+An industrial-grade multi-agent **ATS (Applicant Tracking System)** scoring and optimization pipeline built with **LangGraph**, **Gradio**, and **Google Gemini / Groq**.
+
+> Enterprise-grade resume screening with 7-factor weighted scoring, adversarial stress-testing, and EEOC-compliant demographic fairness auditing.
 
 ---
 
@@ -31,14 +33,15 @@ graph TD
     classDef agent fill:#1f2335,stroke:#bb9af7,stroke-width:2px,color:#c0caf5;
     classDef database fill:#1a1b26,stroke:#2ac3de,stroke-width:2px,color:#c0caf5;
     classDef output fill:#1a1b26,stroke:#9ece6a,stroke-width:2px,color:#c0caf5;
+    classDef audit fill:#1a1b26,stroke:#f7768e,stroke-width:2px,color:#c0caf5;
 
     %% Nodes
     A[Resume PDF]:::input
     B[Job Description Text]:::input
     
     subgraph Parallel Extraction
-        C[Resume Parser Agent<br/>Groq Llama 3]:::agent
-        D[JD Extractor Agent<br/>Groq Llama 3]:::agent
+        C[Resume Parser Agent<br/>Gemini / Groq LLM]:::agent
+        D[JD Extractor Agent<br/>Gemini / Groq LLM]:::agent
     end
     
     E[Skill Normalizer Agent]:::agent
@@ -53,19 +56,25 @@ graph TD
         G6[Achievement Quality A-COE: 5%]:::agent
         G7[Buzzword Compliance: 5%]:::agent
         G8[Auto-Disqualification Logic]:::agent
-        G9[Red/Green Flag Rules]:::agent
+        G9[Red/Green Flag Business Rules]:::agent
     end
 
     subgraph GAN Stress-Testing Loop
-        GAN_Gen[Adversarial Generator<br/>LLM Hacked Resume Creator]:::agent
-        GAN_Dis[ATS Discriminator<br/>Scorer Node Auditing Hacks]:::agent
-        GAN_EEOC[EEOC Bias Auditor<br/>Counterfactual Demographic Check]:::agent
+        GAN_Gen[Adversarial Generator<br/>LLM Hacked Resume Creator]:::audit
+        GAN_Dis[ATS Discriminator<br/>Scorer Node Auditing Hacks]:::audit
+    end
+
+    subgraph EEOC Fairness Audit
+        EEOC_Inject[Identity Injection<br/>5 Demographic Profiles]:::audit
+        EEOC_Reparse[Full Re-Parse Pipeline<br/>Per-Identity LLM Extraction]:::audit
+        EEOC_Score[Per-Identity Scoring<br/>Statistical Variance Analysis]:::audit
     end
     
     H[Resume Improver Agent]:::agent
     
     I[Match Score Dashboard<br/>Gradio UI]:::output
     J[ATS-Optimized Bullets<br/>& Improvement Gaps]:::output
+    K[Bias Immunity Index<br/>& EEOC Compliance Report]:::output
 
     %% Edges
     A --> C
@@ -96,18 +105,69 @@ graph TD
     B --> GAN_Gen
     GAN_Gen -->|Adversarial Hack| GAN_Dis
     GAN_Dis -->|Audit Logs| I
-    C --> GAN_EEOC
-    GAN_EEOC -->|EEOC Compliance Index| I
+
+    %% EEOC Edges
+    A --> EEOC_Inject
+    EEOC_Inject -->|5 Resume Variants| EEOC_Reparse
+    EEOC_Reparse --> EEOC_Score
+    EEOC_Score --> K
 ```
 
 ---
 
-## ⚡ Key Optimizations
+## ⚡ Key Features
 
-- **Combined LLM Normalization**: Consolidates both resume and JD unresolved skill normalization into a single concurrent LLM call, reducing pipeline latency and saving 50% on API limits.
-- **Concurrent Startup Loader**: Pre-loads the local SentenceTransformer model in a background thread at app launch, ensuring zero wait times for the first analysis request.
-- **Deterministic Experience Matcher**: Uses a local, rule-based experience scoring engine to calculate matching scores in microseconds instead of relying on expensive external LLM API calls.
-- **Robust Exception Handling**: Prevents pipeline crashes by safeguarding all list and dictionary lookups against potential null values returned from parsed inputs.
+### 🎯 Enterprise ATS Scoring (7-Factor Model)
+- **Hard Skills Match** (35%) — Exact keyword overlap using normalized skill taxonomy
+- **Skill Recency** (15%) — Penalizes stale skills not used in recent roles/projects
+- **Experience Relevance** (20%) — Role-level years comparison with surplus scaling
+- **Education Match** (10%) — Degree hierarchy comparison (High School → PhD)
+- **Semantic Similarity** (10%) — Dense embedding cosine similarity (MiniLM-L6-v2)
+- **Achievement Quality** (5%) — A-COE (Action-Context-Outcome-Evidence) bullet analysis
+- **Buzzword Compliance** (5%) — Penalizes generic corporate buzzwords without substance
+
+### 🚨 Business Rule Engine
+| Rule | Penalty | Trigger |
+|------|---------|---------|
+| AI-Resume Detection | **AUTO-DISQUALIFY** | Template probability ≥ 85% |
+| Timeline Gaps | **-15.0 pts** | Unexplained gaps > 12 months |
+| Job Hopping | **-10.0 pts** | 3+ tenures < 12 months |
+| Fabrication Risk | **-8.0 pts** | < 50% skills backed by experience |
+| Buzzword Overload | **-5.0 pts** | Excessive corporate buzzwords |
+| Vague Achievements | **-5.0 pts** | Achievement quality < 40% |
+
+### 🟢 Green Flag Bonuses
+| Flag | Bonus | Trigger |
+|------|-------|---------|
+| COE Formatted Bullets | **+5.0 pts** | Achievement quality ≥ 70% |
+| Skill-JD Mirroring | **+4.0 pts** | Validation ratio ≥ 80% |
+| Upward Trajectory | **+3.0 pts** | Chronological seniority growth |
+| Alignment Hero Section | **+3.0 pts** | Summary matches target role |
+| Portfolio Accessible | **+2.0 pts** | Active portfolio/GitHub links |
+| Rehired by Same Employer | **+2.0 pts** | Repeated tenures at same company |
+
+### 🛡️ GAN Adversarial Stress-Tester
+Simulates a **Generative Adversarial Network** framework:
+1. **Generator** — LLM crafts a keyword-stuffed, AI-styled resume targeting the JD
+2. **Discriminator** — The ATS Scorer intercepts and flags structural issues, buzzwords, AI patterns, and timeline manipulation
+3. **Result** — Side-by-side comparison showing how the system defeats adversarial hacking attempts
+
+### ⚖️ EEOC Demographic Fairness Audit (Genuine Counterfactual Testing)
+**Not hardcoded** — runs a real statistical analysis:
+1. **Identity Injection** — Injects 5 demographic profiles (names, pronouns, honorifics) into the raw resume text
+2. **Full Re-Parse** — Each variant is re-parsed through the LLM, detecting if the parser extracts different data for different identities
+3. **Per-Variant Scoring** — Each parsed variant runs through the full scorer pipeline
+4. **Statistical Variance** — Reports range, standard deviation, and per-factor variance
+5. **EEOC Compliance** — Requires < 3pt deviation per profile and < 2.0 stdev across all profiles
+
+---
+
+## ⚡ Performance Optimizations
+
+- **Combined LLM Normalization** — Single concurrent LLM call for both resume + JD skill normalization (50% API savings)
+- **Concurrent Startup Loader** — Pre-loads SentenceTransformer in background thread at app launch
+- **Deterministic Experience Matcher** — Local rule-based scoring in microseconds (no LLM roundtrip)
+- **Robust Exception Handling** — Safeguards all lookups against null values from parsed inputs
 
 ---
 
@@ -116,10 +176,12 @@ graph TD
 | Component | Technology |
 |-----------|------------|
 | **Orchestration** | LangGraph + LangChain |
-| **Primary LLM** | Groq (Llama 3.3 70B - Versatile) |
+| **Primary LLM** | Google Gemini 2.0 Flash |
+| **Fallback LLM** | Groq (Llama 3.3 70B) |
 | **Embeddings** | all-MiniLM-L6-v2 |
 | **PDF Parsing** | PyPDF2 + pdfplumber |
-| **Frontend UI** | Gradio (5.33.0) |
+| **Skill Taxonomy** | Custom JSON taxonomy with 500+ aliases |
+| **Frontend UI** | Gradio 5.33.0 with premium custom CSS |
 | **Deployment** | HuggingFace Spaces |
 
 ---
@@ -140,6 +202,7 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory:
 ```env
 GROQ_API_KEY=your_groq_api_key_here
+GOOGLE_API_KEY=your_gemini_api_key_here
 ```
 
 ### 3. Run Locally
@@ -151,19 +214,9 @@ python app.py
 
 ## 📊 Scoring Formula
 
-The matching engine employs an enterprise-grade Applicant Tracking System (ATS) calculation combining weighted scoring with business rule penalties and bonuses:
-
 $$\text{Base Score} = 0.35 \times \text{Hard Skills} + 0.15 \times \text{Skill Recency} + 0.20 \times \text{Experience Relevance} + 0.10 \times \text{Education Match} + 0.10 \times \text{Semantic Similarity} + 0.05 \times \text{Achievement Quality} + 0.05 \times \text{Buzzword Compliance}$$
 
 $$\text{Final Match Score} = \min\left(100.0, \max\left(0.0, \text{Base Score} + \sum \text{Green Flag Bonuses} - \sum \text{Red Flag Penalties}\right)\right)$$
-
-### 🚨 Disqualification & Business Rules:
-- **AI-Resume Detection**: Template matches with $\ge 85\%$ probability triggers **AUTO-DISQUALIFICATION**.
-- **Timeline Gaps**: Unexplained career gaps $>12$ months penalize **-15.0 pts**.
-- **Job Hopping**: $3+$ consecutive tenures $<12$ months without contract/intern labels penalize **-10.0 pts**.
-- **Fabrication Detection**: $<50\%$ of listed skills supported by projects or work context penalize **-8.0 pts**.
-- **Buzzword Overload**: Excessive corporate buzzwords without quantifiable metrics penalize **-5.0 pts**.
-- **Green Flag Bonuses**: Quantitative achievements (A-COE), target-title alignment, skill mirroring, and online portfolios award up to **+17.0 pts** of bonuses.
 
 ---
 

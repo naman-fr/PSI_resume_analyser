@@ -507,7 +507,16 @@ def get_improvements(
             if isinstance(item, dict):
                 text = item.get("suggestion", item.get("text", str(item)))
                 impact = item.get("impact", "")
-                impact_badge = f' <span class="score-badge badge-yellow">{impact}</span>' if impact else ""
+                # Color-code impact badges
+                if impact.lower() in ("high",):
+                    badge_cls = "badge-red"
+                elif impact.lower() in ("medium",):
+                    badge_cls = "badge-yellow"
+                elif impact.lower() in ("projection",):
+                    badge_cls = "badge-green"
+                else:
+                    badge_cls = "badge-yellow"
+                impact_badge = f' <span class="score-badge {badge_cls}">{impact}</span>' if impact else ""
                 parts.append(f'<div class="improvement-item"><strong>{i}.</strong> {text}{impact_badge}</div>')
             else:
                 parts.append(f'<div class="improvement-item"><strong>{i}.</strong> {item}</div>')
@@ -524,14 +533,16 @@ def get_improvements(
                 original = item.get("original", "")
                 improved = item.get("improved", "")
                 keywords = item.get("keywords_added", [])
+                rationale = item.get("rationale", "")
                 kw_str = ", ".join(keywords) if keywords else ""
                 bullet_parts.append(
                     f'<div class="improvement-item">'
-                    f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:4px">Original:</p>'
-                    f"  <p style=\"margin-bottom:8px\">{original}</p>"
-                    f'  <p style="color:#34d399;font-size:0.82rem;margin-bottom:4px">✨ Optimized:</p>'
+                    + (f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:4px">Original:</p>'
+                       f"  <p style=\"margin-bottom:8px\">{original}</p>" if original else "")
+                    + f'  <p style="color:#34d399;font-size:0.82rem;margin-bottom:4px">✨ Optimized:</p>'
                     f"  <p><strong>{improved}</strong></p>"
                     + (f'  <p style="font-size:0.78rem;color:#fbbf24;margin-top:6px">Keywords added: {kw_str}</p>' if kw_str else "")
+                    + (f'  <p style="font-size:0.78rem;color:#94a3b8;margin-top:4px;font-style:italic">💡 {rationale}</p>' if rationale else "")
                     + f"</div>"
                 )
             else:
@@ -732,20 +743,67 @@ def run_gan_audit(
             
             immunity = bias_res["bias_immunity_index"]
             variance = bias_res["score_variance"]
-            compliance = "PASSED (100% Bias-Immune)" if bias_res["eeoc_compliance"] else "FAILED (Demographic Skew)"
+            score_stdev = bias_res.get("score_stdev", 0.0)
+            score_mean = bias_res.get("score_mean", 0.0)
+            biased_count = bias_res.get("biased_profiles_count", 0)
+            biased_factors = bias_res.get("biased_factors", [])
+            methodology = bias_res.get("methodology", "")
+            factor_analysis = bias_res.get("factor_analysis", {})
+            
+            compliance = "PASSED ✅ Bias-Immune" if bias_res["eeoc_compliance"] else "FAILED ⚠️ Demographic Skew Detected"
             comp_class = "badge-green" if bias_res["eeoc_compliance"] else "badge-red"
             
+            # Build per-profile audit rows with color-coded verdicts
             audit_rows = []
             for item in bias_res["audit_logs"]:
+                verdict = item.get("verdict", "")
+                if "Bias Detected" in verdict:
+                    verdict_class = "badge-red"
+                elif "Minor Variance" in verdict:
+                    verdict_class = "badge-yellow"
+                else:
+                    verdict_class = "badge-green"
+                
+                deviation = abs(item["score"] - score_mean)
                 audit_rows.append(
                     f'<tr>'
                     f'  <td>{item["profile_label"]}</td>'
                     f'  <td>{item["assigned_name"]}</td>'
                     f'  <td><strong>{item["score"]:.1f}</strong></td>'
-                    f'  <td><span class="score-badge badge-green" style="padding:2px 8px;font-size:0.75rem">{item["verdict"]}</span></td>'
+                    f'  <td style="font-size:0.8rem;color:#94a3b8">Δ{deviation:.1f}pts</td>'
+                    f'  <td><span class="score-badge {verdict_class}" style="padding:2px 8px;font-size:0.75rem">{verdict}</span></td>'
                     f'</tr>'
                 )
             rows_html = "\n".join(audit_rows)
+            
+            # Build per-factor variance breakdown
+            factor_rows = []
+            for factor_key, factor_data in factor_analysis.items():
+                if isinstance(factor_data, dict):
+                    f_range = factor_data.get("range", 0.0)
+                    f_stdev = factor_data.get("stdev", 0.0)
+                    f_biased = factor_data.get("biased", False)
+                    f_status = "⚠️ Bias" if f_biased else "✅ Clean"
+                    f_class = "color:#ef4444" if f_biased else "color:#4ade80"
+                    factor_rows.append(
+                        f'<tr>'
+                        f'  <td style="text-transform:capitalize">{factor_key.replace("_", " ")}</td>'
+                        f'  <td>{f_range:.2f}</td>'
+                        f'  <td>{f_stdev:.2f}</td>'
+                        f'  <td style="{f_class};font-weight:600">{f_status}</td>'
+                        f'</tr>'
+                    )
+            factor_html = "\n".join(factor_rows)
+            
+            biased_factors_str = ""
+            if biased_factors:
+                factors_list = ", ".join(f.replace("_", " ").title() for f in biased_factors)
+                biased_factors_str = (
+                    f'<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);'
+                    f'border-radius:8px;padding:10px;margin:10px 0">'
+                    f'<strong style="color:#ef4444">⚠️ Bias detected in:</strong> {factors_list}'
+                    f'</div>'
+                )
             
             bias_html = (
                 f'<div class="result-card">'
@@ -753,22 +811,37 @@ def run_gan_audit(
                 f'  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
                 f'    <div>'
                 f'      <p style="margin:0;font-size:0.9rem">Bias Immunity Index: <strong style="color:#22d3ee">{immunity:.1f}%</strong></p>'
-                f'      <p style="margin:0;font-size:0.9rem">Score Variance: <strong>{variance:.2f} pts</strong></p>'
+                f'      <p style="margin:0;font-size:0.9rem">Score Range: <strong>{variance:.2f} pts</strong> · Std Dev: <strong>{score_stdev:.2f}</strong> · Mean: <strong>{score_mean:.1f}</strong></p>'
+                f'      <p style="margin:0;font-size:0.9rem">Biased Profiles: <strong>{biased_count}/5</strong></p>'
                 f'    </div>'
                 f'    <span class="score-badge {comp_class}" style="font-size:0.9rem">{compliance}</span>'
                 f'  </div>'
-                f'  <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:8px">'
-                f'    Counterfactual analysis replacing pronouns and names across 5 profiles:'
+                f'  {biased_factors_str}'
+                f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:10px;font-style:italic">'
+                f'    {methodology}'
                 f'  </p>'
+                f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin-bottom:6px">📊 Per-Profile Counterfactual Results</p>'
                 f'  <table style="width:100%;font-size:0.88rem">'
                 f'    <thead>'
-                f'      <tr><th>Profile</th><th>Assigned Identity</th><th>Scoring Match</th><th>Audit Status</th></tr>'
+                f'      <tr><th>Profile</th><th>Assigned Identity</th><th>Score</th><th>Deviation</th><th>Audit Status</th></tr>'
                 f'    </thead>'
                 f'    <tbody>'
                 f'{rows_html}'
                 f'    </tbody>'
                 f'  </table>'
-                f'</div>'
+                + (
+                    f'  <p style="color:#c0caf5;font-size:0.88rem;font-weight:600;margin:14px 0 6px">🔬 Per-Factor Variance Breakdown</p>'
+                    f'  <table style="width:100%;font-size:0.85rem">'
+                    f'    <thead>'
+                    f'      <tr><th>Scoring Factor</th><th>Range (pts)</th><th>Std Dev</th><th>Status</th></tr>'
+                    f'    </thead>'
+                    f'    <tbody>'
+                    f'{factor_html}'
+                    f'    </tbody>'
+                    f'  </table>'
+                    if factor_html else ""
+                )
+                + f'</div>'
             )
     except Exception as exc:
         bias_html = f'<p style="color:#ef4444">Bias Audit failed: {exc}</p>'
