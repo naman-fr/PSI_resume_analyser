@@ -55,6 +55,12 @@ graph TD
         G8[Auto-Disqualification Logic]:::agent
         G9[Red/Green Flag Rules]:::agent
     end
+
+    subgraph GAN Stress-Testing Loop
+        GAN_Gen[Adversarial Generator<br/>LLM Hacked Resume Creator]:::agent
+        GAN_Dis[ATS Discriminator<br/>Scorer Node Auditing Hacks]:::agent
+        GAN_EEOC[EEOC Bias Auditor<br/>Counterfactual Demographic Check]:::agent
+    end
     
     H[Resume Improver Agent]:::agent
     
@@ -85,6 +91,13 @@ graph TD
     G9 --> H
     G9 --> I
     H --> J
+
+    %% GAN Edges
+    B --> GAN_Gen
+    GAN_Gen -->|Adversarial Hack| GAN_Dis
+    GAN_Dis -->|Audit Logs| I
+    C --> GAN_EEOC
+    GAN_EEOC -->|EEOC Compliance Index| I
 ```
 
 ---
