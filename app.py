@@ -419,7 +419,7 @@ def get_game_html() -> str:
         if (overlay) {
             overlay.style.display = 'flex';
             title.innerText = "Time's Up!";
-            desc.innerHTML = `You caught ATS skills and scored <strong style="color:#34d399;font-size:1.15rem;">\${score}</strong> points!<br>Still auditing demographic profiles...`;
+            desc.innerHTML = `You caught ATS skills and scored <strong style="color:#34d399;font-size:1.15rem;">${score}</strong> points!<br>Still auditing demographic profiles...`;
             btn.innerText = "Play Again";
             statusText.innerText = "Game Paused";
         }
@@ -618,6 +618,8 @@ def _format_list_items(items: List[str], css_class: str) -> str:
 def analyze_resume(
     pdf_file: Any,
     jd_text: str,
+    fallback_pdf_1: Any = None,
+    fallback_pdf_2: Any = None,
 ) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """
     Run the full resume analysis pipeline.
@@ -634,6 +636,9 @@ def analyze_resume(
       8 – green_flags_html
       9 – status_message
     """
+    if pdf_file is None:
+        pdf_file = fallback_pdf_1 or fallback_pdf_2
+
     # ── 1. Validate inputs ────────────────────────────────────────────────
     valid, err = validate_pdf(pdf_file)
     if not valid:
@@ -796,6 +801,8 @@ def analyze_resume(
 def get_improvements(
     pdf_file: Any,
     jd_text: str,
+    fallback_pdf_1: Any = None,
+    fallback_pdf_2: Any = None,
 ) -> Tuple[str, str, str]:
     """
     Run analysis and return improvement suggestions.
@@ -805,6 +812,9 @@ def get_improvements(
       1 – ats_bullets_html
       2 – status_message
     """
+    if pdf_file is None:
+        pdf_file = fallback_pdf_1 or fallback_pdf_2
+
     valid, err = validate_pdf(pdf_file)
     if not valid:
         return ("", "", f"⚠️ {err}")
@@ -963,6 +973,207 @@ def batch_analyze(
 
     return (ranked_rows, " ".join(status_parts))
 
+
+# ---------------------------------------------------------------------------
+# GitHub & PDF Resume Autofill Functions
+# ---------------------------------------------------------------------------
+
+
+def _make_autofill_error_return(message: str) -> Tuple[Any, ...]:
+    """Helper to return an empty form state of 38 fields, None file, and a status message (40 elements)."""
+    return ("", "", "", "", "", "", "", "", *[""]*15, *[""]*8, "", *[""]*6, None, message)
+
+
+def fetch_github_data(username: str) -> Tuple[Any, ...]:
+    """Fetch GitHub profile & repositories and map them to the resume form fields."""
+    import urllib.request
+    import json
+    
+    if not username or not username.strip():
+        return _make_autofill_error_return("⚠️ Please enter a GitHub username.")
+    
+    username = username.strip()
+    try:
+        # Fetch profile
+        user_url = f"https://api.github.com/users/{username}"
+        req = urllib.request.Request(user_url, headers={"User-Agent": "PSI-Resume-Builder"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            user_data = json.loads(response.read().decode())
+            
+        name = user_data.get("name") or username
+        email = user_data.get("email") or ""
+        location = user_data.get("location") or ""
+        bio = user_data.get("bio") or ""
+        blog = user_data.get("blog") or ""
+        github_url = f"github.com/{username}"
+        
+        # Fetch repositories
+        repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=6"
+        req_repos = urllib.request.Request(repos_url, headers={"User-Agent": "PSI-Resume-Builder"})
+        repos = []
+        with urllib.request.urlopen(req_repos, timeout=5) as response:
+            repos = json.loads(response.read().decode())
+            
+        # Extract projects
+        proj1_name, proj1_desc, proj1_tech = "", "", ""
+        proj2_name, proj2_desc, proj2_tech = "", "", ""
+        
+        languages = set()
+        if isinstance(repos, list) and len(repos) > 0:
+            # Project 1
+            proj1_name = repos[0].get("name", "").replace("-", " ").title()
+            proj1_desc = repos[0].get("description") or ""
+            proj1_tech = repos[0].get("language") or ""
+            if proj1_tech:
+                languages.add(proj1_tech)
+                
+            # Project 2
+            if len(repos) > 1:
+                proj2_name = repos[1].get("name", "").replace("-", " ").title()
+                proj2_desc = repos[1].get("description") or ""
+                proj2_tech = repos[1].get("language") or ""
+                if proj2_tech:
+                    languages.add(proj2_tech)
+                    
+            # Add languages from other repos
+            for repo in repos[2:]:
+                lang = repo.get("language")
+                if lang:
+                    languages.add(lang)
+                    
+        skills_str = ", ".join(languages) if languages else "Git, GitHub, Software Engineering"
+        summary = f"Passionate software developer and creator of {proj1_name or 'projects'}. "
+        if bio:
+            summary += bio
+        else:
+            summary += f"Experienced in building projects using {skills_str}."
+            
+        return (
+            name, email, "", location, "", blog or github_url, summary, skills_str,
+            # Exp 1 (empty)
+            "", "", "", "", "",
+            # Exp 2 (empty)
+            "", "", "", "", "",
+            # Exp 3 (empty)
+            "", "", "", "", "",
+            # Edu 1 (empty)
+            "", "", "", "",
+            # Edu 2 (empty)
+            "", "", "", "",
+            # Certifications (empty)
+            "",
+            # Project 1
+            proj1_name, proj1_desc, proj1_tech,
+            # Project 2
+            proj2_name, proj2_desc, proj2_tech,
+            None, f"✅ Successfully fetched data for GitHub user '{username}'!"
+        )
+    except Exception as e:
+        return _make_autofill_error_return(f"⚠️ Failed to fetch GitHub profile: {e}")
+
+
+def parse_and_autofill_pdf(pdf_file: Any) -> Tuple[Any, ...]:
+    """Parse an existing PDF resume using the LLM parser and return updates for all form fields."""
+    if pdf_file is None:
+        return _make_autofill_error_return("⚠️ Please upload a PDF resume first.")
+        
+    try:
+        file_path = pdf_file.name if hasattr(pdf_file, "name") else str(pdf_file)
+        
+        # Dual-backend PDF parser
+        try:
+            resume_text = extract_text_from_pdf(file_path)
+        except Exception as exc:
+            return _make_autofill_error_return(f"⚠️ Failed to extract text from PDF: {exc}")
+        
+        from agents.resume_parser import parse_resume
+        from agents.state import ResumeJDState
+        
+        state: ResumeJDState = {
+            "resume_text": resume_text,
+            "jd_text": ""  # empty JD
+        }
+        
+        parse_res = parse_resume(state)
+        if "error" in parse_res:
+            return _make_autofill_error_return(f"⚠️ Parsing failed: {parse_res['error']}")
+            
+        parsed = parse_res.get("resume_parsed", {})
+        
+        name = parsed.get("name") or ""
+        email = parsed.get("email") or ""
+        phone = parsed.get("phone") or ""
+        location = parsed.get("location") or ""
+        summary = parsed.get("summary") or ""
+        
+        skills_list = parsed.get("skills") or []
+        skills_str = ", ".join(skills_list) if isinstance(skills_list, list) else str(skills_list)
+        
+        # Extract Experience
+        exp_entries = parsed.get("experience") or []
+        exp_outputs = []
+        for idx in range(3):
+            if idx < len(exp_entries):
+                entry = exp_entries[idx]
+                bullets = entry.get("bullets") or []
+                bullets_str = "\n".join(bullets) if isinstance(bullets, list) else str(bullets)
+                exp_outputs.extend([
+                    entry.get("company") or "",
+                    entry.get("title") or entry.get("role") or "",
+                    entry.get("duration") or "",
+                    "", # end date (empty, duration is in start_date)
+                    bullets_str
+                ])
+            else:
+                exp_outputs.extend(["", "", "", "", ""])
+                
+        # Extract Education
+        edu_entries = parsed.get("education") or []
+        edu_outputs = []
+        for idx in range(2):
+            if idx < len(edu_entries):
+                entry = edu_entries[idx]
+                edu_outputs.extend([
+                    entry.get("degree") or "",
+                    entry.get("institution") or "",
+                    entry.get("year") or "",
+                    entry.get("gpa") or ""
+                ])
+            else:
+                edu_outputs.extend(["", "", "", ""])
+                
+        # Extract Certifications
+        certs_list = parsed.get("certifications") or []
+        certs_str = "\n".join(certs_list) if isinstance(certs_list, list) else str(certs_list)
+        
+        # Extract Projects
+        proj_entries = parsed.get("projects") or []
+        proj_outputs = []
+        for idx in range(2):
+            if idx < len(proj_entries):
+                entry = proj_entries[idx]
+                proj_outputs.extend([
+                    entry.get("name") or "",
+                    entry.get("description") or "",
+                    entry.get("technologies") or ""
+                ])
+            else:
+                proj_outputs.extend(["", "", ""])
+                
+        return (
+            name, email, phone, location, "", "", summary, skills_str,
+            *exp_outputs,
+            *edu_outputs,
+            certs_str,
+            *proj_outputs,
+            None, f"✅ Successfully parsed and loaded details from PDF!"
+        )
+        
+    except Exception as e:
+        logger.exception("Autofill PDF parsing failed.")
+        return _make_autofill_error_return(f"⚠️ Failed to parse PDF: {e}")
+
+
 # ---------------------------------------------------------------------------
 # PDF Resume Builder Function
 # ---------------------------------------------------------------------------
@@ -1055,10 +1266,15 @@ def build_resume_pdf(
 def run_gan_audit(
     pdf_file: Any,
     jd_text: str,
+    fallback_pdf_1: Any = None,
+    fallback_pdf_2: Any = None,
 ) -> Tuple[str, str, str, str]:
     """
     Simulate the GAN Generative Adversarial stress test.
     """
+    if pdf_file is None:
+        pdf_file = fallback_pdf_1 or fallback_pdf_2
+
     valid, err = validate_pdf(pdf_file)
     if not valid:
         return ("", "", "", f"⚠️ {err}")
@@ -1387,11 +1603,51 @@ def create_app() -> gr.Blocks:
         # ── Header ───────────────────────────────────────────────────────
         gr.HTML(
             """
-            <div class="app-header">
-                <h1>🎯 PSI Resume Analyser</h1>
-                <p>
-                    AI-powered ATS scoring engine that deeply analyses your resume
-                    against any job description — powered by LangGraph and Gemini.
+            <div class="app-header-card" style="
+                background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(99, 102, 241, 0.05) 50%, rgba(34, 211, 238, 0.05) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 16px;
+                padding: 2.5rem 2rem;
+                margin-bottom: 2rem;
+                text-align: center;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+                position: relative;
+                overflow: hidden;
+            ">
+                <!-- Top Glowing Accent line -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #7c3aed, #6366f1, #22d3ee);"></div>
+                
+                <!-- Tech Badges -->
+                <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <span style="background: rgba(124, 58, 237, 0.15); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">⚡ LangGraph Orchestrated</span>
+                    <span style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">🤖 Gemini 2.0 Flash</span>
+                    <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">🛡️ EEOC Audited</span>
+                </div>
+                
+                <h1 style="
+                    font-size: 2.8rem;
+                    font-weight: 800;
+                    background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 50%, #a78bfa 100%);
+                    background-size: 200% auto;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    margin: 0.5rem 0 1rem;
+                    letter-spacing: -0.02em;
+                    line-height: 1.2;
+                ">🎯 PSI Resume Analyser</h1>
+                
+                <p style="
+                    color: #94a3b8;
+                    font-size: 1.1rem;
+                    font-weight: 400;
+                    max-width: 720px;
+                    margin: 0 auto;
+                    line-height: 1.6;
+                ">
+                    AI-powered ATS scoring engine that deeply analyses your resume against any job description — powered by LangGraph and Gemini.
                 </p>
             </div>
             """
@@ -1517,7 +1773,7 @@ def create_app() -> gr.Blocks:
 
                 analyze_btn.click(
                     fn=analyze_resume,
-                    inputs=[pdf_input, jd_input],
+                    inputs=[pdf_input, jd_input, improve_pdf, gan_pdf],
                     outputs=[
                         overall_score_display,
                         score_breakdown_display,
@@ -1589,7 +1845,7 @@ def create_app() -> gr.Blocks:
 
                 improve_btn.click(
                     fn=get_improvements,
-                    inputs=[improve_pdf, improve_jd],
+                    inputs=[improve_pdf, improve_jd, pdf_input, gan_pdf],
                     outputs=[suggestions_display, ats_bullets_display, improve_status],
                 )
 
@@ -1770,7 +2026,7 @@ def create_app() -> gr.Blocks:
 
                 gan_run_btn.click(
                     fn=run_gan_audit,
-                    inputs=[gan_pdf, gan_jd],
+                    inputs=[gan_pdf, gan_jd, pdf_input, improve_pdf],
                     outputs=[
                         gan_generator_display,
                         gan_discriminator_display,
@@ -1793,6 +2049,23 @@ def create_app() -> gr.Blocks:
                     "Fill in your details below and generate a **professionally formatted, "
                     "ATS-optimized PDF resume**. Download it instantly."
                 )
+
+                with gr.Accordion("📂 Quick Autofill Options (GitHub or PDF Resume)", open=True):
+                    gr.Markdown("Pre-populate the manual fields below by either fetching data from a GitHub username or parsing an existing resume PDF (like a LinkedIn PDF export).")
+                    with gr.Row():
+                        with gr.Column(scale=1):
+                            rb_github_username = gr.Textbox(
+                                label="GitHub Username",
+                                placeholder="e.g. torvalds",
+                            )
+                            rb_github_btn = gr.Button("🔍 Autofill from GitHub", variant="secondary")
+                        with gr.Column(scale=1):
+                            rb_autofill_file = gr.File(
+                                label="Existing Resume / LinkedIn PDF",
+                                file_types=[".pdf"],
+                                type="filepath",
+                            )
+                            rb_pdf_btn = gr.Button("⚡ Parse & Autofill PDF", variant="secondary")
 
                 with gr.Row():
                     with gr.Column(scale=3):
@@ -1931,6 +2204,42 @@ def create_app() -> gr.Blocks:
                         rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
                     ],
                     outputs=[rb_output, rb_status],
+                )
+
+                rb_github_btn.click(
+                    fn=fetch_github_data,
+                    inputs=[rb_github_username],
+                    outputs=[
+                        rb_name, rb_email, rb_phone, rb_location,
+                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                        rb_certs,
+                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+                        rb_output, rb_status,
+                    ],
+                )
+
+                rb_pdf_btn.click(
+                    fn=parse_and_autofill_pdf,
+                    inputs=[rb_autofill_file],
+                    outputs=[
+                        rb_name, rb_email, rb_phone, rb_location,
+                        rb_linkedin, rb_portfolio, rb_summary, rb_skills,
+                        rb_exp1_company, rb_exp1_role, rb_exp1_start, rb_exp1_end, rb_exp1_bullets,
+                        rb_exp2_company, rb_exp2_role, rb_exp2_start, rb_exp2_end, rb_exp2_bullets,
+                        rb_exp3_company, rb_exp3_role, rb_exp3_start, rb_exp3_end, rb_exp3_bullets,
+                        rb_edu1_degree, rb_edu1_institution, rb_edu1_year, rb_edu1_gpa,
+                        rb_edu2_degree, rb_edu2_institution, rb_edu2_year, rb_edu2_gpa,
+                        rb_certs,
+                        rb_proj1_name, rb_proj1_desc, rb_proj1_tech,
+                        rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
+                        rb_output, rb_status,
+                    ],
                 )
 
                 # Synchronize PDF inputs across tabs on upload & clear
