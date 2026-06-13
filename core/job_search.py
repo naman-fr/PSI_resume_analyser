@@ -393,12 +393,13 @@ def search_jobs(
         if remote_only and not j.remote:
             continue
             
-        # Location filter - relaxed remote location matching
-        if location and location.lower().strip() != "remote":
+        # Location filter - only apply if the job is NOT remote
+        if location and location.lower().strip() != "remote" and not j.remote:
             loc_str = location.lower().strip()
-            # If the job is remote (Worldwide remote or explicit remote indicator), don't filter it out
-            is_worldwide_remote = j.remote and any(term in j.location.lower() for term in ["worldwide", "remote", "anywhere", "global"])
-            if not (loc_str in j.location.lower() or is_worldwide_remote):
+            # Split candidate location (e.g. "Jaipur, India" -> ["jaipur", "india"]) to see if any matches
+            candidate_locs = [part.strip().lower() for part in loc_str.split(",") if part.strip()]
+            job_loc_lower = j.location.lower()
+            if not any(part in job_loc_lower for part in candidate_locs):
                 continue
                 
         filtered_jobs.append(j)
