@@ -25,13 +25,13 @@ class ScoredJob:
 
 def _categorize(score: float) -> str:
     """Categorize a job match score."""
-    if score >= 75.0:
+    if score >= 60.0:
         return "🏆 Top Applicant"
-    elif score >= 55.0:
+    elif score >= 40.0:
         return "💪 Strong Match"
-    elif score >= 35.0:
+    elif score >= 20.0:
         return "🎯 Worth Trying"
-    return "Below Threshold"
+    return "💼 Decent Match"
 
 
 def _extract_skills_from_job(job: JobListing, taxonomy: SkillTaxonomy) -> List[str]:
@@ -65,7 +65,7 @@ def score_jobs(
     resume_text: str,
     resume_skills: List[str],
     jobs: List[JobListing],
-    min_score: float = 35.0
+    min_score: float = 0.0
 ) -> List[ScoredJob]:
     """Score and rank job listings against the candidate's resume."""
     scored_jobs = []

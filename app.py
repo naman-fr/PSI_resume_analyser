@@ -458,7 +458,8 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
         <button class="deck-filter-btn active" onclick="window.jobDeck.applyFilter('all')">All ({total})</button>
         <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('top')">🏆 Top ({top})</button>
         <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('strong')">💪 Strong ({strong})</button>
-        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('worth')">🎯 Worth Trying ({worth})</button>
+        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('worth')">🎯 Worth ({worth})</button>
+        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('decent')">💼 Decent ({decent})</button>
     </div>
     """
 
@@ -466,19 +467,23 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
     c_top = sum(1 for j in scored_jobs if "Top" in j.category)
     c_strong = sum(1 for j in scored_jobs if "Strong" in j.category)
     c_worth = sum(1 for j in scored_jobs if "Worth" in j.category)
-    filters_html = filters_html.format(total=len(scored_jobs), top=c_top, strong=c_strong, worth=c_worth)
+    c_decent = sum(1 for j in scored_jobs if "Decent" in j.category)
+    filters_html = filters_html.format(total=len(scored_jobs), top=c_top, strong=c_strong, worth=c_worth, decent=c_decent)
 
     cards_html = []
     for idx, j in enumerate(scored_jobs):
         # Determine badge color and CSS classes
-        badge_cls = "badge-worth"
-        gauge_color = "#f59e0b"
+        badge_cls = "badge-decent"
+        gauge_color = "#94a3b8"
         if "Top" in j.category:
             badge_cls = "badge-top"
             gauge_color = "#10b981"
         elif "Strong" in j.category:
             badge_cls = "badge-strong"
             gauge_color = "#6366f1"
+        elif "Worth" in j.category:
+            badge_cls = "badge-worth"
+            gauge_color = "#f59e0b"
 
         # Matched and missing skills
         matched_skills_html = "".join([f'<span class="skill-pill matched">✅ {s}</span>' for s in j.matched_skills[:8]])
@@ -610,6 +615,8 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
                     } else if (filter === 'strong' && cat.includes('Strong')) {
                         match = true;
                     } else if (filter === 'worth' && cat.includes('Worth')) {
+                        match = true;
+                    } else if (filter === 'decent' && cat.includes('Decent')) {
                         match = true;
                     }
                     
