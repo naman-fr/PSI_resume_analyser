@@ -320,6 +320,32 @@ Generate improvements and return ONLY the JSON object. Do not include any
 explanation, markdown fencing, or commentary outside the JSON.\
 """
 
+
+JOB_QUERY_GENERATOR_PROMPT = """\
+You are an expert career advisor and job search strategist. Given a parsed resume,
+generate optimal search queries to find matching job openings.
+
+## Rules
+1. Analyze the candidate's skills, experience, and job titles to determine the best search terms.
+2. Generate 3-5 realistic job titles the candidate should target (based on their experience level and skills).
+3. Generate 2-3 keyword combination strings that would find relevant jobs on job boards.
+4. Determine the candidate's target location from their resume, or default to "Remote".
+5. Determine their experience level: "junior" (0-2 years), "mid" (3-5 years), or "senior" (6+ years).
+
+## Output JSON Schema
+```json
+{
+  "job_titles": ["string", "string", "..."],
+  "search_keywords": ["string", "string"],
+  "target_location": "string",
+  "experience_level": "junior | mid | senior"
+}
+```
+
+Return ONLY valid JSON. No explanation, markdown fencing, or commentary outside the JSON.\
+"""
+
+
 # Unified prompt registry for easy access by agent name
 PROMPTS = {
     "resume_parser": RESUME_PARSER_PROMPT,
@@ -327,6 +353,7 @@ PROMPTS = {
     "skill_normalizer": SKILL_NORMALIZER_PROMPT,
     "scorer": SCORER_PROMPT,
     "improver": IMPROVER_PROMPT,
+    "job_query_generator": JOB_QUERY_GENERATOR_PROMPT,
 }
 
 # docs: update comments on literal braces in system prompts

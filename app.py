@@ -18,6 +18,10 @@ import gradio as gr
 
 from config.settings import settings
 from core.pdf_parser import extract_text_from_pdf
+from core.job_search import search_jobs
+from core.job_matcher import score_jobs
+from core.job_query_generator import generate_search_queries
+
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -436,6 +440,325 @@ def get_game_html() -> str:
     }
 " style="display:none;" />
 """
+
+def get_job_cards_html(scored_jobs: List[Any]) -> str:
+    """Generate the swipe card deck HTML interface."""
+    if not scored_jobs:
+        return r"""
+        <div class="empty-deck-message">
+            <span style="font-size: 3rem; margin-bottom: 1rem;">🔍</span>
+            <h3>No matching jobs found</h3>
+            <p>Try adjusting your search criteria, keywords, or location preferences.</p>
+        </div>
+        """
+
+    # Generate filter buttons
+    filters_html = """
+    <div class="deck-filters">
+        <button class="deck-filter-btn active" onclick="window.jobDeck.applyFilter('all')">All ({total})</button>
+        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('top')">🏆 Top ({top})</button>
+        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('strong')">💪 Strong ({strong})</button>
+        <button class="deck-filter-btn" onclick="window.jobDeck.applyFilter('worth')">🎯 Worth Trying ({worth})</button>
+    </div>
+    """
+
+    # Count categories
+    c_top = sum(1 for j in scored_jobs if "Top" in j.category)
+    c_strong = sum(1 for j in scored_jobs if "Strong" in j.category)
+    c_worth = sum(1 for j in scored_jobs if "Worth" in j.category)
+    filters_html = filters_html.format(total=len(scored_jobs), top=c_top, strong=c_strong, worth=c_worth)
+
+    cards_html = []
+    for idx, j in enumerate(scored_jobs):
+        # Determine badge color and CSS classes
+        badge_cls = "badge-worth"
+        gauge_color = "#f59e0b"
+        if "Top" in j.category:
+            badge_cls = "badge-top"
+            gauge_color = "#10b981"
+        elif "Strong" in j.category:
+            badge_cls = "badge-strong"
+            gauge_color = "#6366f1"
+
+        # Matched and missing skills
+        matched_skills_html = "".join([f'<span class="skill-pill matched">✅ {s}</span>' for s in j.matched_skills[:8]])
+        missing_skills_html = "".join([f'<span class="skill-pill missing">➕ {s}</span>' for s in j.missing_skills[:6]])
+        
+        skills_section = ""
+        if matched_skills_html or missing_skills_html:
+            skills_section = f"""
+            <div class="job-card-skills-section">
+                <div class="skills-heading">Skills Profile Match</div>
+                <div class="skills-list">
+                    {matched_skills_html}
+                    {missing_skills_html}
+                </div>
+            </div>
+            """
+
+        # Details list
+        remote_icon = "🏠" if j.listing.remote else "📍"
+        salary_html = f'<div class="detail-item"><span class="detail-item-label">💰 Salary:</span> <strong>{j.listing.salary}</strong></div>' if j.listing.salary else ''
+        
+        snippet = j.listing.description[:200] + "..." if len(j.listing.description) > 200 else j.listing.description
+
+        card_html = f"""
+        <div class="job-card" data-index="{idx}" data-category="{j.category}">
+            <div class="job-card-header">
+                <div class="job-card-meta">
+                    <span class="job-card-badge {badge_cls}">{j.category}</span>
+                    <h2 class="job-card-title">{j.listing.title}</h2>
+                    <p class="job-card-company">{j.listing.company}</p>
+                </div>
+                <div class="job-card-gauge" style="background: conic-gradient({gauge_color} {j.match_score}%, rgba(255,255,255,0.05) {j.match_score}%);">
+                    <span class="job-card-gauge-value">{int(j.match_score)}%</span>
+                </div>
+            </div>
+            
+            <div class="job-card-body">
+                <div class="job-card-details">
+                    <div class="detail-item"><span class="detail-item-label">{remote_icon} Location:</span> <strong>{j.listing.location}</strong></div>
+                    <div class="detail-item"><span class="detail-item-label">⏱️ Type:</span> <strong>{j.listing.job_type}</strong></div>
+                    {salary_html}
+                    <div class="detail-item"><span class="detail-item-label">📅 Posted:</span> <strong>{j.listing.posted_date}</strong></div>
+                </div>
+                
+                {skills_section}
+                
+                <p class="job-card-desc-snippet">{snippet}</p>
+            </div>
+            
+            <div class="job-card-footer">
+                <span class="source-info">via <strong>{j.listing.source}</strong></span>
+                <a href="{j.listing.url}" target="_blank" class="apply-btn">Apply Now 🚀</a>
+            </div>
+        </div>
+        """
+        cards_html.append(card_html)
+
+    deck_html = """
+    <div class="job-finder-container">
+        {filters_html}
+        
+        <div class="job-deck-container" id="job-deck-container">
+            <div id="job-deck" style="width:100%; height:100%; position:relative;">
+                {cards_html}
+            </div>
+            <div class="empty-deck-message" id="empty-deck-msg" style="display: none;">
+                <span style="font-size: 3rem; margin-bottom: 1rem;">🎉</span>
+                <h3>You've reviewed all matches!</h3>
+                <p>Try searching again with different location preferences or options.</p>
+            </div>
+        </div>
+        
+        <div class="deck-controls">
+            <button class="deck-btn" onclick="window.jobDeck.swipe('left')">❌</button>
+            <div class="deck-counter" id="deck-counter">1 / {total_jobs}</div>
+            <button class="deck-btn" onclick="window.jobDeck.swipe('right')">💚</button>
+        </div>
+    </div>
+    
+    <script id="job-deck-script">
+    (function() {
+        class JobDeckController {
+            constructor() {
+                this.currentIndex = 0;
+                this.currentFilter = 'all';
+                this.visibleCards = [];
+                this.startX = 0;
+                this.startY = 0;
+                this.currentX = 0;
+                this.currentY = 0;
+                this.isDragging = false;
+                
+                this.init();
+            }
+            
+            init() {
+                const deckContainer = document.getElementById('job-deck');
+                if (!deckContainer) return;
+                
+                this.deck = deckContainer;
+                this.allCards = Array.from(deckContainer.getElementsByClassName('job-card'));
+                this.applyFilter('all');
+                this.setupGestures();
+                this.setupKeyboard();
+            }
+            
+            applyFilter(filter) {
+                this.currentFilter = filter;
+                
+                // Update filter buttons active class
+                const filterBtns = Array.from(document.querySelectorAll('.deck-filter-btn'));
+                filterBtns.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(filter)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                this.visibleCards = [];
+                this.allCards.forEach(card => {
+                    const cat = card.getAttribute('data-category');
+                    let match = false;
+                    
+                    if (filter === 'all') {
+                        match = true;
+                    } else if (filter === 'top' && cat.includes('Top')) {
+                        match = true;
+                    } else if (filter === 'strong' && cat.includes('Strong')) {
+                        match = true;
+                    } else if (filter === 'worth' && cat.includes('Worth')) {
+                        match = true;
+                    }
+                    
+                    if (match) {
+                        this.visibleCards.push(card);
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                        card.classList.remove('active', 'next', 'hidden');
+                        card.style.transform = '';
+                        card.style.opacity = '';
+                    }
+                });
+                
+                this.currentIndex = 0;
+                this.updateCardClasses();
+            }
+            
+            updateCardClasses() {
+                const emptyMsg = document.getElementById('empty-deck-msg');
+                const counter = document.getElementById('deck-counter');
+                
+                if (this.visibleCards.length === 0) {
+                    if (emptyMsg) emptyMsg.style.display = 'flex';
+                    if (counter) counter.innerText = '0 / 0';
+                    return;
+                }
+                
+                if (emptyMsg) emptyMsg.style.display = 'none';
+                if (counter) counter.innerText = `${this.currentIndex + 1} / ${this.visibleCards.length}`;
+                
+                this.visibleCards.forEach((card, idx) => {
+                    card.classList.remove('active', 'next', 'hidden');
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                    
+                    if (idx === this.currentIndex) {
+                        card.classList.add('active');
+                    } else if (idx === this.currentIndex + 1) {
+                        card.classList.add('next');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }
+            
+            swipe(direction) {
+                const activeCard = this.visibleCards[this.currentIndex];
+                if (!activeCard) return;
+                
+                const outWidth = window.innerWidth || document.documentElement.clientWidth;
+                const moveX = direction === 'right' ? outWidth : -outWidth;
+                const rotate = direction === 'right' ? 30 : -30;
+                
+                activeCard.style.transition = 'transform 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.4s ease';
+                activeCard.style.transform = `translate3d(${moveX}px, 20px, 0) rotate(${rotate}deg)`;
+                activeCard.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.currentIndex++;
+                    this.updateCardClasses();
+                }, 300);
+            }
+            
+            setupGestures() {
+                this.deck.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+                document.addEventListener('pointermove', (e) => this.onPointerMove(e));
+                document.addEventListener('pointerup', () => this.onPointerUp());
+            }
+            
+            onPointerDown(e) {
+                if (e.target.closest('a') || e.target.closest('button')) return;
+                
+                const activeCard = this.visibleCards[this.currentIndex];
+                if (!activeCard) return;
+                
+                this.isDragging = true;
+                this.startX = e.clientX;
+                this.startY = e.clientY;
+                activeCard.style.transition = 'none';
+            }
+            
+            onPointerMove(e) {
+                if (!this.isDragging) return;
+                
+                const activeCard = this.visibleCards[this.currentIndex];
+                if (!activeCard) return;
+                
+                this.currentX = e.clientX - this.startX;
+                this.currentY = e.clientY - this.startY;
+                
+                const rotate = this.currentX * 0.08;
+                activeCard.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0) rotate(${rotate}deg)`;
+            }
+            
+            onPointerUp() {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                
+                const activeCard = this.visibleCards[this.currentIndex];
+                if (!activeCard) return;
+                
+                activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease';
+                
+                const swipeThreshold = 140;
+                if (this.currentX > swipeThreshold) {
+                    this.swipe('right');
+                } else if (this.currentX < -swipeThreshold) {
+                    this.swipe('left');
+                } else {
+                    activeCard.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+                }
+                
+                this.currentX = 0;
+                this.currentY = 0;
+            }
+            
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    // Make sure we aren't typing in inputs
+                    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+                    
+                    if (e.key === 'ArrowLeft') {
+                        this.swipe('left');
+                    } else if (e.key === 'ArrowRight') {
+                        this.swipe('right');
+                    }
+                });
+            }
+        }
+        
+        window.jobDeck = new JobDeckController();
+    })();
+    </script>
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onload="
+        const oldScript = document.getElementById('job-deck-script');
+        if (oldScript) {
+            const newScript = document.createElement('script');
+            newScript.textContent = oldScript.textContent;
+            document.body.appendChild(newScript);
+        }
+    " style="display:none;" />
+    """
+    return deck_html.format(
+        filters_html=filters_html,
+        cards_html="".join(cards_html),
+        total_jobs=len(scored_jobs)
+    )
+
 
 # Built-in fallback sample JD if no files found
 DEFAULT_SAMPLE_JD = """\
@@ -1276,6 +1599,100 @@ def build_resume_pdf(
         logger.exception("Resume PDF generation failed.")
         return None, f"⚠️ PDF generation failed: {exc}"
 
+
+def search_and_match_jobs(
+    pdf_file: Any,
+    location_filter: str,
+    remote_only: bool,
+    fallback_pdf_1: Any = None,
+    fallback_pdf_2: Any = None,
+) -> Tuple[str, str, str]:
+    """Search for matching jobs and score them against the resume."""
+    if pdf_file is None:
+        pdf_file = fallback_pdf_1 or fallback_pdf_2
+
+    valid, err = validate_pdf(pdf_file)
+    if not valid:
+        return ("", "0 matches", f"⚠️ {err}")
+
+    try:
+        file_path = pdf_file.name if hasattr(pdf_file, "name") else str(pdf_file)
+        resume_text = extract_text_from_pdf(file_path)
+    except Exception as exc:
+        logger.exception("PDF extraction failed")
+        return ("", "0 matches", f"⚠️ Failed to extract text from PDF: {exc}")
+
+    # Parse resume
+    try:
+        from agents.resume_parser import parse_resume
+        state = {"resume_text": resume_text}
+        parse_res = parse_resume(state)
+        
+        if "error" in parse_res:
+            err_msg = parse_res["error"]
+            warning_html = (
+                f'<div class="result-card" style="border-color:#eab308;background:rgba(234,179,8,0.05);margin-bottom:15px">'
+                f'  <h3 style="color:#eab308">⚠️ Job Matcher Paused</h3>'
+                f'  <p style="color:#fef08a;margin-bottom:8px"><strong>API Quota / Rate Limit Exceeded:</strong></p>'
+                f'  <p style="color:#e2e8f0;font-size:0.9rem">{err_msg}</p>'
+                f'</div>'
+            )
+            return (warning_html, "0 matches", f"⚠️ Parsing failed: {err_msg}")
+            
+        resume_parsed = parse_res.get("resume_parsed", {})
+    except Exception as exc:
+        logger.exception("Resume parsing failed in search_and_match_jobs")
+        return ("", "0 matches", f"⚠️ Resume parsing failed: {exc}")
+
+    # Generate search queries
+    try:
+        queries_dict = generate_search_queries(resume_parsed)
+        # We search using job titles and keywords
+        titles = queries_dict.get("job_titles", ["Software Engineer"])
+        keywords = queries_dict.get("search_keywords", ["developer"])
+        
+        # Merge titles and keywords to get query variations
+        search_terms = list(set(titles + keywords))
+        
+        # Decide location
+        location = location_filter.strip() if location_filter and location_filter.strip() else queries_dict.get("target_location", "Remote")
+    except Exception as exc:
+        logger.exception("Search query generation failed")
+        search_terms = ["Software Engineer"]
+        location = "Remote"
+
+    # Search jobs
+    try:
+        listings = search_jobs(
+            queries=search_terms,
+            location=location,
+            remote_only=remote_only,
+            max_results=30
+        )
+    except Exception as exc:
+        logger.exception("Job search failed")
+        return ("", "0 matches", f"⚠️ Job search failed: {exc}")
+
+    if not listings:
+        return (get_job_cards_html([]), "0 matches", "⚠️ No matching jobs found on external boards.")
+
+    # Score jobs
+    try:
+        resume_skills = resume_parsed.get("skills", [])
+        scored = score_jobs(
+            resume_text=resume_text,
+            resume_skills=resume_skills,
+            jobs=listings,
+            min_score=35.0
+        )
+    except Exception as exc:
+        logger.exception("Job scoring failed")
+        return ("", "0 matches", f"⚠️ Job scoring failed: {exc}")
+
+    cards_html = get_job_cards_html(scored)
+    match_count = f"{len(scored)} matches"
+    status_msg = f"✅ Success: Found and scored {len(scored)} matching jobs."
+    return (cards_html, match_count, status_msg)
 
 
 
@@ -2199,6 +2616,66 @@ def create_app() -> gr.Blocks:
                 # Note: events are wired at the bottom of create_app
 
             # ══════════════════════════════════════════════════════════════
+            #  TAB 7 — Find Jobs
+            # ══════════════════════════════════════════════════════════════
+            with gr.Tab("🔍 Find Jobs"):
+                gr.Markdown(
+                    "### 🔍 Real-Time Job Discovery & Match Engine\n"
+                    "Upload your resume to search across multiple live job boards (Remotive, Arbeitnow, and Adzuna). "
+                    "The engine parses your resume, generates customized search queries, filters by location preferences, "
+                    "and ranks matching roles in a Tinder-style swipe-card view using semantic similarity."
+                )
+
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        jf_pdf = gr.File(
+                            label="Resume (PDF) — Upload to Find Jobs",
+                            file_types=[".pdf"],
+                            type="filepath",
+                        )
+                        
+                        jf_location = gr.Textbox(
+                            label="📍 Location Preference",
+                            placeholder="e.g. Remote, New York, London (Leave blank to autofill from resume)",
+                            lines=1,
+                        )
+                        
+                        jf_remote = gr.Checkbox(
+                            label="🏠 Remote Jobs Only",
+                            value=False,
+                        )
+                        
+                        find_jobs_btn = gr.Button(
+                            "🔍 Find Matching Jobs",
+                            variant="primary",
+                            size="lg",
+                        )
+
+                    with gr.Column(scale=2):
+                        jf_cards_display = gr.HTML(
+                            r"""
+                            <div style="text-align: center; padding: 40px; color: var(--psi-text-dim);">
+                                <span style="font-size: 3rem;">📄</span>
+                                <h3>Ready to find jobs</h3>
+                                <p>Upload your resume and click "Find Matching Jobs" to start matching roles.</p>
+                            </div>
+                            """
+                        )
+                        
+                        with gr.Row():
+                            jf_match_count = gr.Textbox(
+                                label="Total Matches",
+                                value="0 matches",
+                                interactive=False,
+                            )
+                            jf_status = gr.Textbox(
+                                label="Status",
+                                value="Idle",
+                                interactive=False,
+                            )
+
+
+            # ══════════════════════════════════════════════════════════════
             #  TAB 6 — About
             # ══════════════════════════════════════════════════════════════
             with gr.Tab("ℹ️ About"):
@@ -2215,6 +2692,22 @@ def create_app() -> gr.Blocks:
             fn=load_jd_from_dataset,
             inputs=[],
             outputs=[jd_input],
+        )
+
+        find_jobs_btn.click(
+            fn=search_and_match_jobs,
+            inputs=[
+                jf_pdf,
+                jf_location,
+                jf_remote,
+                pdf_input,
+                improve_pdf,
+            ],
+            outputs=[
+                jf_cards_display,
+                jf_match_count,
+                jf_status,
+            ],
         )
 
         analyze_btn.click(

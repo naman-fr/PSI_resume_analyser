@@ -4,6 +4,9 @@ from core.pdf_parser import extract_text_from_pdf
 from core.embeddings import get_embeddings, get_embedding_model
 from core.similarity import compute_cosine_similarity, compute_semantic_score
 from core.skill_taxonomy import SkillTaxonomy
+from core.job_search import search_jobs, JobListing
+from core.job_matcher import score_jobs, ScoredJob
+from core.job_query_generator import generate_search_queries
 
 __all__ = [
     "extract_text_from_pdf",
@@ -12,4 +15,10 @@ __all__ = [
     "compute_cosine_similarity",
     "compute_semantic_score",
     "SkillTaxonomy",
+    "search_jobs",
+    "JobListing",
+    "score_jobs",
+    "ScoredJob",
+    "generate_search_queries",
 ]
+

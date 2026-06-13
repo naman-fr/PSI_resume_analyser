@@ -37,6 +37,16 @@ class ModelConfig:
 
 
 @dataclass
+class JobSearchConfig:
+    """Configuration for the Job Finder multi-API search."""
+    adzuna_app_id: str = field(default_factory=lambda: os.getenv("ADZUNA_APP_ID", ""))
+    adzuna_app_key: str = field(default_factory=lambda: os.getenv("ADZUNA_APP_KEY", ""))
+    adzuna_country: str = field(default_factory=lambda: os.getenv("ADZUNA_COUNTRY", "us"))
+    max_results_per_source: int = 25
+    min_match_score: float = 35.0
+
+
+@dataclass
 class AppConfig:
     """Main application configuration."""
     app_name: str = "PSI Resume Analyser"
@@ -52,6 +62,9 @@ class AppConfig:
 
     # Models
     models: ModelConfig = field(default_factory=ModelConfig)
+
+    # Job Search
+    job_search: JobSearchConfig = field(default_factory=JobSearchConfig)
 
     # HuggingFace
     hf_token: str = field(default_factory=lambda: os.getenv("HF_TOKEN", ""))
