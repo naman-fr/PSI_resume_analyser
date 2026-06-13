@@ -1647,12 +1647,15 @@ def search_and_match_jobs(
     # Generate search queries
     try:
         queries_dict = generate_search_queries(resume_parsed)
-        # We search using job titles and keywords
         titles = queries_dict.get("job_titles", ["Software Engineer"])
         keywords = queries_dict.get("search_keywords", ["developer"])
-        
-        # Merge titles and keywords to get query variations
-        search_terms = list(set(titles + keywords))
+        # Select top 1 title and top 1 keyword search term to avoid JSearch 429 rate limit issues
+        search_terms = []
+        if titles:
+            search_terms.append(titles[0])
+        if keywords:
+            search_terms.append(keywords[0])
+        search_terms = list(set(search_terms))[:2]
         
         # Decide location
         location = location_filter.strip() if location_filter and location_filter.strip() else queries_dict.get("target_location", "Remote")

@@ -114,8 +114,6 @@ def _search_remotive(query: str, category: str = "") -> List[JobListing]:
 
 def _search_arbeitnow(query: str) -> List[JobListing]:
     """Search jobs using the Arbeitnow API (focuses on EU & remote jobs)."""
-    # Arbeitnow doesn't have a direct search query parameter in their public API URL,
-    # so we fetch the latest jobs and filter client-side.
     url = "https://www.arbeitnow.com/api/job-board-api"
     data = _fetch_json(url)
     
@@ -170,7 +168,7 @@ def _search_adzuna(query: str, country: str = "us") -> List[JobListing]:
     app_id = os.getenv("ADZUNA_APP_ID", "")
     app_key = os.getenv("ADZUNA_APP_KEY", "")
     
-    if not app_id or not app_key:
+    if not app_id or not app_key or "your_adzuna" in app_id:
         return []
         
     base_url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1"
@@ -218,7 +216,6 @@ def _search_adzuna(query: str, country: str = "us") -> List[JobListing]:
         if category:
             tags.append(category.replace("_", " ").title())
             
-        # Check if remote in title/desc/location
         is_remote = any(term in (title + desc + location).lower() for term in ["remote", "work from home", "telecommute"])
         
         jobs.append(JobListing(
@@ -240,7 +237,7 @@ def _search_adzuna(query: str, country: str = "us") -> List[JobListing]:
 def _search_jsearch(query: str, location: str = "", remote_only: bool = False) -> List[JobListing]:
     """Search jobs using the JSearch API (LinkedIn, Indeed, Internshala, etc. via RapidAPI)."""
     api_key = os.getenv("RAPIDAPI_KEY", "")
-    if not api_key:
+    if not api_key or "your_rapidapi_key_here" in api_key:
         return []
         
     base_url = "https://jsearch.p.rapidapi.com/search"
@@ -354,7 +351,10 @@ def search_jobs(
         logger.info("Searching job boards for query: '%s'", q)
         
         # 1. JSearch (RapidAPI) - Preferred if API Key configured
-        if os.getenv("RAPIDAPI_KEY"):
+        has_jsearch = False
+        api_key = os.getenv("RAPIDAPI_KEY", "")
+        if api_key and "your_rapidapi" not in api_key:
+            has_jsearch = True
             try:
                 jsearch_jobs = _search_jsearch(q, location=location, remote_only=remote_only)
                 all_jobs.extend(jsearch_jobs)
@@ -393,11 +393,12 @@ def search_jobs(
         if remote_only and not j.remote:
             continue
             
-        # Location filter
+        # Location filter - relaxed remote location matching
         if location and location.lower().strip() != "remote":
             loc_str = location.lower().strip()
-            # If the job isn't remote and doesn't match location, skip
-            if not (loc_str in j.location.lower() or (j.remote and "remote" in loc_str)):
+            # If the job is remote (Worldwide remote or explicit remote indicator), don't filter it out
+            is_worldwide_remote = j.remote and any(term in j.location.lower() for term in ["worldwide", "remote", "anywhere", "global"])
+            if not (loc_str in j.location.lower() or is_worldwide_remote):
                 continue
                 
         filtered_jobs.append(j)
