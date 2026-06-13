@@ -42,8 +42,10 @@ class JobSearchConfig:
     adzuna_app_id: str = field(default_factory=lambda: os.getenv("ADZUNA_APP_ID", ""))
     adzuna_app_key: str = field(default_factory=lambda: os.getenv("ADZUNA_APP_KEY", ""))
     adzuna_country: str = field(default_factory=lambda: os.getenv("ADZUNA_COUNTRY", "us"))
+    rapidapi_key: str = field(default_factory=lambda: os.getenv("RAPIDAPI_KEY", ""))
     max_results_per_source: int = 25
     min_match_score: float = 35.0
+
 
 
 @dataclass

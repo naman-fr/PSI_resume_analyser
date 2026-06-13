@@ -84,10 +84,14 @@ def _search_remotive(query: str, category: str = "") -> List[JobListing]:
         desc = _strip_html(j.get("description", ""))
         job_url = j.get("url", "")
         salary = j.get("salary", "") or "Not disclosed"
+        
         posted = j.get("publication_date", "")
-        # Format posted date to simple YYYY-MM-DD if ISO format
-        if posted and len(posted) >= 10:
-            posted = posted[:10]
+        if posted:
+            posted_str = str(posted)
+            if len(posted_str) >= 10:
+                posted = posted_str[:10]
+            else:
+                posted = posted_str
             
         tags = j.get("tags", [])
         j_type = j.get("job_type", "Full-time")
@@ -128,9 +132,14 @@ def _search_arbeitnow(query: str) -> List[JobListing]:
         desc = _strip_html(j.get("description", ""))
         job_url = j.get("url", "")
         tags = j.get("tags", [])
+        
         posted = j.get("created_at", "")
-        if posted and len(posted) >= 10:
-            posted = posted[:10]
+        if posted:
+            posted_str = str(posted)
+            if len(posted_str) >= 10:
+                posted = posted_str[:10]
+            else:
+                posted = posted_str
             
         is_remote = j.get("remote", False)
         
@@ -146,7 +155,7 @@ def _search_arbeitnow(query: str) -> List[JobListing]:
             location=location,
             description=desc,
             url=job_url,
-            salary="Not disclosed", # Arbeitnow API doesn't standardly expose salary in list API
+            salary="Not disclosed",
             source="Arbeitnow",
             posted_date=posted,
             job_type="Full-time",
@@ -197,8 +206,12 @@ def _search_adzuna(query: str, country: str = "us") -> List[JobListing]:
             salary = "Not disclosed"
             
         posted = j.get("created", "")
-        if posted and len(posted) >= 10:
-            posted = posted[:10]
+        if posted:
+            posted_str = str(posted)
+            if len(posted_str) >= 10:
+                posted = posted_str[:10]
+            else:
+                posted = posted_str
             
         tags = []
         category = j.get("category", {}).get("tag", "")
@@ -218,6 +231,93 @@ def _search_adzuna(query: str, country: str = "us") -> List[JobListing]:
             source="Adzuna",
             posted_date=posted,
             job_type="Full-time",
+            tags=tags,
+            remote=is_remote
+        ))
+    return jobs
+
+
+def _search_jsearch(query: str, location: str = "", remote_only: bool = False) -> List[JobListing]:
+    """Search jobs using the JSearch API (LinkedIn, Indeed, Internshala, etc. via RapidAPI)."""
+    api_key = os.getenv("RAPIDAPI_KEY", "")
+    if not api_key:
+        return []
+        
+    base_url = "https://jsearch.p.rapidapi.com/search"
+    
+    # Construct search query
+    search_q = query
+    if location:
+        search_q = f"{query} in {location}"
+        
+    params = {
+        "query": search_q,
+        "num_pages": "1",
+        "date_posted": "week"
+    }
+    
+    if remote_only:
+        params["remote_jobs_only"] = "true"
+        
+    url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    headers = {
+        "X-RapidAPI-Key": api_key,
+        "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
+    }
+    
+    data = _fetch_json(url, headers=headers)
+    jobs = []
+    if not data or "data" not in data:
+        return jobs
+        
+    for j in data["data"]:
+        title = j.get("job_title", "")
+        company = j.get("employer_name", "")
+        
+        city = j.get("job_city", "")
+        state = j.get("job_state", "")
+        country = j.get("job_country", "")
+        location_parts = [p for p in [city, state, country] if p]
+        loc = ", ".join(location_parts) if location_parts else "Remote"
+        
+        desc = _strip_html(j.get("job_description", ""))
+        job_url = j.get("job_apply_link", "") or j.get("job_google_link", "")
+        
+        min_sal = j.get("job_min_salary")
+        max_sal = j.get("job_max_salary")
+        currency = j.get("job_salary_currency", "USD")
+        if min_sal and max_sal:
+            salary = f"{currency} {min_sal:,.0f} - {max_sal:,.0f}"
+        elif min_sal:
+            salary = f"{currency} {min_sal:,.0f}+"
+        else:
+            salary = "Not disclosed"
+            
+        posted = j.get("job_posted_at_datetime_utc", "")
+        if posted:
+            posted_str = str(posted)
+            if len(posted_str) >= 10:
+                posted = posted_str[:10]
+            else:
+                posted = posted_str
+            
+        j_type = j.get("job_employment_type", "Full-time").replace("_", " ").title()
+        is_remote = j.get("job_is_remote", False)
+        
+        tags = []
+        if j.get("job_required_skills"):
+            tags.extend(j.get("job_required_skills")[:3])
+            
+        jobs.append(JobListing(
+            title=title,
+            company=company,
+            location=loc,
+            description=desc,
+            url=job_url,
+            salary=salary,
+            source="JSearch (LinkedIn/Indeed/Glassdoor)",
+            posted_date=posted,
+            job_type=j_type,
             tags=tags,
             remote=is_remote
         ))
@@ -253,21 +353,29 @@ def search_jobs(
             
         logger.info("Searching job boards for query: '%s'", q)
         
-        # 1. Remotive (Remote-only)
+        # 1. JSearch (RapidAPI) - Preferred if API Key configured
+        if os.getenv("RAPIDAPI_KEY"):
+            try:
+                jsearch_jobs = _search_jsearch(q, location=location, remote_only=remote_only)
+                all_jobs.extend(jsearch_jobs)
+            except Exception as e:
+                logger.warning("Error running JSearch search: %s", str(e))
+        
+        # 2. Remotive (Remote-only)
         try:
             remotive_jobs = _search_remotive(q)
             all_jobs.extend(remotive_jobs)
         except Exception as e:
             logger.warning("Error running Remotive search: %s", str(e))
             
-        # 2. Arbeitnow (EU/Worldwide & Remote)
+        # 3. Arbeitnow (EU/Worldwide & Remote)
         try:
             arbeitnow_jobs = _search_arbeitnow(q)
             all_jobs.extend(arbeitnow_jobs)
         except Exception as e:
             logger.warning("Error running Arbeitnow search: %s", str(e))
             
-        # 3. Adzuna (Global - if API key configured)
+        # 4. Adzuna (Global - if API key configured)
         country = os.getenv("ADZUNA_COUNTRY", "us")
         try:
             adzuna_jobs = _search_adzuna(q, country=country)
