@@ -464,7 +464,7 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
     """
 
     # Count categories
-    c_top = sum(1 for j in scored_jobs if "Top" in j.category)
+    c_top = sum(1 for j in scored_jobs if "Top" in j.category or "Star" in j.category)
     c_strong = sum(1 for j in scored_jobs if "Strong" in j.category)
     c_worth = sum(1 for j in scored_jobs if "Worth" in j.category)
     c_decent = sum(1 for j in scored_jobs if "Decent" in j.category)
@@ -475,7 +475,10 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
         # Determine badge color and CSS classes
         badge_cls = "badge-decent"
         gauge_color = "#94a3b8"
-        if "Top" in j.category:
+        if "Star" in j.category:
+            badge_cls = "badge-star"
+            gauge_color = "#ffd93d"
+        elif "Top" in j.category:
             badge_cls = "badge-top"
             gauge_color = "#10b981"
         elif "Strong" in j.category:
@@ -610,7 +613,7 @@ def get_job_cards_html(scored_jobs: List[Any]) -> str:
                     
                     if (filter === 'all') {
                         match = true;
-                    } else if (filter === 'top' && cat.includes('Top')) {
+                    } else if (filter === 'top' && (cat.includes('Top') || cat.includes('Star'))) {
                         match = true;
                     } else if (filter === 'strong' && cat.includes('Strong')) {
                         match = true;

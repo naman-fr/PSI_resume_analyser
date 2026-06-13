@@ -908,6 +908,13 @@ footer.svelte-1rjryqp {
     margin-bottom: 8px;
 }
 
+.badge-star {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(239, 68, 68, 0.25) 100%);
+    color: #ffd93d;
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
 .badge-top {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(52, 211, 153, 0.2) 100%);
     color: #34d399;

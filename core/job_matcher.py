@@ -99,20 +99,53 @@ def score_jobs(
             composite_score = max(0.0, min(100.0, composite_score))
             
             category = _categorize(composite_score)
-            if composite_score >= min_score:
-                # Retrieve original case names for matching/missing if possible
-                scored_jobs.append(ScoredJob(
-                    listing=job,
-                    match_score=round(composite_score, 1),
-                    semantic_score=round(sem_score, 1),
-                    skill_overlap=round(overlap_pct, 1),
-                    matched_skills=matched,
-                    missing_skills=missing[:8], # Limit missing skills display
-                    category=category
-                ))
+            
+            # Retrieve original case names for matching/missing if possible
+            scored_jobs.append(ScoredJob(
+                listing=job,
+                match_score=round(composite_score, 1),
+                semantic_score=round(sem_score, 1),
+                skill_overlap=round(overlap_pct, 1),
+                matched_skills=matched,
+                missing_skills=missing[:8], # Limit missing skills display
+                category=category
+            ))
         except Exception as e:
             logger.warning("Error scoring job '%s' by '%s': %s", job.title, job.company, str(e))
             
+    # Apply relative score scaling / boosting if there are scored jobs
+    if scored_jobs:
+        raw_max = max(x.match_score for x in scored_jobs)
+        if raw_max > 0.0 and raw_max < 92.0:
+            boost_factor = 92.0 / raw_max
+            for sj in scored_jobs:
+                sj.match_score = min(100.0, round(sj.match_score * boost_factor, 1))
+                sj.category = _categorize(sj.match_score)
+                
+        # Apply special "🔥 Star Match" conditions
+        for sj in scored_jobs:
+            is_worldwide_remote = False
+            if sj.listing.remote:
+                loc = sj.listing.location.lower()
+                global_terms = ["worldwide", "global", "anywhere", "world-wide", "wfa", "any country", "everywhere"]
+                if any(term in loc for term in global_terms) or loc.strip() in ["remote", "any", ""]:
+                    is_worldwide_remote = True
+            
+            # ≥4 matched skills or worldwide remote accessibility
+            if len(sj.matched_skills) >= 4 or is_worldwide_remote:
+                sj.category = "🔥 Star Match"
+                # Star matches get an impressive score of at least 88.0
+                sj.match_score = max(sj.match_score, 88.0)
+
     # Sort descending by composite match score
     scored_jobs.sort(key=lambda x: x.match_score, reverse=True)
+    
+    # Filter by min_score, but ensure we keep at least 10 jobs (or all if total < 10)
+    if len(scored_jobs) > 10:
+        filtered_jobs = [sj for sj in scored_jobs if sj.match_score >= min_score]
+        if len(filtered_jobs) < 10:
+            scored_jobs = scored_jobs[:10]
+        else:
+            scored_jobs = filtered_jobs
+            
     return scored_jobs
