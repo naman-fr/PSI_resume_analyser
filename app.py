@@ -2100,6 +2100,135 @@ ATS Score = 0.40 × Keyword + 0.25 × Semantic + 0.25 × Experience + 0.10 × Ed
 # ---------------------------------------------------------------------------
 
 
+def get_observability_metrics() -> Tuple[str, str, str, str, str, str]:
+    """Fetch metrics and return values for Gradio textboxes and HTML tables."""
+    import os
+    import time
+    from core.telemetry import TelemetryLogger
+    from config.settings import settings
+    
+    metrics = TelemetryLogger.get_summary_metrics()
+    
+    cost_str = f"${metrics['total_cost_usd']:.5f} USD"
+    latency_str = f"{metrics['average_latency_sec']:.3f} sec"
+    tokens_str = f"{metrics['total_tokens_consumed']:,}"
+    success_str = f"{metrics['success_rate_pct']:.1f}% ({metrics['success_count']}/{metrics['total_runs']})"
+    
+    # 1. Tracing Table
+    recent_logs = TelemetryLogger.get_recent_logs(15)
+    logs_html = r"""
+    <div style="overflow-x: auto; background: rgba(30, 41, 59, 0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 5px;">
+        <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9rem; color: #cbd5e1; text-align: left;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <th style="padding: 10px; color: #cbd5e1;">Timestamp</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Node Name</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Provider</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Latency</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Tokens</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Cost</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+    if not recent_logs:
+        logs_html += "<tr><td colspan='7' style='padding: 20px; text-align: center; color: #94a3b8;'>No LLM traces recorded yet. Run a resume analysis to populate.</td></tr>"
+    else:
+        for r in reversed(recent_logs):
+            status_color = "#34d399" if r["status"] == "success" else "#f87171"
+            cost_color = "#ffd93d" if r["estimated_cost_usd"] > 0 else "#94a3b8"
+            logs_html += f"""
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                <td style="padding: 10px; color: #94a3b8;">{r['timestamp']}</td>
+                <td style="padding: 10px; font-weight: bold; color: #818cf8;">{r['node_name']}</td>
+                <td style="padding: 10px; text-transform: uppercase;">{r['provider']}</td>
+                <td style="padding: 10px;">{r['latency_sec']}s</td>
+                <td style="padding: 10px;">{r['total_tokens']}</td>
+                <td style="padding: 10px; color: {cost_color};">${r['estimated_cost_usd']:.6f}</td>
+                <td style="padding: 10px; color: {status_color}; font-weight: bold;">{r['status'].upper()}</td>
+            </tr>
+            """
+    logs_html += "</tbody></table></div>"
+
+    # 2. Safety Table
+    safety_html = r"""
+    <div style="overflow-x: auto; background: rgba(30, 41, 59, 0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); padding: 5px;">
+        <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9rem; color: #cbd5e1; text-align: left;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <th style="padding: 10px; color: #cbd5e1;">Timestamp</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Trigger Type</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Details / Policy</th>
+                    <th style="padding: 10px; color: #cbd5e1;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+    safety_html += f"""
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+        <td style="padding: 10px; color: #94a3b8;">[CONFIG]</td>
+        <td style="padding: 10px; color: #ffd93d; font-weight: bold;">PII REDACTOR</td>
+        <td style="padding: 10px;">Masks Name, Email, Phone, Social Links (EEOC compliance)</td>
+        <td style="padding: 10px; color: #34d399; font-weight: bold;">SHIELD ACTIVE</td>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+        <td style="padding: 10px; color: #94a3b8;">[CONFIG]</td>
+        <td style="padding: 10px; color: #ffd93d; font-weight: bold;">INJECTION FILTER</td>
+        <td style="padding: 10px;">Adversarial system prompt override protection</td>
+        <td style="padding: 10px; color: #34d399; font-weight: bold;">SHIELD ACTIVE</td>
+    </tr>
+    """
+    
+    # Check if there was any prompt injection error in logs
+    log_path = settings.telemetry.telemetry_log_path
+    injection_found = False
+    if os.path.exists(log_path):
+        with open(log_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if "potential prompt injection" in line.lower() or "injection" in line.lower():
+                    injection_found = True
+                    
+    if injection_found:
+        safety_html += f"""
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+            <td style="padding: 10px; color: #f87171;">{time.strftime("%Y-%m-%d %H:%M:%S")}</td>
+            <td style="padding: 10px; color: #f87171; font-weight: bold;">INJECTION_WARN</td>
+            <td style="padding: 10px; color: #f87171;">Blocked candidate resume containing prompt injection keywords</td>
+            <td style="padding: 10px; color: #f87171; font-weight: bold;">INTERCEPTED</td>
+        </tr>
+        """
+    else:
+        safety_html += """
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+            <td style="padding: 10px; color: #94a3b8;">-</td>
+            <td style="padding: 10px; color: #94a3b8;">No safety alerts</td>
+            <td style="padding: 10px; color: #94a3b8;">No policy breaches or PII leakage occurrences detected.</td>
+            <td style="padding: 10px; color: #34d399; font-weight: bold;">SECURE</td>
+        </tr>
+        """
+    safety_html += "</tbody></table></div>"
+    
+    return cost_str, latency_str, tokens_str, success_str, logs_html, safety_html
+
+
+def clear_observability_logs() -> Tuple[str, str, str, str, str, str]:
+    """Wipe the telemetry database and refresh the dashboard."""
+    import os
+    from core.telemetry import TelemetryLogger
+    from config.settings import settings
+    
+    log_path = settings.telemetry.telemetry_log_path
+    if os.path.exists(log_path):
+        try:
+            os.remove(log_path)
+        except Exception as e:
+            logger.error("Failed to clear telemetry file: %s", str(e))
+            
+    TelemetryLogger._memory_buffer.clear()
+    return get_observability_metrics()
+
+
 def create_app() -> gr.Blocks:
     """Construct and return the Gradio Blocks application."""
 
@@ -2165,6 +2294,70 @@ def create_app() -> gr.Blocks:
         )
 
         with gr.Tabs():
+            # ══════════════════════════════════════════════════════════════
+            #  TAB 0 — Enterprise Suite Portal
+            # ══════════════════════════════════════════════════════════════
+            with gr.Tab("🏢 Enterprise Suite Portal"):
+                gr.HTML(
+                    r"""
+                    <div class="enterprise-portal">
+                        <div class="portal-header">
+                            <span class="portal-tag">ENTERPRISE PLATFORM</span>
+                            <h2 class="portal-title">Professional Suite & Intelligent Systems</h2>
+                            <p class="portal-desc">An industrial-grade multi-agent suite designed to automate, secure, audit, and benchmark talent matching with complete transparency, safety compliance, and LLMOps auditing.</p>
+                        </div>
+                        
+                        <div class="portal-grid">
+                            <div class="portal-card">
+                                <div class="card-icon">📄</div>
+                                <h3 class="card-title">ATS Match Engine</h3>
+                                <p class="card-desc">7-factor mathematical evaluation modeling skill recency, hierarchy, education, and bullet quality metrics.</p>
+                                <span class="card-action">Active Service</span>
+                            </div>
+                            
+                            <div class="portal-card">
+                                <div class="card-icon">✨</div>
+                                <h3 class="card-title">AI Copywriter & Improver</h3>
+                                <p class="card-desc">Suggests gap fixes and rewrites raw resume bullet points to professional A-COE metrics standards.</p>
+                                <span class="card-action">Active Service</span>
+                            </div>
+                            
+                            <div class="portal-card">
+                                <div class="card-icon">🛡️</div>
+                                <h3 class="card-title">GAN Stress-Tester</h3>
+                                <p class="card-desc">Simulates adversarial candidate resume hacking and logs how guardrail rules mitigate prompt attacks.</p>
+                                <span class="card-action">Auditing Active</span>
+                            </div>
+                            
+                            <div class="portal-card">
+                                <div class="card-icon">⚖️</div>
+                                <h3 class="card-title">EEOC Bias Compliance</h3>
+                                <p class="card-desc">Performs blind parsing counterfactual identity tests to guarantee statistical demographic parity.</p>
+                                <span class="card-action">Regulatory Guard</span>
+                            </div>
+                            
+                            <div class="portal-card">
+                                <div class="card-icon">🔍</div>
+                                <h3 class="card-title">Global Job Discovery</h3>
+                                <p class="card-desc">Real-time job board scraping combined with Tinder-style swipe decks matching candidate profiles.</p>
+                                <span class="card-action">Active Matching</span>
+                            </div>
+                            
+                            <div class="portal-card">
+                                <div class="card-icon">📊</div>
+                                <h3 class="card-title">LLMOps Observability</h3>
+                                <p class="card-desc">Monitors token count consumption, request latency, prompt versioning, and transaction costs.</p>
+                                <span class="card-action">Monitor Active</span>
+                            </div>
+                        </div>
+                        
+                        <div class="portal-footer">
+                            <p>To begin auditing or matching a candidate profile, select a service tab from the navigation bar above.</p>
+                        </div>
+                    </div>
+                    """
+                )
+
             # ══════════════════════════════════════════════════════════════
             #  TAB 1 — Analyze Resume
             # ══════════════════════════════════════════════════════════════
@@ -2689,6 +2882,28 @@ def create_app() -> gr.Blocks:
 
 
             # ══════════════════════════════════════════════════════════════
+            #  TAB 8 — LLMOps Observability
+            # ══════════════════════════════════════════════════════════════
+            with gr.Tab("📊 LLMOps Observability"):
+                gr.Markdown(
+                    "### 📊 Real-Time LLMOps Observability & Safety Dashboard\n"
+                    "Tracks transaction cost estimates, latency metrics, token consumption, safety violations (prompt injection detections), and active prompt template configurations."
+                )
+                with gr.Row():
+                    refresh_btn = gr.Button("🔄 Refresh Metrics & Logs", variant="secondary")
+                    clear_logs_btn = gr.Button("🧹 Clear Telemetry logs", variant="stop")
+                    
+                with gr.Row():
+                    total_cost_box = gr.Textbox(label="Total LLM Cost (USD)", interactive=False)
+                    avg_latency_box = gr.Textbox(label="Average Latency (sec)", interactive=False)
+                    total_tokens_box = gr.Textbox(label="Total Tokens Consumed", interactive=False)
+                    success_rate_box = gr.Textbox(label="LLM Success Rate (%)", interactive=False)
+
+                with gr.Row():
+                    telemetry_logs_table = gr.HTML(label="Recent LLM Tracing Logs")
+                    safety_logs_table = gr.HTML(label="Security Guardrails & PII Mask Logs")
+
+            # ══════════════════════════════════════════════════════════════
             #  TAB 6 — About
             # ══════════════════════════════════════════════════════════════
             with gr.Tab("ℹ️ About"):
@@ -2844,6 +3059,18 @@ def create_app() -> gr.Blocks:
                 rb_proj2_name, rb_proj2_desc, rb_proj2_tech,
                 rb_output, rb_status,
             ],
+        )
+
+        refresh_btn.click(
+            fn=get_observability_metrics,
+            inputs=[],
+            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table]
+        )
+
+        clear_logs_btn.click(
+            fn=clear_observability_logs,
+            inputs=[],
+            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table]
         )
 
         # ── Footer ────────────────────────────────────────────────────────

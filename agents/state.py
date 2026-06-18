@@ -52,6 +52,12 @@ class ResumeJDState(TypedDict, total=False):
     improvement_suggestions: list   # Actionable improvement advice
     ats_optimized_bullets: list     # Rewritten resume bullets for ATS
 
+    # ── MLOps & Planner ──────────────────────────────────────────────────
+    planner_plan: dict              # Orchestration plan containing steps and versions
+    critic_report: dict             # Critic evaluation report (validity, confidence, feedback)
+    evaluation_logs: dict           # Benchmark results (hallucination rate, conformity)
+    loop_count: int                 # Self-reflection loop index counter
+
     # ── Meta ─────────────────────────────────────────────────────────────
     error: Optional[str]      # Error message (``None`` when everything is OK)
     provider_used: str        # LLM provider that was actually used (e.g. "gemini")

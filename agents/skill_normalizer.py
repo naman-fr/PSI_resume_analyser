@@ -49,9 +49,15 @@ def _llm_normalize_mapping(skills: List[str]) -> Dict[str, str]:
     if not skills:
         return {}
 
+    import time
+    from core.telemetry import TelemetryLogger
+    from config.prompt_registry import PromptRegistry
+
+    start_time = time.time()
     try:
-        llm, _ = resume_parser.get_llm()
-        prompt = f"{SKILL_NORMALIZER_PROMPT}\n\n## Input Skills\n{json.dumps(skills)}"
+        llm, provider = resume_parser.get_llm()
+        system_prompt = PromptRegistry.get_prompt("skill_normalizer", version="v1.0.0")
+        prompt = f"{system_prompt}\n\n## Input Skills\n{json.dumps(skills)}"
         response = llm.invoke(prompt)
         raw: str = response.content  # type: ignore[union-attr]
 
@@ -68,9 +74,41 @@ def _llm_normalize_mapping(skills: List[str]) -> Dict[str, str]:
         elif isinstance(data, list) and len(data) == len(skills):
             mapping = {skills[i]: str(data[i]) for i in range(len(skills))}
             
+        latency = time.time() - start_time
+        
+        # Telemetry usage
+        prompt_tokens = len(prompt) // 4
+        completion_tokens = len(raw) // 4
+        if hasattr(response, "response_metadata") and "token_usage" in response.response_metadata:
+            usage = response.response_metadata["token_usage"]
+            prompt_tokens = usage.get("prompt_tokens", 0)
+            completion_tokens = usage.get("completion_tokens", 0)
+
+        TelemetryLogger.record_event(
+            node_name="normalize_skills",
+            provider=provider,
+            latency_sec=latency,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            status="success"
+        )
+            
         return mapping
     except Exception as exc:
+        latency = time.time() - start_time
         logger.warning("LLM skill normalization failed (%s); keeping originals.", exc)
+        
+        from core.telemetry import TelemetryLogger
+        TelemetryLogger.record_event(
+            node_name="normalize_skills",
+            provider="failed",
+            latency_sec=latency,
+            prompt_tokens=0,
+            completion_tokens=0,
+            status="failed",
+            error_msg=str(exc)
+        )
+        
         err_msg = str(exc).lower()
         if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
             raise exc
@@ -89,7 +127,8 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
     resume_parsed: dict = state.get("resume_parsed", {})
     jd_extracted: dict = state.get("jd_extracted", {})
 
-    taxonomy = SkillTaxonomy()
+    from core.memory import MemoryManager
+    taxonomy = MemoryManager.get_skill_taxonomy()
 
     # ── Resume skills ────────────────────────────────────────────────────
     raw_resume_skills: List[str] = resume_parsed.get("skills") or []
@@ -126,12 +165,16 @@ def normalize_skills(state: ResumeJDState) -> Dict[str, Any]:
             if canonical:
                 jd_norm.append(canonical)
 
-    # Deduplicate while preserving order
-    resume_skills_final = list(dict.fromkeys(s.lower() for s in resume_norm))
-    jd_skills_final = list(dict.fromkeys(s.lower() for s in jd_norm))
+    # Expand skills via Knowledge Graph taxonomy expansion
+    resume_expanded = MemoryManager.expand_skills_via_graph(resume_norm)
+    jd_expanded = MemoryManager.expand_skills_via_graph(jd_norm)
+
+    # Deduplicate while preserving order/case-insensitive canonical forms
+    resume_skills_final = list(dict.fromkeys(s.lower() for s in resume_expanded))
+    jd_skills_final = list(dict.fromkeys(s.lower() for s in jd_expanded))
 
     logger.info(
-        "Skills normalized — resume: %d, JD: %d.",
+        "Skills normalized and expanded — resume: %d, JD: %d.",
         len(resume_skills_final),
         len(jd_skills_final),
     )

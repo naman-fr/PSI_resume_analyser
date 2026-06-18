@@ -491,9 +491,15 @@ def _compute_experience_score_llm(
         }
 
     try:
-        llm, _ = resume_parser.get_llm()
+        import time
+        from core.telemetry import TelemetryLogger
+        from config.prompt_registry import PromptRegistry
+
+        start_time = time.time()
+        llm, provider = resume_parser.get_llm()
+        system_prompt = PromptRegistry.get_prompt("scorer", version="v1.0.0")
         prompt = (
-            f"{SCORER_PROMPT}\n\n"
+            f"{system_prompt}\n\n"
             f"## Inputs\n"
             f"Resume Experience: {json.dumps(resume_parsed.get('experience') or [], default=str)}\n"
             f"Resume Total Experience Years: {resume_years}\n"
@@ -501,7 +507,26 @@ def _compute_experience_score_llm(
             f"JD Responsibilities: {json.dumps(jd_extracted.get('responsibilities') or [], default=str)}"
         )
         response = llm.invoke(prompt)
-        data = resume_parser._extract_json(response.content)  # type: ignore[union-attr]
+        raw_content: str = response.content  # type: ignore[union-attr]
+        data = resume_parser._extract_json(raw_content)
+        
+        latency = time.time() - start_time
+        prompt_tokens = len(prompt) // 4
+        completion_tokens = len(raw_content) // 4
+        if hasattr(response, "response_metadata") and "token_usage" in response.response_metadata:
+            usage = response.response_metadata["token_usage"]
+            prompt_tokens = usage.get("prompt_tokens", 0)
+            completion_tokens = usage.get("completion_tokens", 0)
+
+        TelemetryLogger.record_event(
+            node_name="score_match",
+            provider=provider,
+            latency_sec=latency,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            status="success"
+        )
+
         exp_score_val = data.get("experience_score", 0)
         
         if isinstance(exp_score_val, dict):
@@ -521,7 +546,19 @@ def _compute_experience_score_llm(
             },
         }
     except Exception as exc:
+        latency = time.time() - start_time
         logger.warning("LLM experience scoring failed (%s); using numeric fallback.", exc)
+        
+        from core.telemetry import TelemetryLogger
+        TelemetryLogger.record_event(
+            node_name="score_match",
+            provider="failed",
+            latency_sec=latency,
+            prompt_tokens=0,
+            completion_tokens=0,
+            status="failed",
+            error_msg=str(exc)
+        )
 
     # Numeric fallback
     return _compute_experience_score(resume_parsed, jd_extracted)

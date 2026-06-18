@@ -44,10 +44,16 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
             existing_bullets.extend(b for b in bullets if b)
 
     try:
+        import time
+        from core.telemetry import TelemetryLogger
+        from config.prompt_registry import PromptRegistry
+
+        start_time = time.time()
         llm, provider = resume_parser.get_llm()
 
+        system_prompt = PromptRegistry.get_prompt("improver", version="v1.0.0")
         prompt = (
-            f"{IMPROVER_PROMPT}\n\n"
+            f"{system_prompt}\n\n"
             f"## Inputs\n"
             f"Job Title: {jd_extracted.get('job_title', 'the target role')}\n"
             f"Current Overall ATS Score: {overall_score}\n"
@@ -62,6 +68,23 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
         raw_content: str = response.content  # type: ignore[union-attr]
 
         data: dict = resume_parser._extract_json(raw_content)
+        
+        latency = time.time() - start_time
+        prompt_tokens = len(prompt) // 4
+        completion_tokens = len(raw_content) // 4
+        if hasattr(response, "response_metadata") and "token_usage" in response.response_metadata:
+            usage = response.response_metadata["token_usage"]
+            prompt_tokens = usage.get("prompt_tokens", 0)
+            completion_tokens = usage.get("completion_tokens", 0)
+
+        TelemetryLogger.record_event(
+            node_name="improve_resume",
+            provider=provider,
+            latency_sec=latency,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            status="success"
+        )
 
         # ── Extract improvement suggestions ───────────────────────────────
         # The LLM prompt uses multiple output keys; we normalize them all
@@ -191,7 +214,20 @@ def improve_resume(state: ResumeJDState) -> Dict[str, Any]:
         }
 
     except Exception as exc:
+        latency = time.time() - start_time if 'start_time' in locals() else 0.0
         logger.exception("Improvement generation failed.")
+        
+        from core.telemetry import TelemetryLogger
+        TelemetryLogger.record_event(
+            node_name="improve_resume",
+            provider="failed",
+            latency_sec=latency,
+            prompt_tokens=0,
+            completion_tokens=0,
+            status="failed",
+            error_msg=str(exc)
+        )
+
         err_msg = str(exc).lower()
         if any(term in err_msg for term in ["quota", "rate limit", "429", "rate_limit"]):
             return {

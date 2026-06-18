@@ -49,6 +49,36 @@ class JobSearchConfig:
 
 
 @dataclass
+class SecurityConfig:
+    """Security and compliance guardrails configuration."""
+    enable_pii_masking: bool = True
+    enable_injection_detection: bool = True
+    mask_demographics: bool = True
+    injection_threshold: float = 0.75  # Confidence threshold for prompt injection block
+
+
+@dataclass
+class TelemetryConfig:
+    """MLOps and LLMOps telemetry configuration."""
+    enable_telemetry: bool = True
+    telemetry_log_path: str = "data/telemetry_logs.jsonl"
+    # Pricing configuration (per 1M tokens)
+    groq_input_cost: float = 0.59
+    groq_output_cost: float = 0.79
+    gemini_input_cost: float = 0.075
+    gemini_output_cost: float = 0.30
+
+
+@dataclass
+class MemoryConfig:
+    """Long-term memory and knowledge representation configuration."""
+    enable_long_term_memory: bool = True
+    memory_db_path: str = "data/episodic_memory.json"
+    enable_skill_graph: bool = True
+    skill_graph_path: str = "data/skill_taxonomy.json"
+
+
+@dataclass
 class AppConfig:
     """Main application configuration."""
     app_name: str = "PSI Resume Analyser"
@@ -67,6 +97,15 @@ class AppConfig:
 
     # Job Search
     job_search: JobSearchConfig = field(default_factory=JobSearchConfig)
+
+    # Security Guardrails
+    security: SecurityConfig = field(default_factory=SecurityConfig)
+
+    # MLOps Telemetry
+    telemetry: TelemetryConfig = field(default_factory=TelemetryConfig)
+
+    # Memory & Graph
+    memory: MemoryConfig = field(default_factory=MemoryConfig)
 
     # HuggingFace
     hf_token: str = field(default_factory=lambda: os.getenv("HF_TOKEN", ""))
