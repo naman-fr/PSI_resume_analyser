@@ -951,15 +951,16 @@ def _format_list_items(items: List[str], css_class: str) -> str:
 def analyze_resume(
     pdf_file: Any,
     jd_text: str,
+    premium_mode: bool = False,
     fallback_pdf_1: Any = None,
     fallback_pdf_2: Any = None,
     fallback_jd_1: str = None,
     fallback_jd_2: str = None,
-) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
+) -> Tuple[str, str, str, str, str, str, str, str, str, str, str]:
     """
     Run the full resume analysis pipeline.
 
-    Returns ten string outputs for the Gradio UI components:
+    Returns eleven string outputs for the Gradio UI components:
       0 – overall_score_html
       1 – score_breakdown_html
       2 – skill_match_html
@@ -970,6 +971,7 @@ def analyze_resume(
       7 – red_flags_html
       8 – green_flags_html
       9 – status_message
+      10 – premium_verification_html
     """
     if pdf_file is None:
         pdf_file = fallback_pdf_1 or fallback_pdf_2
@@ -983,11 +985,11 @@ def analyze_resume(
     # ── 1. Validate inputs ────────────────────────────────────────────────
     valid, err = validate_pdf(pdf_file)
     if not valid:
-        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}", "")
 
     valid, err = validate_jd_text(jd_text)
     if not valid:
-        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {err}", "")
 
     # ── 2. Extract text from PDF ──────────────────────────────────────────
     try:
@@ -995,7 +997,7 @@ def analyze_resume(
         resume_text = extract_text_from_pdf(file_path)
     except Exception as exc:
         logger.exception("PDF extraction failed")
-        return ("", "", "", "", "", "", "", "", "", f"⚠️ Failed to extract text from PDF: {exc}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ Failed to extract text from PDF: {exc}", "")
 
     # ── 3. Run analysis graph ─────────────────────────────────────────────
     try:
@@ -1004,20 +1006,23 @@ def analyze_resume(
         result: Dict[str, Any] = run_analysis(
             resume_text=resume_text,
             jd_text=jd_text,
+            pdf_path=file_path,
+            premium_mode=premium_mode
         )
     except ImportError:
         logger.error("agents.graph module not available")
         return (
             "", "", "", "", "", "", "", "", "",
             "⚠️ Analysis engine not available. Please ensure agents/graph.py is implemented.",
+            ""
         )
     except Exception as exc:
         logger.exception("Analysis pipeline failed")
-        return ("", "", "", "", "", "", "", "", "", f"⚠️ Analysis failed: {exc}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ Analysis failed: {exc}", "")
 
     # ── 4. Check for pipeline errors ──────────────────────────────────────
     if result.get("error"):
-        return ("", "", "", "", "", "", "", "", "", f"⚠️ {result['error']}")
+        return ("", "", "", "", "", "", "", "", "", f"⚠️ {result['error']}", "")
 
     # ── 5. Format results ─────────────────────────────────────────────────
     match_score = result.get("match_score", 0.0)
@@ -1117,6 +1122,87 @@ def analyze_resume(
     red_flags_html = _format_red_flags(red_flags)
     green_flags_html = _format_green_flags(green_flags)
 
+    # Format Premium Verification results
+    if result.get("premium_mode", False):
+        inv_text = result.get("invisible_text_flagged", False)
+        inv_details = result.get("invisible_text_details", {})
+        inv_words = inv_details.get("detected_words", [])
+        
+        if inv_text:
+            inv_html = f"""
+            <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid var(--psi-red); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="color: #f87171; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                    🚨 ATS Hacking Detected!
+                </div>
+                <div style="font-size: 0.82rem; color: #ef4444; font-weight: bold; margin-top: 4px;">
+                    Deducted -25.0 ATS points penalty.
+                </div>
+                <p style="font-size: 0.82rem; color: var(--psi-text-dim); margin: 6px 0 0 0;">
+                    Detected hidden (white-on-white) keywords: {", ".join([f"<code>{w}</code>" for w in inv_words])}
+                </p>
+            </div>
+            """
+        else:
+            inv_html = """
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                <div style="color: #34d399; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                    🛡️ PDF Integrity Verified
+                </div>
+                <p style="font-size: 0.82rem; color: var(--psi-text-dim); margin: 4px 0 0 0;">
+                    No hidden white-on-white text keywords stuffed in background.
+                </p>
+            </div>
+            """
+            
+        links_res = result.get("links_verification", {})
+        trust_score = links_res.get("trust_score", 50.0)
+        trust_logs = links_res.get("logs", [])
+        
+        trust_color = "#10b981" if trust_score >= 75 else ("#f59e0b" if trust_score >= 40 else "#ef4444")
+        
+        log_items = "".join([f'<li style="margin-bottom:4px; font-size:0.8rem; color:#cbd5e1;">{log}</li>' for log in trust_logs])
+        
+        trust_html = f"""
+        <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); padding: 15px; border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #cbd5e1;">Candidate Trustability Index</span>
+                <span style="font-size: 1.1rem; font-weight: 800; color: {trust_color};">{trust_score:.1f}%</span>
+            </div>
+            
+            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                <div style="width: {trust_score}%; height: 100%; background: {trust_color}; border-radius: 4px;"></div>
+            </div>
+            
+            <div style="font-size: 0.78rem; font-weight: bold; color: var(--psi-primary-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.02em;">
+                Verification Logs:
+            </div>
+            <ul style="margin: 0; padding-left: 15px; max-height: 120px; overflow-y: auto;">
+                {log_items}
+            </ul>
+        </div>
+        """
+        
+        premium_html = f"""
+        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, rgba(34, 211, 238, 0.03) 100%); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span style="font-size: 0.78rem; color: #a78bfa; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">⭐ Premium Audit Results</span>
+                <span style="background: linear-gradient(135deg, #7c3aed, #22d3ee); color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">VERIFIED TIER</span>
+            </div>
+            {inv_html}
+            {trust_html}
+        </div>
+        """
+    else:
+        premium_html = """
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">🛡️ PREMIUM VERIFICATION SERVICE</span>
+                <span style="background: rgba(255,255,255,0.05); color: #94a3b8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">STANDBY</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #64748b; margin: 8px 0 0 0;">Select the Premium Verified Tier in the Enterprise tab to unlock background white-text scans and candidate link trust verification.</p>
+        </div>
+        """
+
     provider = result.get("provider_used", "unknown")
     status = f"✅ Analysis complete • Provider: {provider} • Score: {match_score:.1f}/100"
 
@@ -1131,6 +1217,7 @@ def analyze_resume(
         red_flags_html,
         green_flags_html,
         status,
+        premium_html,
     )
 
 
@@ -2100,12 +2187,13 @@ ATS Score = 0.40 × Keyword + 0.25 × Semantic + 0.25 × Experience + 0.10 × Ed
 # ---------------------------------------------------------------------------
 
 
-def get_observability_metrics() -> Tuple[str, str, str, str, str, str]:
+def get_observability_metrics() -> Tuple[str, str, str, str, str, str, str]:
     """Fetch metrics and return values for Gradio textboxes and HTML tables."""
     import os
     import time
     from core.telemetry import TelemetryLogger
     from config.settings import settings
+    from core.data_loop import get_dataset_size
     
     metrics = TelemetryLogger.get_summary_metrics()
     
@@ -2113,6 +2201,9 @@ def get_observability_metrics() -> Tuple[str, str, str, str, str, str]:
     latency_str = f"{metrics['average_latency_sec']:.3f} sec"
     tokens_str = f"{metrics['total_tokens_consumed']:,}"
     success_str = f"{metrics['success_rate_pct']:.1f}% ({metrics['success_count']}/{metrics['total_runs']})"
+    
+    dataset_size = get_dataset_size()
+    dataset_size_str = f"{dataset_size} records"
     
     # 1. Tracing Table
     recent_logs = TelemetryLogger.get_recent_logs(15)
@@ -2209,10 +2300,10 @@ def get_observability_metrics() -> Tuple[str, str, str, str, str, str]:
         """
     safety_html += "</tbody></table></div>"
     
-    return cost_str, latency_str, tokens_str, success_str, logs_html, safety_html
+    return cost_str, latency_str, tokens_str, success_str, logs_html, safety_html, dataset_size_str
 
 
-def clear_observability_logs() -> Tuple[str, str, str, str, str, str]:
+def clear_observability_logs() -> Tuple[str, str, str, str, str, str, str]:
     """Wipe the telemetry database and refresh the dashboard."""
     import os
     from core.telemetry import TelemetryLogger
@@ -2227,6 +2318,46 @@ def clear_observability_logs() -> Tuple[str, str, str, str, str, str]:
             
     TelemetryLogger._memory_buffer.clear()
     return get_observability_metrics()
+
+
+def select_free_tier():
+    standard_html = """
+    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 15px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Current Active Plan</span>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+                ⚪ Standard Core Tier (Free)
+            </div>
+        </div>
+        <span style="background: rgba(124, 58, 237, 0.15); color: #a78bfa; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">STANDARD STATUS</span>
+    </div>
+    """
+    return False, standard_html, gr.update(visible=False), gr.update(visible=False)
+
+def open_checkout():
+    return gr.update(visible=True), gr.update(visible=False)
+
+def close_checkout():
+    return gr.update(visible=False), gr.update(visible=False)
+
+def complete_payment(name, card, exp, cvv):
+    if not name or not card:
+        err_msg = "<div style='color:#ef4444; margin-top: 10px; font-size: 0.88rem; font-weight: bold;'>⚠️ Cardholder Name and Card Number are required.</div>"
+        return gr.update(), gr.update(), gr.update(visible=True), gr.update(value=err_msg, visible=True)
+    
+    premium_html = """
+    <div style="background: linear-gradient(90deg, rgba(124,58,237,0.1) 0%, rgba(34,211,238,0.1) 100%); border: 1px solid rgba(124, 58, 237, 0.4); padding: 15px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);">
+        <div>
+            <span style="font-size: 0.8rem; color: #a78bfa; text-transform: uppercase; font-weight: 600;">Current Active Plan</span>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #ffd700; display: flex; align-items: center; gap: 6px;">
+                ⭐ Premium Verified Tier ($49/audit)
+            </div>
+        </div>
+        <span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);">ACTIVE clearance</span>
+    </div>
+    """
+    gr.Info("Payment of $49 successful! Premium Mode Activated.")
+    return True, premium_html, gr.update(visible=False), gr.update(visible=False)
 
 
 def create_app() -> gr.Blocks:
@@ -2350,13 +2481,95 @@ def create_app() -> gr.Blocks:
                                 <span class="card-action">Monitor Active</span>
                             </div>
                         </div>
+                    </div>
+                    """
+                )
+                
+                # Active subscription banner
+                active_tier_html = gr.HTML(
+                    """
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 15px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Current Active Plan</span>
+                            <div style="font-size: 1.15rem; font-weight: 700; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+                                ⚪ Standard Core Tier (Free)
+                            </div>
+                        </div>
+                        <span style="background: rgba(124, 58, 237, 0.15); color: #a78bfa; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">STANDARD STATUS</span>
+                    </div>
+                    """
+                )
+                
+                # Pricing Grid Cards HTML
+                gr.HTML(
+                    """
+                    <div style="margin-top: 40px; margin-bottom: 20px; text-align: center;">
+                        <span class="portal-tag">UPGRADE SERVICES</span>
+                        <h3 style="font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin: 5px 0 10px;">Select Your Security Clearance Tier</h3>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                        <!-- Standard Free Plan -->
+                        <div style="background: rgba(30, 41, 59, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); padding: 25px; border-radius: 16px; backdrop-filter: blur(10px); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h4 style="font-size: 1.25rem; font-weight: 700; color: #e2e8f0; margin: 0 0 10px;">Standard Core</h4>
+                                <div style="font-size: 2rem; font-weight: 800; color: #cbd5e1; margin-bottom: 15px;">$0 <span style="font-size: 0.9rem; font-weight: normal; color: #94a3b8;">/ always free</span></div>
+                                <ul style="margin: 0 0 20px; padding-left: 20px; color: #94a3b8; font-size: 0.9rem; line-height: 1.6;">
+                                    <li>Multi-agent ATS parser evaluation</li>
+                                    <li>Skill Taxonomy normalizer mapping</li>
+                                    <li>EEOC blind recruiter counterfactual analysis</li>
+                                    <li>Basic resume suggestions and recommendations</li>
+                                </ul>
+                            </div>
+                        </div>
                         
-                        <div class="portal-footer">
-                            <p>To begin auditing or matching a candidate profile, select a service tab from the navigation bar above.</p>
+                        <!-- Premium Paid Plan -->
+                        <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%); border: 1px solid rgba(124, 58, 237, 0.3); padding: 25px; border-radius: 16px; backdrop-filter: blur(10px); display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+                            <span style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #7c3aed, #6366f1); color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;">MNC Grade</span>
+                            <div>
+                                <h4 style="font-size: 1.25rem; font-weight: 700; color: #a78bfa; margin: 0 0 10px;">Premium Verified</h4>
+                                <div style="font-size: 2rem; font-weight: 800; color: #22d3ee; margin-bottom: 15px;">$49 <span style="font-size: 0.9rem; font-weight: normal; color: #94a3b8;">/ audit run</span></div>
+                                <ul style="margin: 0 0 20px; padding-left: 20px; color: #cbd5e1; font-size: 0.9rem; line-height: 1.6;">
+                                    <li><strong>Invisible White-Text Scan</strong> (pdfplumber character metadata scan for hidden background ATS stuffing)</li>
+                                    <li><strong>Portfolio Link verification</strong> (pings LinkedIn, GitHub, websites)</li>
+                                    <li><strong>GitHub candidate trust scoring</strong> (scrapes profile & counts repos)</li>
+                                    <li>Auto ATS deduction penalty if keyword stuffing found</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     """
                 )
+                
+                with gr.Row():
+                    select_free_btn = gr.Button("Select Standard Core", variant="secondary")
+                    checkout_premium_btn = gr.Button("Purchase Premium Verified ($49)", variant="primary")
+                
+                # Hidden state indicator for active premium
+                premium_mode_indicator = gr.Checkbox(label="Premium Mode Active", value=False, visible=False)
+                
+                # Checkout form group (initially hidden)
+                with gr.Group(visible=False) as checkout_form:
+                    gr.HTML(
+                        """
+                        <div style="background: rgba(124, 58, 237, 0.03); border: 1px solid rgba(124, 58, 237, 0.15); padding: 20px; border-radius: 12px; margin-top: 25px;">
+                            <h4 style="font-size: 1.1rem; font-weight: 700; color: #a78bfa; margin: 0 0 15px 0; display: flex; align-items: center; gap: 8px;">💳 Secure Stripe Sandbox Checkout</h4>
+                            <p style="color: #94a3b8; font-size: 0.88rem; margin-top: -10px; margin-bottom: 15px;">This is a simulator payment sandbox. Enter any details below to activate the premium tier immediately.</p>
+                        </div>
+                        """
+                    )
+                    with gr.Row():
+                        cardholder = gr.Textbox(label="Cardholder Name", placeholder="Jane Doe")
+                        cardnumber = gr.Textbox(label="Card Number", placeholder="4111 2222 3333 4444")
+                    with gr.Row():
+                        expiry = gr.Textbox(label="Expiration Date", placeholder="MM/YY")
+                        cvv = gr.Textbox(label="CVV", placeholder="***")
+                    
+                    with gr.Row():
+                        cancel_pay_btn = gr.Button("Cancel", variant="secondary")
+                        pay_btn = gr.Button("Authorize Payment & Activate", variant="primary")
+                        
+                    checkout_status = gr.HTML(visible=False)
 
             # ══════════════════════════════════════════════════════════════
             #  TAB 1 — Analyze Resume
@@ -2427,6 +2640,18 @@ def create_app() -> gr.Blocks:
                             'style="color:#94a3b8">—</div>'
                             '<div style="font-size:0.9rem;color:#64748b;margin-top:8px">'
                             "Upload a resume and JD to begin</div></div>",
+                        )
+
+                        premium_verification_display = gr.HTML(
+                            value="""
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">🛡️ PREMIUM VERIFICATION SERVICE</span>
+                                    <span style="background: rgba(255,255,255,0.05); color: #94a3b8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">STANDBY</span>
+                                </div>
+                                <p style="font-size: 0.85rem; color: #64748b; margin: 8px 0 0 0;">Select the Premium Verified Tier in the Enterprise tab to unlock background white-text scans and candidate link trust verification.</p>
+                            </div>
+                            """
                         )
 
                         with gr.Accordion("📈 Score Breakdown", open=True):
@@ -2898,6 +3123,7 @@ def create_app() -> gr.Blocks:
                     avg_latency_box = gr.Textbox(label="Average Latency (sec)", interactive=False)
                     total_tokens_box = gr.Textbox(label="Total Tokens Consumed", interactive=False)
                     success_rate_box = gr.Textbox(label="LLM Success Rate (%)", interactive=False)
+                    dataset_size_box = gr.Textbox(label="Fine-Tuning Dataset Size", interactive=False)
 
                 with gr.Row():
                     telemetry_logs_table = gr.HTML(label="Recent LLM Tracing Logs")
@@ -2940,7 +3166,7 @@ def create_app() -> gr.Blocks:
 
         analyze_btn.click(
             fn=analyze_resume,
-            inputs=[pdf_input, jd_input, improve_pdf, gan_pdf, improve_jd, gan_jd],
+            inputs=[pdf_input, jd_input, premium_mode_indicator, improve_pdf, gan_pdf, improve_jd, gan_jd],
             outputs=[
                 overall_score_display,
                 score_breakdown_display,
@@ -2952,6 +3178,7 @@ def create_app() -> gr.Blocks:
                 red_flags_display,
                 green_flags_display,
                 status_output,
+                premium_verification_display,
             ],
         )
 
@@ -3061,16 +3288,41 @@ def create_app() -> gr.Blocks:
             ],
         )
 
+        # ── Premium Checkout wireups ─────────────────────────────────────
+        select_free_btn.click(
+            fn=select_free_tier,
+            inputs=[],
+            outputs=[premium_mode_indicator, active_tier_html, checkout_form, checkout_status],
+        )
+
+        checkout_premium_btn.click(
+            fn=open_checkout,
+            inputs=[],
+            outputs=[checkout_form, checkout_status],
+        )
+
+        cancel_pay_btn.click(
+            fn=close_checkout,
+            inputs=[],
+            outputs=[checkout_form, checkout_status],
+        )
+
+        pay_btn.click(
+            fn=complete_payment,
+            inputs=[cardholder, cardnumber, expiry, cvv],
+            outputs=[premium_mode_indicator, active_tier_html, checkout_form, checkout_status],
+        )
+
         refresh_btn.click(
             fn=get_observability_metrics,
             inputs=[],
-            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table]
+            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table, dataset_size_box]
         )
 
         clear_logs_btn.click(
             fn=clear_observability_logs,
             inputs=[],
-            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table]
+            outputs=[total_cost_box, avg_latency_box, total_tokens_box, success_rate_box, telemetry_logs_table, safety_logs_table, dataset_size_box]
         )
 
         # ── Footer ────────────────────────────────────────────────────────

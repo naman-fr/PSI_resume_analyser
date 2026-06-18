@@ -8,7 +8,7 @@ Incorporates self-reflection loop and evaluation benchmarking.
 import json
 import logging
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from langgraph.graph import END, START, StateGraph
 
@@ -232,22 +232,69 @@ def create_analysis_graph() -> Any:
     return graph
 
 
-def run_analysis(resume_text: str, jd_text: str) -> Dict[str, Any]:
+def run_analysis(
+    resume_text: str,
+    jd_text: str,
+    pdf_path: Optional[str] = None,
+    premium_mode: bool = False
+) -> Dict[str, Any]:
     """Convenience wrapper: run the full pipeline end-to-end with validation."""
     try:
         from core.evaluator import SystemEvaluator
+        from core.guardrails import detect_invisible_text, validate_links_and_trust
+        from core.data_loop import log_finetuning_record
         
         start_eval_time = time.time()
         graph = create_analysis_graph()
         initial_state: ResumeJDState = {
             "resume_text": resume_text,
             "jd_text": jd_text,
+            "premium_mode": premium_mode,
         }
         
         # Invoke Graph
         final_state: Dict[str, Any] = graph.invoke(initial_state)
         
-        # ── 1. Unmask Redacted PII before returning to UI ───────────────────
+        # Ensure premium mode flag is set on state
+        final_state["premium_mode"] = premium_mode
+        
+        # ── 1. Premium Paid Tier Scans ──────────────────────────────────────
+        if premium_mode:
+            # A. Invisible Text Scan
+            if pdf_path:
+                flagged, words, penalty = detect_invisible_text(pdf_path)
+                final_state["invisible_text_flagged"] = flagged
+                final_state["invisible_text_details"] = {"detected_words": words, "penalty": penalty}
+                
+                if flagged:
+                    # Apply penalty to final match score
+                    current_match = final_state.get("match_score", 100.0)
+                    final_state["match_score"] = max(0.0, current_match + penalty)
+                    
+                    # Add red flag
+                    rf_list = final_state.setdefault("red_flags", [])
+                    rf_list.append({
+                        "flag": "Invisible Background Text (ATS Gaming)",
+                        "penalty": penalty,
+                        "evidence": f"Detected white/near-white hidden text keywords: {', '.join(words)}"
+                    })
+                    
+                    # Add to gaps
+                    gaps_list = final_state.setdefault("gaps", [])
+                    gaps_list.append(f"Red Flag: Invisible Background Text ({', '.join(words)})")
+            else:
+                final_state["invisible_text_flagged"] = False
+                final_state["invisible_text_details"] = {"detected_words": [], "penalty": 0.0}
+
+            # B. Link Verification & Trust Scorer
+            trust_results = validate_links_and_trust(resume_text)
+            final_state["links_verification"] = trust_results
+        else:
+            final_state["invisible_text_flagged"] = False
+            final_state["invisible_text_details"] = {"detected_words": [], "penalty": 0.0}
+            final_state["links_verification"] = {"trust_score": 50.0, "logs": ["Premium Mode Disabled"], "checked_urls": {}}
+
+        # ── 2. Unmask Redacted PII before returning to UI ───────────────────
         redacting_map = final_state.get("redacting_map", {})
         if redacting_map and "resume_parsed" in final_state:
             resume_parsed = final_state["resume_parsed"]
@@ -256,8 +303,11 @@ def run_analysis(resume_text: str, jd_text: str) -> Dict[str, Any]:
                 if val and val in redacting_map:
                     resume_parsed[key] = redacting_map[val]
                     
-        # ── 2. Run MLOps Evaluator Benchmarking ─────────────────────────────
+        # ── 3. Run MLOps Evaluator Benchmarking ─────────────────────────────
         final_state["evaluation_logs"] = SystemEvaluator.run_benchmark(start_eval_time, final_state)
+        
+        # ── 4. Log continuous fine-tuning data if enabled ───────────────────
+        log_finetuning_record(resume_text, jd_text, final_state)
         
         logger.info("Pipeline completed — overall score: %s", final_state.get("overall_score"))
         return final_state

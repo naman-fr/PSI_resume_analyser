@@ -79,6 +79,26 @@ class MemoryConfig:
 
 
 @dataclass
+class PremiumConfig:
+    """Premium paid-tier verification configurations."""
+    pricing_tiers: dict = field(default_factory=lambda: {
+        "free": {"name": "Standard Core", "price": "$0", "desc": "Standard ATS score & multi-agent critique"},
+        "premium": {"name": "Premium Verified", "price": "$49", "desc": "ATS audit, link check, and background white-text scan"}
+    })
+    link_timeout: float = 5.0
+    trust_weight_github: float = 0.5
+    trust_weight_linkedin: float = 0.3
+    trust_weight_portfolio: float = 0.2
+
+
+@dataclass
+class DataLoopConfig:
+    """MLOps fine-tuning data collection loop configurations."""
+    enable_data_loop: bool = True
+    finetuning_dataset_path: str = "data/finetuning_dataset.jsonl"
+
+
+@dataclass
 class AppConfig:
     """Main application configuration."""
     app_name: str = "PSI Resume Analyser"
@@ -106,6 +126,12 @@ class AppConfig:
 
     # Memory & Graph
     memory: MemoryConfig = field(default_factory=MemoryConfig)
+
+    # Premium Settings
+    premium: PremiumConfig = field(default_factory=PremiumConfig)
+
+    # MLOps Data Loop Settings
+    data_loop: DataLoopConfig = field(default_factory=DataLoopConfig)
 
     # HuggingFace
     hf_token: str = field(default_factory=lambda: os.getenv("HF_TOKEN", ""))

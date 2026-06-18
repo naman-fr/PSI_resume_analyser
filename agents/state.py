@@ -62,4 +62,10 @@ class ResumeJDState(TypedDict, total=False):
     error: Optional[str]      # Error message (``None`` when everything is OK)
     provider_used: str        # LLM provider that was actually used (e.g. "gemini")
 
+    # ── Premium Verified Tier ────────────────────────────────────────────
+    premium_mode: bool               # Enable premium verification features
+    invisible_text_flagged: bool     # True if white-on-white text detected
+    invisible_text_details: dict     # {detected_words, penalty}
+    links_verification: dict         # {trust_score, logs, checked_urls}
+
 # docs: document ResumeJDState fields in detail

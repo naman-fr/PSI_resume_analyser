@@ -54,3 +54,9 @@ temp/
 # MLflow
 mlruns/
 mlartifacts/
+
+# Local databases & logs
+data/episodic_memory.json
+data/finetuning_dataset.jsonl
+data/telemetry_logs.jsonl
+test_temp.pdf

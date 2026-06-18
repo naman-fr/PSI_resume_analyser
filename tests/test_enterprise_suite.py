@@ -147,3 +147,93 @@ def test_evaluator_metrics():
     })
     # 4 out of 8 keys found -> 50%
     assert conformity == 50.0
+
+
+def test_guardrails_detect_invisible_text(tmp_path):
+    from fpdf import FPDF
+    from core.guardrails import detect_invisible_text
+    
+    # Create temp PDF with normal and white text
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("helvetica", size=12)
+    # Normal text
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(text="Software Engineer")
+    pdf.ln()
+    # Hidden text
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(text="hackerstuff")
+    
+    pdf_path = tmp_path / "test_invisible.pdf"
+    pdf.output(str(pdf_path))
+    
+    flagged, detected_words, penalty = detect_invisible_text(str(pdf_path))
+    
+    assert flagged
+    assert "hackerstuff" in detected_words
+    assert penalty == -25.0
+
+
+def test_guardrails_validate_links_and_trust(monkeypatch):
+    from core.guardrails import validate_links_and_trust
+    
+    # Mock network pings
+    def mock_ping_url(url, timeout=5.0):
+        if "broken" in url:
+            return False, 404, "Profile not found (HTTP 404)"
+        return True, 200, "Link reachable (HTTP 200)"
+        
+    def mock_get_github_repo_count(url):
+        return 10
+        
+    monkeypatch.setattr("core.guardrails._ping_url", mock_ping_url)
+    monkeypatch.setattr("core.guardrails._get_github_repo_count", mock_get_github_repo_count)
+    
+    resume_text = (
+        "Jane Doe. LinkedIn: linkedin.com/in/janedoe. "
+        "GitHub: github.com/janedoe. Portfolio: janedoe.com. "
+        "Broken link: brokenlink.com/profile."
+    )
+    
+    results = validate_links_and_trust(resume_text)
+    
+    assert results["trust_score"] > 50.0
+    assert "linkedin.com/in/janedoe" in results["checked_urls"]
+    assert "brokenlink.com/profile" in results["checked_urls"]
+    assert results["checked_urls"]["brokenlink.com/profile"]["valid"] is False
+
+
+def test_mlops_data_loop(tmp_path):
+    import json
+    from config.settings import settings
+    from core.data_loop import log_finetuning_record, get_dataset_size
+    
+    original_path = settings.data_loop.finetuning_dataset_path
+    temp_file = tmp_path / "finetuning_test.jsonl"
+    settings.data_loop.finetuning_dataset_path = str(temp_file)
+    
+    try:
+        assert get_dataset_size() == 0
+        
+        resume_text = "Jane Doe Python"
+        jd_text = "Python Developer Django"
+        final_state = {
+            "resume_parsed": {"skills": ["Python"]},
+            "match_score": 85.0
+        }
+        
+        success = log_finetuning_record(resume_text, jd_text, final_state)
+        assert success
+        assert get_dataset_size() == 1
+        
+        with open(temp_file, "r", encoding="utf-8") as f:
+            line = f.readline()
+            data = json.loads(line)
+            assert "instruction" in data
+            assert "input" in data
+            assert "output" in data
+            assert "Jane Doe Python" in data["input"]
+            
+    finally:
+        settings.data_loop.finetuning_dataset_path = original_path
