@@ -160,6 +160,24 @@ $$\text{Final Match Score} = \min\left(100.0, \max\left(0.0, \text{Base Score} +
 
 ---
 
+### ⭐ Premium Paid Tier (MNC Grade Verification)
+
+ PSI Resume Analyser includes a premium verified auditing tier ($49/audit simulated via an interactive checkout sandbox in the Enterprise Portal):
+
+1. **Invisible White-Text Scan (ATS Gaming Safeguard)**: Inspects the PDF character-level metadata color values using `pdfplumber` to extract `non_stroking_color` values. If hidden white keywords (RGB `[1, 1, 1]`) stuffed in background templates are detected, the system flags the resume with a **-25.0 points** penalty.
+2. **Candidate Link Verification & Trust Scorer**: Extracts LinkedIn, GitHub, and portfolio URLs from the resume text. It runs network pings to verify URL responsiveness (handling scraper blocks like HTTP 403/999) and scrapes public GitHub metadata to calculate a **Candidate Trustability Index (0-100)**.
+
+---
+
+### 🔄 MLOps Fine-Tuning Data Loop
+
+To support continuous model improvements, successful pipeline execution runs automatically feed back into our data accumulation pipeline:
+- **Logging Engine**: Appends raw resume text, job description requirements, parsed output JSON payloads, and match score metrics to a local `data/finetuning_dataset.jsonl` file.
+- **Instruction-Fine-Tuning Format**: Structured as `{"instruction": "...", "input": "...", "output": "..."}` ready to train custom models.
+- **Monitoring**: Live dataset statistics (number of collected records) are visible on the LLMOps Observability Dashboard.
+
+---
+
 ### 🛡️ GAN Adversarial Stress-Tester
 Simulates a **Generative Adversarial Network (GAN)** design inside Tab 4:
 - **Generator (LLM)**: Crafts a "hacked" resume section stuffed with keywords, buzzwords, and fabricated experience specifically optimized to trick ATS search parameters.
