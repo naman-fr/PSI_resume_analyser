@@ -10,9 +10,27 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
+import subprocess
 import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+# Programmatic fallback installation of requirements on HuggingFace Spaces
+try:
+    import pdfplumber
+except ImportError:
+    print("pdfplumber not found. Running programmatic installation of requirements.txt...", flush=True)
+    try:
+        requirements_path = Path(__file__).resolve().parent / "requirements.txt"
+        if requirements_path.exists():
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(requirements_path)])
+            print("Programmatic installation completed successfully.", flush=True)
+        else:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "pdfplumber"])
+            print("pdfplumber installed directly.", flush=True)
+    except Exception as e:
+        print(f"Programmatic installation failed: {e}", flush=True)
 
 import gradio as gr
 
