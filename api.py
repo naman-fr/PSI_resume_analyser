@@ -71,6 +71,49 @@ class CheckoutRequest(BaseModel):
 
 # --- Endpoints ---
 
+SAMPLE_JD_DIR = os.path.join(os.path.dirname(__file__), "data", "sample_jds")
+
+@app.get("/api/sample-jds")
+def get_sample_jds():
+    samples = []
+    if os.path.exists(SAMPLE_JD_DIR) and os.path.isdir(SAMPLE_JD_DIR):
+        files = sorted([f for f in os.listdir(SAMPLE_JD_DIR) if f.endswith(".txt")])
+        for i, filename in enumerate(files, 1):
+            filepath = os.path.join(SAMPLE_JD_DIR, filename)
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    text = f.read()
+                
+                label = os.path.splitext(filename)[0].replace("_", " ").title()
+                title = label
+                company = "Enterprise"
+                location = "Hybrid/Remote"
+                
+                # Parse headers from the first few lines
+                lines = text.split("\n")
+                for line in lines[:8]:
+                    line_lower = line.lower()
+                    if line_lower.startswith("job title:"):
+                        title = line.split(":", 1)[1].strip()
+                    elif line_lower.startswith("company:"):
+                        company = line.split(":", 1)[1].strip()
+                    elif line_lower.startswith("location:"):
+                        location = line.split(":", 1)[1].strip()
+                
+                samples.append({
+                    "id": f"JD #{i}",
+                    "friendly_name": label,
+                    "title": title,
+                    "company": company,
+                    "location": location,
+                    "filename": filename,
+                    "text": text
+                })
+            except Exception as e:
+                logger.error(f"Failed to read sample JD {filename}: {e}")
+    return samples
+
+
 @app.get("/api/health")
 def health_check():
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}

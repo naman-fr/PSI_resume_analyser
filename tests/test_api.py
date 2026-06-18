@@ -49,3 +49,13 @@ def test_stress_test_endpoint():
     assert response_adv.status_code == 200
     data_adv = response_adv.json()
     assert data_adv["prompt_injection_detected"]
+
+def test_sample_jds_endpoint():
+    response = client.get("/api/sample-jds")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    if len(data) > 0:
+        assert "friendly_name" in data[0]
+        assert "text" in data[0]
+

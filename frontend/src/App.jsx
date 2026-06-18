@@ -54,10 +54,26 @@ export default function App() {
   const [batchResults, setBatchResults] = useState([]);
   const [batchLoading, setBatchLoading] = useState(false);
 
-  // Load telemetry stats on mount
+  const [sampleJds, setSampleJds] = useState([]);
+  const [selectedJdId, setSelectedJdId] = useState('');
+
+  // Load telemetry stats and sample JDs on mount
   useEffect(() => {
     fetchTelemetry();
+    fetchSampleJds();
   }, []);
+
+  const fetchSampleJds = async () => {
+    try {
+      const res = await fetch('/api/sample-jds');
+      if (res.ok) {
+        const data = await res.json();
+        setSampleJds(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch sample JDs:', err);
+    }
+  };
 
   const fetchTelemetry = async () => {
     setTelemetryLoading(true);
@@ -477,10 +493,44 @@ export default function App() {
               </div>
 
               <div className="input-group">
-                <span className="input-label">Job Description</span>
+                <span className="input-label">Select Preloaded Job Description</span>
+                {sampleJds.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '6px', marginBottom: '10px', maxHeight: '95px', overflowY: 'auto', padding: '6px', border: '2px solid var(--p5-white)', background: 'var(--p5-black)' }}>
+                    {sampleJds.map((jd) => (
+                      <button
+                        key={jd.id}
+                        type="button"
+                        className={`btn btn-secondary ${selectedJdId === jd.id ? 'active-p5' : ''}`}
+                        style={{
+                          fontSize: '0.65rem',
+                          padding: '0.2rem 0.4rem',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          height: '26px',
+                          display: 'block',
+                          width: '100%',
+                          textAlign: 'left',
+                          transform: 'skewX(-4deg)'
+                        }}
+                        onClick={() => {
+                          setSelectedJdId(jd.id);
+                          setJdText(jd.text);
+                        }}
+                        title={jd.title}
+                      >
+                        📌 {jd.title}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '8px' }}>Loading preloaded jobs...</div>
+                )}
+                
+                <span className="input-label">Job Description Details</span>
                 <textarea 
                   className="text-input" 
-                  style={{ height: '170px', resize: 'none' }} 
+                  style={{ height: '110px', resize: 'none' }} 
                   placeholder="Paste target job description details here..."
                   required
                   value={jdText}
