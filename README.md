@@ -3,12 +3,10 @@ title: PSI Resume Analyser
 emoji: 📄
 colorFrom: indigo
 colorTo: purple
-sdk: gradio
-sdk_version: 5.33.0
-app_file: app.py
+sdk: docker
 pinned: false
 license: mit
-short_description: AI-powered Resume-JD matching with multi-agent LangGraph
+short_description: AI Resume Analyser with React, FastAPI, & LangGraph
 ---
 
 # PSI Resume Analyser 📄

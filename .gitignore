@@ -59,4 +59,7 @@ mlartifacts/
 data/episodic_memory.json
 data/finetuning_dataset.jsonl
 data/telemetry_logs.jsonl
+data/*.db
+data/uploads/
 test_temp.pdf
+

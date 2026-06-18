@@ -7,6 +7,10 @@ from core.skill_taxonomy import SkillTaxonomy
 from core.job_search import search_jobs, JobListing
 from core.job_matcher import score_jobs, ScoredJob
 from core.job_query_generator import generate_search_queries
+from core.db import init_db
+
+# Initialize application database
+init_db()
 
 __all__ = [
     "extract_text_from_pdf",
@@ -20,5 +24,7 @@ __all__ = [
     "score_jobs",
     "ScoredJob",
     "generate_search_queries",
+    "init_db",
 ]
+
 
