@@ -2,7 +2,7 @@ name: Deploy Pipeline
 
 on:
   push:
-    branches: [webapp]
+    branches: [main]
 
 jobs:
   deploy-frontend:

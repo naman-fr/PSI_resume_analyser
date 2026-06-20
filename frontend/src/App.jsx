@@ -263,6 +263,19 @@ export default function App() {
     return '#ef4444'; // Danger red
   };
 
+  const getMorganaQuote = () => {
+    switch (activeTab) {
+      case 'home': return "Joker! This is the main headquarters. We need top-tier security clearance here!";
+      case 'analyze': return "Let's analyze this resume! I'll scan for hidden white-text cheat codes!";
+      case 'improve': return "STAR framework? Time to turn those lazy achievements into gold!";
+      case 'jobs': return "A swipe deck of matches! Swiping right is the key to our next heist!";
+      case 'telemetry': return "LLM latency and pricing dashboard. The database size is growing!";
+      case 'batch': return "Parallel processing! We're targeting multiple candidate files at once!";
+      case 'stress': return "Safety stress-testing. Let's make sure prompt injections can't bypass our guardrails!";
+      default: return "Looking cool, Joker!";
+    }
+  };
+
   return (
     <div className="app-layout">
       {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
@@ -282,9 +295,14 @@ export default function App() {
           <span className="badge badge-green">🛡️ EEOC Audit Safe</span>
         </div>
         <h1 className="app-title">PSI Resume Analyser</h1>
-        <p className="app-subtitle">
-          Professional Enterprise grade multi-agent talent scanner, alignment optimizer, and continuous fine-tuning data pipeline.
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+          <p className="app-subtitle" style={{ margin: 0, maxWidth: '75%' }}>
+            Professional Enterprise grade multi-agent talent scanner, alignment optimizer, and continuous fine-tuning data pipeline.
+          </p>
+          <div className="p5-calling-card-sticker" onClick={() => setShowCheckout(true)}>
+            <span className="p5-star-badge">★</span> Take Your Heart
+          </div>
+        </div>
       </header>
 
       {/* ── NAVIGATION ────────────────────────────────────────────── */}
@@ -318,6 +336,24 @@ export default function App() {
           <div className="panel-header">
             <h2 className="panel-title"><Building2 /> Enterprise Suite Services</h2>
             <p className="panel-desc">Real-time professional systems auditing applicant files, evaluating alignment, and benchmarking bias compliance.</p>
+          </div>
+
+          <div className="p5-character-panel" style={{ marginBottom: '2rem' }}>
+            <div className="p5-avatar-box">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '55px', height: '55px' }}>
+                <path d="M10,40 Q25,30 50,45 Q75,30 90,40 Q80,75 50,85 Q20,75 10,40 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4" />
+                <path d="M25,50 Q35,42 45,52 Q35,62 25,50 Z" fill="var(--p5-red)" />
+                <path d="M75,50 Q65,42 55,52 Q65,62 75,50 Z" fill="var(--p5-red)" />
+              </svg>
+            </div>
+            <div className="p5-panel-body">
+              <h3 style={{ fontFamily: 'var(--font-title)', fontWeight: 900, fontSize: '1.25rem', color: 'var(--p5-yellow)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                System Core: Calling Card Issued
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--p5-white)', marginTop: '0.25rem', opacity: 0.95, lineHeight: 1.4 }}>
+                "We shall scan the target's resumes and expose their hidden cheat keywords. Prepare to receive the cognitive alignment scoring!" — The Phantom Thieves of ATS
+              </p>
+            </div>
           </div>
 
           <div className="portal-grid">
@@ -1188,6 +1224,23 @@ export default function App() {
         <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 
         <a href="https://ai.google.dev" target="_blank" rel="noreferrer"> Gemini</a>
       </footer>
+
+      {/* ── MORGANA HELPER ────────────────────────────────────────── */}
+      <div className="p5-morgana-helper">
+        <div className="p5-morgana-bubble">
+          {getMorganaQuote()}
+        </div>
+        <div className="p5-morgana-avatar">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15,30 L35,10 L50,25 L65,10 L85,30 L75,70 L25,70 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4" />
+            <path d="M25,25 L35,35 L20,38 Z" fill="var(--p5-red)" />
+            <path d="M75,25 L65,35 L80,38 Z" fill="var(--p5-red)" />
+            <circle cx="38" cy="48" r="6" fill="var(--p5-yellow)" />
+            <circle cx="62" cy="48" r="6" fill="var(--p5-yellow)" />
+            <path d="M45,58 Q50,62 55,58" stroke="var(--p5-white)" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }
