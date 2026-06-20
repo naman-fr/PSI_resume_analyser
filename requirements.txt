@@ -1,5 +1,4 @@
 # Core
-gradio==5.33.0
 python-dotenv>=1.0.0
 
 # LangChain & LangGraph
@@ -16,8 +15,6 @@ pdfplumber>=0.11.0
 fpdf2>=2.8.0
 
 # Embeddings & Similarity
-sentence-transformers>=3.0.0
-scikit-learn>=1.5.0
 numpy>=1.26.0
 
 # Utilities

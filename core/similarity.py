@@ -12,7 +12,6 @@ import logging
 from typing import Union
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity as sk_cosine
 
 from core.embeddings import get_embeddings
 
@@ -41,9 +40,13 @@ def compute_cosine_similarity(
     float
         Cosine similarity in the range [-1, 1].
     """
-    v1 = np.asarray(vec1).reshape(1, -1)
-    v2 = np.asarray(vec2).reshape(1, -1)
-    sim: float = float(sk_cosine(v1, v2)[0][0])
+    v1 = np.asarray(vec1)
+    v2 = np.asarray(vec2)
+    norm1 = np.linalg.norm(v1)
+    norm2 = np.linalg.norm(v2)
+    if norm1 == 0.0 or norm2 == 0.0:
+        return 0.0
+    sim: float = float(np.dot(v1, v2) / (norm1 * norm2))
     return sim
 
 
@@ -141,12 +144,6 @@ def compute_semantic_score(
 
     alpha = max(0.0, min(1.0, alpha))
 
-    # --- Semantic component ---
-    embeddings = get_embeddings([resume_text, jd_text])
-    cosine_sim = compute_cosine_similarity(embeddings[0], embeddings[1])
-    # Clamp to [0, 1] (negative similarity treated as 0)
-    semantic_score = max(0.0, min(1.0, cosine_sim)) * 100.0
-
     # --- Lexical component (token overlap) ---
     resume_tokens = set(resume_text.lower().split())
     jd_tokens = set(jd_text.lower().split())
@@ -155,6 +152,20 @@ def compute_semantic_score(
     else:
         lexical_score = 0.0
     lexical_score = min(lexical_score, 100.0)
+
+    # --- Semantic component ---
+    try:
+        embeddings = get_embeddings([resume_text, jd_text])
+        if len(embeddings) >= 2:
+            cosine_sim = compute_cosine_similarity(embeddings[0], embeddings[1])
+            # Clamp to [0, 1] (negative similarity treated as 0)
+            semantic_score = max(0.0, min(1.0, cosine_sim)) * 100.0
+        else:
+            raise ValueError("Embeddings call returned insufficient results.")
+    except Exception as e:
+        logger.warning("Semantic embedding computation failed: %s. Falling back to lexical-only score.", e)
+        # Treat semantic_score as equal to lexical_score when embeddings fail
+        semantic_score = lexical_score
 
     # --- Blend ---
     composite = alpha * semantic_score + (1.0 - alpha) * lexical_score
