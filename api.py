@@ -7,7 +7,7 @@ import shutil
 import logging
 import sqlite3
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, BackgroundTasks
@@ -36,10 +36,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for frontend local Vite development server
+# Enable CORS – read allowed origins from environment variable
+# Default to "*" for local development; set ALLOWED_ORIGINS in production
+_allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS", "*")
+_allowed_origins = [o.strip() for o in _allowed_origins_raw.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -116,7 +120,7 @@ def get_sample_jds():
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 
 @app.post("/api/analyze")
@@ -193,7 +197,7 @@ async def analyze_endpoint(
             """,
             (
                 run_id,
-                datetime.utcnow().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
                 file.filename,
                 float(analysis_result.get("match_score", 0.0)),
                 float(analysis_result.get("keyword_score", 0.0)),
@@ -211,7 +215,7 @@ async def analyze_endpoint(
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                datetime.utcnow().isoformat(),
+                datetime.now(timezone.utc).isoformat(),
                 "groq", # Default or extracted provider
                 0, # Counted at agent layer
                 0,
@@ -230,7 +234,7 @@ async def analyze_endpoint(
                 VALUES (?, ?, ?, ?)
                 """,
                 (
-                    datetime.utcnow().isoformat(),
+                    datetime.now(timezone.utc).isoformat(),
                     f"Evaluate resume for JD: {jd_text[:100]}...",
                     json.dumps({"resume": resume_text[:1000], "jd": jd_text[:1000]}),
                     json.dumps(analysis_result)
@@ -401,7 +405,7 @@ def checkout_endpoint(req: CheckoutRequest):
         conn = get_db_connection()
         conn.execute(
             "INSERT INTO payment_sessions (session_id, timestamp, cardholder, amount, status) VALUES (?, ?, ?, ?, ?)",
-            (session_id, datetime.utcnow().isoformat(), req.cardholder, req.amount, "approved")
+            (session_id, datetime.now(timezone.utc).isoformat(), req.cardholder, req.amount, "approved")
         )
         conn.commit()
         conn.close()

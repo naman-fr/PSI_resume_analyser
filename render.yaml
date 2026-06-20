@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: psi-resume-analyser-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: "https://psi-resume-analyser.vercel.app,https://psi-resume-analyser-*.vercel.app"
+      - key: PYTHON_VERSION
+        value: "3.12.0"

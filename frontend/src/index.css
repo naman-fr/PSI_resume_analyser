@@ -1,60 +1,283 @@
+/* ══════════════════════════════════════════════════════════════════
+   PSI RESUME ANALYSER — PERSONA 5 ROYAL EDITION
+   Industrial-Grade Animated Theme System
+   ══════════════════════════════════════════════════════════════════ */
+
 /* ── Google Fonts ─────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* ── Persona 5 Theme Design Tokens ──────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — PERSONA 5 COLOR SYSTEM
+   ══════════════════════════════════════════════════════════════════ */
 :root {
   --font-title: 'Outfit', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
 
-  --p5-red: #e60012; /* Persona 5 Cherry Red */
+  /* Core P5 Palette */
+  --p5-red: #e60012;
   --p5-red-hover: #ff1a2e;
+  --p5-red-deep: #b30000;
   --p5-red-glow: rgba(230, 0, 18, 0.5);
-  
-  --p5-black: #080808; /* Deep Jet Black */
-  --p5-charcoal: #121212; /* Secondary dark gray */
-  --p5-panel-bg: #1c1c1e;
-  
-  --p5-yellow: #fff200; /* Accent Yellow */
+  --p5-red-soft: rgba(230, 0, 18, 0.08);
+
+  --p5-black: #080808;
+  --p5-charcoal: #121212;
+  --p5-panel-bg: #1a1a1c;
+  --p5-dark-surface: #0e0e10;
+
+  --p5-yellow: #fff200;
+  --p5-yellow-glow: rgba(255, 242, 0, 0.3);
   --p5-white: #ffffff;
-  
+
+  /* Semantic Colors */
   --text-primary: #ffffff;
-  --text-secondary: #d1d1d6;
-  --text-dim: #8e8e93;
-  
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-border-hover: rgba(255, 255, 255, 0.35);
-  
-  --radius-lg: 0px; /* P5 uses stark blocky geometric angles, not rounded circles! */
+  --text-secondary: #c8c8cc;
+  --text-dim: #6e6e73;
+
+  --success: #34c759;
+  --danger: #ff3b30;
+  --warning: #ff9f0a;
+
+  /* Glass & Border */
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-hover: rgba(255, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.02);
+
+  /* P5 Geometry — NO border-radius (sharp, angular, blocky) */
+  --radius-lg: 0px;
   --radius-md: 0px;
   --radius-sm: 0px;
-  
-  --transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
-  --shadow-premium: 8px 8px 0px #000000;
+
+  /* Timing */
+  --ease-p5: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition: all 0.3s var(--ease-p5);
+  --transition-fast: all 0.15s var(--ease-p5);
+
+  /* Shadows — Flat offset (comic/manga style) */
+  --shadow-hard: 8px 8px 0px #000000;
   --shadow-red: 6px 6px 0px var(--p5-red);
+  --shadow-yellow: 4px 4px 0px var(--p5-yellow);
+  --shadow-white: 4px 4px 0px rgba(255,255,255,0.15);
 }
 
-/* ── Global Styles ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS — THE HEART OF PERSONA 5
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 1. Moving diagonal stripes background (P5 menu style) */
+@keyframes bgStripeScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 56.57px 56.57px; }
+}
+
+/* 2. Glitch text flicker */
+@keyframes glitchText {
+  0%, 100% { text-shadow: 4px 4px 0px #000, -2px 0 var(--p5-red), 2px 0 var(--p5-yellow); transform: skew(0deg); }
+  2% { text-shadow: 4px 4px 0px #000, -4px 0 var(--p5-yellow), 4px 0 var(--p5-red); transform: skew(-2deg); }
+  4% { text-shadow: 4px 4px 0px #000, -2px 0 var(--p5-red), 2px 0 var(--p5-yellow); transform: skew(0deg); }
+  20% { text-shadow: 4px 4px 0px #000, 3px 0 var(--p5-red), -3px 0 var(--p5-yellow); transform: skew(1deg); }
+  22% { text-shadow: 4px 4px 0px #000, -2px 0 var(--p5-red), 2px 0 var(--p5-yellow); transform: skew(0deg); }
+}
+
+/* 3. Scan line sweeping down */
+@keyframes scanLine {
+  0% { top: -4px; opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* 4. Slash-in reveal from left (P5 battle transition) */
+@keyframes slashReveal {
+  0% { transform: translateX(-120%) skewX(-25deg); opacity: 0; }
+  60% { transform: translateX(8%) skewX(-3deg); opacity: 1; }
+  100% { transform: translateX(0%) skewX(0deg); opacity: 1; }
+}
+
+/* 5. Fade up with skew */
+@keyframes fadeSkewUp {
+  0% { transform: translateY(40px) skewX(-8deg); opacity: 0; }
+  100% { transform: translateY(0) skewX(0deg); opacity: 1; }
+}
+
+/* 6. Card deal-in (stacking effect) */
+@keyframes cardDealIn {
+  0% { transform: translateY(80px) rotate(12deg) scale(0.7); opacity: 0; }
+  60% { transform: translateY(-8px) rotate(-1deg) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+/* 7. Pulsing neon border glow */
+@keyframes pulseNeon {
+  0%, 100% { box-shadow: 0 0 5px var(--p5-red-glow), inset 0 0 5px rgba(230,0,18,0.05); }
+  50% { box-shadow: 0 0 20px var(--p5-red-glow), 0 0 40px rgba(230,0,18,0.15), inset 0 0 10px rgba(230,0,18,0.08); }
+}
+
+/* 8. Border color chase */
+@keyframes borderChase {
+  0% { border-color: var(--p5-red); }
+  25% { border-color: var(--p5-yellow); }
+  50% { border-color: var(--p5-white); }
+  75% { border-color: var(--p5-yellow); }
+  100% { border-color: var(--p5-red); }
+}
+
+/* 9. Floating bob */
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 10. Shake entry */
+@keyframes shakeEntry {
+  0% { transform: translateX(-15px); opacity: 0; }
+  25% { transform: translateX(10px); opacity: 0.7; }
+  50% { transform: translateX(-5px); opacity: 1; }
+  75% { transform: translateX(3px); }
+  100% { transform: translateX(0px); }
+}
+
+/* 11. Score ring fill */
+@keyframes ringFill {
+  0% { stroke-dashoffset: 440; }
+}
+
+/* 12. P5 Loading spinner */
+@keyframes p5Spin {
+  0% { transform: rotate(0deg) skewX(-15deg); }
+  25% { transform: rotate(90deg) skewX(5deg); }
+  50% { transform: rotate(180deg) skewX(-15deg); }
+  75% { transform: rotate(270deg) skewX(5deg); }
+  100% { transform: rotate(360deg) skewX(-15deg); }
+}
+
+/* 13. Text reveal typewriter */
+@keyframes typeReveal {
+  0% { max-width: 0; }
+  100% { max-width: 100%; }
+}
+
+/* 14. Screen wipe (tab transitions) */
+@keyframes wipeIn {
+  0% { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+
+/* 15. Neon flicker */
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { 
+    text-shadow: 0 0 7px var(--p5-red-glow), 0 0 10px var(--p5-red-glow), 0 0 21px var(--p5-red-glow);
+    opacity: 1; 
+  }
+  20%, 24%, 55% { 
+    text-shadow: none;
+    opacity: 0.7; 
+  }
+}
+
+/* 16. Stamp slam (for score display) */
+@keyframes stampSlam {
+  0% { transform: scale(3) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(0.9) rotate(2deg); opacity: 1; }
+  70% { transform: scale(1.1) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* 17. Dot grid pulse */
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+/* 18. Skew bounce entry */
+@keyframes skewBounceIn {
+  0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+  40% { transform: translateX(5%) skewX(5deg); opacity: 1; }
+  60% { transform: translateX(-2%) skewX(-2deg); }
+  80% { transform: translateX(1%) skewX(1deg); }
+  100% { transform: translateX(0%) skewX(0deg); }
+}
+
+/* 19. Loading bar fill */
+@keyframes loadingBarFill {
+  0% { width: 0%; }
+  20% { width: 30%; }
+  50% { width: 60%; }
+  80% { width: 85%; }
+  100% { width: 100%; }
+}
+
+/* 20. Tab slide bounce */
+@keyframes tabSlide {
+  0% { transform: translateY(20px) skewX(-5deg); opacity: 0; }
+  100% { transform: translateY(0) skewX(-5deg); opacity: 1; }
+}
+
+/* Utility: bounce (for upload icon) */
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12px); }
+  60% { transform: translateY(-6px); }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   GLOBAL STYLES
+   ══════════════════════════════════════════════════════════════════ */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* Body: Animated diagonal stripes + halftone dot overlay */
 body {
   font-family: var(--font-body);
   background-color: var(--p5-black);
-  background-image: 
-    radial-gradient(var(--p5-red) 1px, transparent 1px),
-    radial-gradient(rgba(230,0,18,0.15) 1px, transparent 1px);
-  background-size: 40px 40px, 20px 20px;
-  background-position: 0 0, 10px 10px;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.5;
+  position: relative;
 }
 
-/* ── App Layout ────────────────────────────────────────────────── */
+/* Animated diagonal stripe background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 18px,
+    rgba(230, 0, 18, 0.04) 18px,
+    rgba(230, 0, 18, 0.04) 20px
+  );
+  animation: bgStripeScroll 3s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Halftone dot overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    radial-gradient(var(--p5-red) 0.8px, transparent 0.8px);
+  background-size: 24px 24px;
+  animation: dotPulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   APP LAYOUT
+   ══════════════════════════════════════════════════════════════════ */
 .app-layout {
   max-width: 1300px;
   margin: 0 auto;
@@ -62,18 +285,41 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  position: relative;
 }
 
-/* Persona 5 Header Banner (Jagged/Slanted Slits) */
+/* ══════════════════════════════════════════════════════════════════
+   HEADER — Persona 5 Slashed Banner with Glitch Text
+   ══════════════════════════════════════════════════════════════════ */
 .app-header {
   position: relative;
   background: var(--p5-red);
   border: 4px solid var(--p5-white);
-  padding: 2.5rem 2rem;
+  padding: 2.5rem 2rem 2rem;
   text-align: left;
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
   transform: skew(-2deg) rotate(-0.5deg);
   overflow: hidden;
+  animation: slashReveal 0.8s var(--ease-p5) both;
+}
+
+/* Scan line effect across header */
+.app-header::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.6) 30%,
+    rgba(255,255,255,0.9) 50%,
+    rgba(255,255,255,0.6) 70%,
+    transparent 100%
+  );
+  animation: scanLine 3s linear infinite;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .header-badges {
@@ -89,8 +335,18 @@ body {
   font-weight: 900;
   padding: 0.4rem 1rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   transform: skewX(-10deg);
+  animation: fadeSkewUp 0.6s var(--ease-p5) both;
+  transition: var(--transition);
+}
+
+.badge:nth-child(1) { animation-delay: 0.2s; }
+.badge:nth-child(2) { animation-delay: 0.35s; }
+.badge:nth-child(3) { animation-delay: 0.5s; }
+
+.badge:hover {
+  transform: skewX(-10deg) scale(1.08);
 }
 
 .badge-purple {
@@ -118,88 +374,149 @@ body {
   color: var(--p5-white);
   text-transform: uppercase;
   letter-spacing: -0.04em;
-  text-shadow: 4px 4px 0px var(--p5-black);
   transform: skew(2deg) rotate(-0.5deg);
   margin-bottom: 0.25rem;
+  animation: glitchText 4s infinite;
 }
 
 .app-subtitle {
   color: var(--p5-white);
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   background: var(--p5-black);
   display: inline-block;
-  padding: 0.35rem 1rem;
+  padding: 0.4rem 1.2rem;
   transform: skewX(-6deg);
   margin-top: 0.5rem;
+  animation: shakeEntry 0.7s var(--ease-p5) 0.4s both;
+  position: relative;
 }
 
-/* ── Navigation Tab Bar (Slanted Parallelograms) ────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   NAVIGATION — Slanted Parallelogram Tabs
+   ══════════════════════════════════════════════════════════════════ */
 .nav-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   background: transparent;
   padding: 0.2rem;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-  transform: skew(-4deg);
+  scrollbar-width: none;
+  transform: skew(-3deg);
 }
 
-.nav-tabs::-webkit-scrollbar {
-  display: none; /* Safari/Chrome */
-}
+.nav-tabs::-webkit-scrollbar { display: none; }
 
 .nav-tab-btn {
   background: var(--p5-charcoal);
   border: 3px solid var(--p5-white);
   color: var(--p5-white);
-  padding: 0.8rem 1.5rem;
+  padding: 0.75rem 1.4rem;
   font-family: var(--font-title);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   transition: var(--transition);
   transform: skewX(-5deg);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+  animation: tabSlide 0.5s var(--ease-p5) both;
+}
+
+.nav-tab-btn:nth-child(1) { animation-delay: 0.05s; }
+.nav-tab-btn:nth-child(2) { animation-delay: 0.1s; }
+.nav-tab-btn:nth-child(3) { animation-delay: 0.15s; }
+.nav-tab-btn:nth-child(4) { animation-delay: 0.2s; }
+.nav-tab-btn:nth-child(5) { animation-delay: 0.25s; }
+.nav-tab-btn:nth-child(6) { animation-delay: 0.3s; }
+.nav-tab-btn:nth-child(7) { animation-delay: 0.35s; }
+
+/* Tab hover sweep effect */
+.nav-tab-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(230,0,18,0.3), transparent);
+  transition: left 0.4s var(--ease-p5);
+}
+
+.nav-tab-btn:hover::before {
+  left: 100%;
 }
 
 .nav-tab-btn:hover {
   background: var(--p5-red);
   color: var(--p5-white);
-  transform: translateY(-2px) skewX(-5deg);
+  transform: translateY(-3px) skewX(-5deg);
+  box-shadow: 4px 6px 0px #000;
 }
 
 .nav-tab-btn.active {
   background: var(--p5-red);
   color: var(--p5-white);
   border-color: var(--p5-yellow);
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
   transform: translateY(-4px) scale(1.05) skewX(-5deg);
+  animation: pulseNeon 2s ease-in-out infinite;
 }
 
-/* ── Stark Asymmetric Panels ────────────────────────────────────── */
+.nav-tab-btn.active::after {
+  content: '▶';
+  position: absolute;
+  right: 8px;
+  font-size: 0.6rem;
+  color: var(--p5-yellow);
+  animation: floatBob 1.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   GLASS PANELS — Stark Asymmetric Cards
+   ══════════════════════════════════════════════════════════════════ */
 .glass-panel {
   background: var(--p5-charcoal);
   border: 4px solid var(--p5-white);
   padding: 2rem;
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
   position: relative;
+  transition: var(--transition);
+  animation: wipeIn 0.6s var(--ease-p5) both;
+  overflow: hidden;
+}
+
+/* Animated corner accent */
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--p5-red) 50%, transparent 50%);
+  z-index: 1;
   transition: var(--transition);
 }
 
+.glass-panel:hover::before {
+  width: 80px; height: 80px;
+}
+
 .glass-panel:hover {
-  transform: translateY(-2px);
-  box-shadow: 12px 12px 0px #000000;
+  transform: translateY(-3px);
+  box-shadow: 12px 12px 0px #000;
 }
 
 .panel-header {
   margin-bottom: 2rem;
   border-bottom: 4px solid var(--p5-red);
   padding-bottom: 1rem;
-  transform: rotate(-0.5deg);
+  transform: rotate(-0.3deg);
+  position: relative;
+  z-index: 2;
 }
 
 .panel-title {
@@ -211,21 +528,27 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  animation: shakeEntry 0.5s var(--ease-p5) both;
 }
 
 .panel-desc {
   color: var(--text-secondary);
   font-size: 0.95rem;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
   font-weight: 500;
+  animation: fadeSkewUp 0.6s var(--ease-p5) 0.2s both;
 }
 
-/* ── Persona 5 Grid Layout Cards ──────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   PORTAL GRID — Service Cards with Stagger Animation
+   ══════════════════════════════════════════════════════════════════ */
 .portal-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
 }
 
 .portal-card {
@@ -238,10 +561,37 @@ body {
   box-shadow: var(--shadow-red);
   transition: var(--transition);
   transform: skewX(-2deg);
+  position: relative;
+  overflow: hidden;
+  animation: cardDealIn 0.6s var(--ease-bounce) both;
+}
+
+.portal-card:nth-child(1) { animation-delay: 0.1s; }
+.portal-card:nth-child(2) { animation-delay: 0.2s; }
+.portal-card:nth-child(3) { animation-delay: 0.3s; }
+.portal-card:nth-child(4) { animation-delay: 0.4s; }
+.portal-card:nth-child(5) { animation-delay: 0.5s; }
+.portal-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Card scan line on hover */
+.portal-card::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--p5-yellow);
+  top: -2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.portal-card:hover::after {
+  opacity: 1;
+  animation: scanLine 1.5s linear infinite;
 }
 
 .portal-card:hover {
-  transform: scale(1.03) skewX(-2deg);
+  transform: scale(1.04) skewX(-2deg);
   border-color: var(--p5-yellow);
   background: var(--p5-black);
   box-shadow: 8px 8px 0px var(--p5-white);
@@ -249,35 +599,42 @@ body {
 
 .card-icon {
   font-size: 2.25rem;
+  animation: floatBob 3s ease-in-out infinite;
 }
 
 .card-title {
   font-family: var(--font-title);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--p5-yellow);
   text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 .card-desc {
   color: var(--text-secondary);
   font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .card-status {
   margin-top: auto;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 900;
   color: var(--p5-red);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  animation: neonFlicker 3s infinite;
 }
 
-/* ── Pricing & Upgrades Plan Grid ─────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   PRICING SECTION
+   ══════════════════════════════════════════════════════════════════ */
 .pricing-section {
   margin-top: 3rem;
   text-align: center;
+  position: relative;
+  z-index: 2;
 }
 
 .pricing-title {
@@ -286,8 +643,9 @@ body {
   font-weight: 900;
   color: var(--p5-white);
   text-transform: uppercase;
-  text-shadow: 2px 2px 0px var(--p5-red);
+  text-shadow: 3px 3px 0px var(--p5-red);
   margin-bottom: 2rem;
+  animation: glitchText 5s infinite;
 }
 
 .pricing-cards {
@@ -303,32 +661,40 @@ body {
   background: var(--p5-panel-bg);
   border: 4px solid var(--p5-white);
   padding: 2.5rem;
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: var(--transition);
+  position: relative;
+  animation: cardDealIn 0.7s var(--ease-bounce) 0.3s both;
+}
+
+.price-card:hover {
+  transform: translateY(-6px) rotate(0.5deg);
+  box-shadow: 12px 12px 0px #000;
 }
 
 .price-card.premium {
   border-color: var(--p5-red);
-  background: linear-gradient(135deg, var(--p5-charcoal) 0%, rgba(230,0,18,0.1) 100%);
+  background: linear-gradient(135deg, var(--p5-charcoal) 0%, rgba(230,0,18,0.08) 100%);
   transform: rotate(0.5deg);
+  animation: cardDealIn 0.7s var(--ease-bounce) 0.5s both;
 }
 
 .price-card.premium::before {
-  content: 'MNC Grade';
+  content: 'MNC GRADE';
   position: absolute;
-  top: -12px;
-  right: 20px;
+  top: -14px; right: 20px;
   background: var(--p5-yellow);
   color: var(--p5-black);
   font-size: 0.75rem;
   font-weight: 900;
-  padding: 0.35rem 0.8rem;
+  padding: 0.35rem 0.9rem;
   border: 2px solid var(--p5-black);
   text-transform: uppercase;
   box-shadow: 3px 3px 0px var(--p5-red);
+  animation: floatBob 2s ease-in-out infinite;
 }
 
 .price-title {
@@ -368,12 +734,19 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  transition: var(--transition-fast);
+}
+
+.price-features li:hover {
+  color: var(--p5-yellow);
+  transform: translateX(4px);
 }
 
 .price-features li::before {
   content: '▶';
   color: var(--p5-red);
   font-size: 0.8rem;
+  flex-shrink: 0;
 }
 
 .checkout-grid {
@@ -383,17 +756,20 @@ body {
   margin: 1.25rem 0;
 }
 
-/* ── Dynamic Input Forms ───────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   FORM INPUTS — Persona 5 Style
+   ══════════════════════════════════════════════════════════════════ */
 .input-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+  animation: fadeSkewUp 0.5s var(--ease-p5) both;
 }
 
 .input-label {
   font-family: var(--font-title);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 900;
   color: var(--p5-yellow);
   text-transform: uppercase;
@@ -419,9 +795,18 @@ body {
 .select-input:focus {
   outline: none;
   border-color: var(--p5-red);
-  box-shadow: 0 0 0px 4px var(--p5-yellow);
+  box-shadow: 0 0 0px 4px var(--p5-red-glow), inset 0 0 20px rgba(230,0,18,0.05);
+  animation: borderChase 2s linear infinite;
 }
 
+.text-input::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   BUTTONS — Skewed P5 Action Buttons
+   ══════════════════════════════════════════════════════════════════ */
 .btn-row {
   display: flex;
   gap: 1rem;
@@ -442,22 +827,44 @@ body {
   border: 3px solid var(--p5-white);
   text-transform: uppercase;
   transform: skewX(-6deg);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.03em;
+}
+
+/* Button hover sweep */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: left 0.5s var(--ease-p5);
+}
+
+.btn:hover::before {
+  left: 100%;
 }
 
 .btn-primary {
   background: var(--p5-red);
   color: var(--p5-white);
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--p5-red-hover);
-  transform: translateY(-2px) scale(1.02) skewX(-6deg);
-  box-shadow: 10px 10px 0px #000000;
+  transform: translateY(-3px) scale(1.03) skewX(-6deg);
+  box-shadow: 10px 10px 0px #000;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0px) scale(0.98) skewX(-6deg);
+  box-shadow: 4px 4px 0px #000;
 }
 
 .btn-primary:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
   transform: skewX(-6deg);
 }
@@ -470,9 +877,10 @@ body {
 .btn-secondary:hover {
   background: var(--p5-white);
   color: var(--p5-black);
+  transform: translateY(-2px) skewX(-6deg);
 }
 
-/* Preloaded jobs buttons active state override */
+/* Preloaded jobs button active state */
 .btn-secondary.active-p5 {
   background: var(--p5-red) !important;
   color: var(--p5-white) !important;
@@ -480,7 +888,9 @@ body {
   box-shadow: 4px 4px 0px var(--p5-black) !important;
 }
 
-/* File Uploader Dropzone */
+/* ══════════════════════════════════════════════════════════════════
+   FILE UPLOADER — Dropzone
+   ══════════════════════════════════════════════════════════════════ */
 .file-dropzone {
   border: 3px dashed var(--p5-red);
   padding: 3rem 2rem;
@@ -493,27 +903,46 @@ body {
   gap: 1rem;
   background: var(--p5-black);
   transform: rotate(-0.5deg);
+  transition: var(--transition);
+  position: relative;
+}
+
+.file-dropzone::after {
+  content: 'DROP FILE HERE';
+  position: absolute;
+  bottom: 10px; right: 15px;
+  font-family: var(--font-title);
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: rgba(230,0,18,0.2);
+  letter-spacing: 0.1em;
 }
 
 .file-dropzone:hover {
   border-color: var(--p5-yellow);
-  background: rgba(230,0,18,0.03);
+  background: var(--p5-red-soft);
+  transform: rotate(0deg) scale(1.01);
+  box-shadow: 0 0 30px rgba(230,0,18,0.1);
 }
 
 .upload-icon {
   font-size: 3rem;
   color: var(--p5-red);
-  animation: bounce 1.8s infinite;
+  animation: bounce 2s infinite;
 }
 
-/* ── Split Layouts ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   SPLIT LAYOUTS
+   ══════════════════════════════════════════════════════════════════ */
 .split-layout {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
 
-/* ── Circular Score Gauge ───────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   SCORE CIRCLE — Animated Ring Gauge
+   ══════════════════════════════════════════════════════════════════ */
 .score-circle-container {
   display: flex;
   flex-direction: column;
@@ -525,12 +954,25 @@ body {
   text-align: center;
   transform: rotate(1deg);
   box-shadow: var(--shadow-red);
+  animation: stampSlam 0.8s var(--ease-bounce) both;
+  position: relative;
+}
+
+/* Neon glow behind score */
+.score-circle-container::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid transparent;
+  animation: pulseNeon 2.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .score-circle-svg {
   transform: rotate(-90deg);
   width: 170px;
   height: 170px;
+  filter: drop-shadow(0 0 10px var(--p5-red-glow));
 }
 
 .score-circle-bg {
@@ -543,7 +985,8 @@ body {
   fill: none;
   stroke-width: 14;
   stroke-linecap: square;
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: stroke-dashoffset 1.2s var(--ease-p5);
+  animation: ringFill 1.5s var(--ease-p5) both;
 }
 
 .score-text {
@@ -562,7 +1005,9 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* ── Grid breakdowns ──────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   METRICS GRID — Skewed Stat Cards
+   ══════════════════════════════════════════════════════════════════ */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -579,14 +1024,29 @@ body {
   gap: 0.5rem;
   transform: skewX(-3deg);
   box-shadow: 4px 4px 0px var(--p5-red);
+  transition: var(--transition);
+  animation: fadeSkewUp 0.5s var(--ease-p5) both;
+}
+
+.metric-bar-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-bar-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-bar-card:nth-child(3) { animation-delay: 0.3s; }
+.metric-bar-card:nth-child(4) { animation-delay: 0.4s; }
+.metric-bar-card:nth-child(5) { animation-delay: 0.5s; }
+.metric-bar-card:nth-child(6) { animation-delay: 0.6s; }
+
+.metric-bar-card:hover {
+  transform: skewX(-3deg) translateY(-4px);
+  box-shadow: 6px 6px 0px var(--p5-yellow);
+  border-color: var(--p5-yellow);
 }
 
 .metric-title {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: var(--p5-yellow);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .metric-score-row {
@@ -612,10 +1072,22 @@ body {
 
 .metric-fill {
   height: 100%;
-  transition: width 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: width 1s var(--ease-p5);
+  position: relative;
 }
 
-/* ── Tinder Cards (Job swipe deck) ───────────────────────────── */
+.metric-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 3px; height: 100%;
+  background: var(--p5-white);
+  animation: neonFlicker 2s infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TINDER SWIPE CARDS — Job Deck
+   ══════════════════════════════════════════════════════════════════ */
 .deck-container {
   position: relative;
   width: 100%;
@@ -632,13 +1104,23 @@ body {
   background: var(--p5-charcoal);
   border: 4px solid var(--p5-white);
   padding: 2rem;
-  box-shadow: var(--shadow-premium);
+  box-shadow: var(--shadow-hard);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transform-style: preserve-3d;
-  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease;
+  transition: transform 0.5s var(--ease-p5), opacity 0.4s ease;
   transform: rotate(-1deg);
+  animation: cardDealIn 0.6s var(--ease-bounce) both;
+}
+
+.swipe-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--p5-red), var(--p5-yellow), var(--p5-red));
+  animation: bgStripeScroll 2s linear infinite;
 }
 
 .job-card-header {
@@ -648,7 +1130,7 @@ body {
 
 .job-role {
   font-family: var(--font-title);
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   font-weight: 950;
   color: var(--p5-white);
   text-transform: uppercase;
@@ -674,11 +1156,23 @@ body {
 .job-desc-scroll {
   flex-grow: 1;
   margin: 1.5rem 0;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
   overflow-y: auto;
   line-height: 1.7;
   padding-right: 0.5rem;
+}
+
+.job-desc-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.job-desc-scroll::-webkit-scrollbar-track {
+  background: var(--p5-black);
+}
+
+.job-desc-scroll::-webkit-scrollbar-thumb {
+  background: var(--p5-red);
 }
 
 .swipe-actions-row {
@@ -699,7 +1193,7 @@ body {
   cursor: pointer;
   border: 3px solid var(--p5-white);
   background: var(--p5-charcoal);
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 4px 4px 0px #000;
   transition: var(--transition);
   transform: skewX(-8deg);
 }
@@ -712,7 +1206,7 @@ body {
   background: var(--p5-red);
   color: var(--p5-white);
   box-shadow: 6px 6px 0px var(--p5-yellow);
-  transform: translateY(-2px) skewX(-8deg);
+  transform: translateY(-3px) scale(1.1) skewX(-8deg);
 }
 
 .swipe-btn-like {
@@ -723,10 +1217,12 @@ body {
   background: var(--p5-yellow);
   color: var(--p5-black);
   box-shadow: 6px 6px 0px var(--p5-red);
-  transform: translateY(-2px) skewX(-8deg);
+  transform: translateY(-3px) scale(1.1) skewX(-8deg);
 }
 
-/* ── Interactive Bullet optimizer Side-by-side Diff ─────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   DIFF CONTAINER — Bullet Optimizer
+   ══════════════════════════════════════════════════════════════════ */
 .diff-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -740,38 +1236,50 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  animation: skewBounceIn 0.7s var(--ease-p5) both;
 }
 
 .diff-box.original {
   border-left: 8px solid var(--p5-red);
   box-shadow: 6px 6px 0px var(--p5-red-glow);
+  animation-delay: 0.1s;
 }
 
 .diff-box.improved {
   border-left: 8px solid var(--p5-yellow);
-  box-shadow: 6px 6px 0px rgba(255,242,0,0.15);
+  box-shadow: 6px 6px 0px var(--p5-yellow-glow);
+  animation-delay: 0.3s;
 }
 
 .diff-bullet {
   font-size: 0.9rem;
-  line-height: 1.6;
-  padding: 0.75rem;
+  line-height: 1.65;
+  padding: 0.8rem;
   background: var(--p5-charcoal);
   border: 1px solid var(--glass-border);
+  transition: var(--transition-fast);
 }
 
-/* ── Observability Logs Table ────────────────────────────────── */
+.diff-bullet:hover {
+  border-color: var(--p5-yellow);
+  transform: translateX(4px);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   OBSERVABILITY TABLE
+   ══════════════════════════════════════════════════════════════════ */
 .obs-table-container {
   width: 100%;
   overflow-x: auto;
   border: 3px solid var(--p5-white);
   background: var(--p5-black);
+  animation: wipeIn 0.6s var(--ease-p5) 0.2s both;
 }
 
 .obs-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   text-align: left;
 }
 
@@ -779,20 +1287,34 @@ body {
   background: var(--p5-red);
   color: var(--p5-white);
   border-bottom: 3px solid var(--p5-white);
-  padding: 0.9rem 1.2rem;
+  padding: 0.85rem 1.1rem;
   font-family: var(--font-title);
   font-weight: 900;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .obs-table td {
   border-bottom: 2px solid var(--p5-charcoal);
-  padding: 0.9rem 1.2rem;
+  padding: 0.85rem 1.1rem;
   color: var(--text-primary);
   font-weight: 500;
+  transition: var(--transition-fast);
 }
+
+.obs-table tr {
+  animation: fadeSkewUp 0.3s var(--ease-p5) both;
+}
+
+.obs-table tr:nth-child(1) { animation-delay: 0.05s; }
+.obs-table tr:nth-child(2) { animation-delay: 0.1s; }
+.obs-table tr:nth-child(3) { animation-delay: 0.15s; }
+.obs-table tr:nth-child(4) { animation-delay: 0.2s; }
+.obs-table tr:nth-child(5) { animation-delay: 0.25s; }
 
 .obs-table tr:hover td {
   background: var(--p5-charcoal);
@@ -806,10 +1328,11 @@ body {
   gap: 0.35rem;
   padding: 0.25rem 0.75rem;
   border: 2px solid var(--p5-white);
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 900;
   text-transform: uppercase;
   transform: skewX(-10deg);
+  letter-spacing: 0.03em;
 }
 
 .status-pill-success {
@@ -822,7 +1345,9 @@ body {
   color: var(--p5-white);
 }
 
-/* ── Red & Green Flags Lists ───────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   FLAG CARDS — Red & Green Flags
+   ══════════════════════════════════════════════════════════════════ */
 .flag-card {
   display: flex;
   gap: 1rem;
@@ -830,6 +1355,12 @@ body {
   margin-bottom: 1rem;
   font-size: 0.95rem;
   border: 3px solid var(--p5-white);
+  animation: fadeSkewUp 0.4s var(--ease-p5) both;
+  transition: var(--transition);
+}
+
+.flag-card:hover {
+  transform: translateX(6px);
 }
 
 .flag-card-red {
@@ -842,7 +1373,7 @@ body {
 .flag-card-green {
   background: var(--p5-black);
   border-left: 8px solid var(--p5-yellow);
-  box-shadow: 4px 4px 0px rgba(255,242,0,0.15);
+  box-shadow: 4px 4px 0px var(--p5-yellow-glow);
   color: #ffffe0;
 }
 
@@ -850,15 +1381,19 @@ body {
   font-size: 1.5rem;
   color: var(--p5-yellow);
   flex-shrink: 0;
+  animation: floatBob 2.5s ease-in-out infinite;
 }
 
-/* SVG Chart Style (Persona 5 High Contrast Lines) */
+/* ══════════════════════════════════════════════════════════════════
+   SVG CHARTS — High Contrast Data Viz
+   ══════════════════════════════════════════════════════════════════ */
 .svg-chart {
   width: 100%;
   height: 220px;
   background: var(--p5-black);
   border: 3px solid var(--p5-white);
   padding: 10px;
+  animation: wipeIn 0.6s var(--ease-p5) 0.3s both;
 }
 
 .svg-chart-axis {
@@ -867,7 +1402,7 @@ body {
 }
 
 .svg-chart-grid {
-  stroke: rgba(255, 255, 255, 0.08);
+  stroke: rgba(255, 255, 255, 0.06);
   stroke-dasharray: 4,4;
   stroke-width: 1;
 }
@@ -880,7 +1415,7 @@ body {
 
 .svg-chart-area {
   fill: url(#area-grad);
-  opacity: 0.25;
+  opacity: 0.2;
 }
 
 .svg-chart-dot {
@@ -889,16 +1424,66 @@ body {
   stroke-width: 2.5;
   r: 5;
   cursor: pointer;
-  transition: r 0.2s;
+  transition: r 0.25s var(--ease-p5), fill 0.25s;
 }
 
 .svg-chart-dot:hover {
-  r: 8;
+  r: 9;
   fill: var(--p5-white);
   stroke: var(--p5-red);
 }
 
-/* Footer Style */
+/* ══════════════════════════════════════════════════════════════════
+   P5 LOADING OVERLAY — "Now Loading" Style
+   ══════════════════════════════════════════════════════════════════ */
+.p5-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--p5-black);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  gap: 2rem;
+}
+
+.p5-loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid var(--p5-white);
+  border-top-color: var(--p5-red);
+  border-right-color: var(--p5-yellow);
+  animation: p5Spin 0.8s linear infinite;
+}
+
+.p5-loading-text {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--p5-white);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  animation: neonFlicker 2s infinite;
+}
+
+.p5-loading-bar {
+  width: 200px;
+  height: 6px;
+  background: var(--p5-charcoal);
+  border: 2px solid var(--p5-white);
+  overflow: hidden;
+}
+
+.p5-loading-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--p5-red), var(--p5-yellow));
+  animation: loadingBarFill 2s var(--ease-p5) infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════════════════ */
 .app-footer {
   text-align: center;
   padding: 2.5rem 1rem;
@@ -907,14 +1492,172 @@ body {
   font-weight: 700;
   border-top: 4px solid var(--p5-red);
   margin-top: 4rem;
-  transform: rotate(-0.5deg);
+  transform: rotate(-0.3deg);
+  animation: fadeSkewUp 0.5s var(--ease-p5) 0.3s both;
+  position: relative;
+}
+
+.app-footer::before {
+  content: '★ TAKE YOUR TIME ★';
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--p5-red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  animation: neonFlicker 4s infinite;
 }
 
 .app-footer a {
   color: var(--p5-yellow);
   text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: var(--transition-fast);
 }
 
 .app-footer a:hover {
   color: var(--p5-red);
+  text-shadow: 0 0 10px var(--p5-red-glow);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCROLLBAR CUSTOMIZATION
+   ══════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--p5-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p5-red);
+  border: 2px solid var(--p5-black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--p5-yellow);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--p5-red) var(--p5-black);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SELECTION HIGHLIGHT
+   ══════════════════════════════════════════════════════════════════ */
+::selection {
+  background: var(--p5-red);
+  color: var(--p5-white);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .app-layout {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .app-header {
+    padding: 1.5rem 1rem;
+    transform: skew(-1deg);
+  }
+
+  .app-title {
+    font-size: 2rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .nav-tabs {
+    transform: skew(-2deg);
+    gap: 0.3rem;
+  }
+
+  .nav-tab-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .glass-panel {
+    padding: 1.25rem;
+  }
+
+  .panel-title {
+    font-size: 1.3rem;
+  }
+
+  .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .score-circle-svg {
+    width: 130px;
+    height: 130px;
+  }
+
+  .deck-container {
+    height: 420px;
+  }
+
+  .btn {
+    font-size: 0.88rem;
+    padding: 0.7rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.6rem;
+  }
+
+  .header-badges {
+    gap: 0.4rem;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .nav-tab-btn {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   REDUCED MOTION ACCESSIBILITY
+   ══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  body::before, body::after {
+    animation: none !important;
+  }
 }

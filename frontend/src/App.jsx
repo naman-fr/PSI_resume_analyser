@@ -6,6 +6,8 @@ import {
   Plus, Check, X, ArrowRight, BookOpen, AlertTriangle
 } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [premiumMode, setPremiumMode] = useState(false);
@@ -65,7 +67,7 @@ export default function App() {
 
   const fetchSampleJds = async () => {
     try {
-      const res = await fetch('/api/sample-jds');
+      const res = await fetch(`${API_URL}/api/sample-jds`);
       if (res.ok) {
         const data = await res.json();
         setSampleJds(data);
@@ -78,7 +80,7 @@ export default function App() {
   const fetchTelemetry = async () => {
     setTelemetryLoading(true);
     try {
-      const res = await fetch('/api/telemetry');
+      const res = await fetch(`${API_URL}/api/telemetry`);
       if (res.ok) {
         const data = await res.json();
         setTelemetry(data);
@@ -98,7 +100,7 @@ export default function App() {
     }
     setCheckoutLoading(true);
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch(`${API_URL}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +145,7 @@ export default function App() {
     formData.append('premium_mode', premiumMode);
 
     try {
-      const res = await fetch('/api/analyze', {
+      const res = await fetch(`${API_URL}/api/analyze`, {
         method: 'POST',
         body: formData
       });
@@ -167,7 +169,7 @@ export default function App() {
     if (!improveResumeText.trim()) return;
     setImproveLoading(true);
     try {
-      const res = await fetch('/api/improve', {
+      const res = await fetch(`${API_URL}/api/improve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resume_text: improveResumeText, jd_text: improveJdText })
@@ -187,7 +189,7 @@ export default function App() {
     e.preventDefault();
     setJobsLoading(true);
     try {
-      const res = await fetch(`/api/jobs?query=${encodeURIComponent(jobQuery)}&location=${encodeURIComponent(jobLocation)}&remote_only=${jobRemoteOnly}`);
+      const res = await fetch(`${API_URL}/api/jobs?query=${encodeURIComponent(jobQuery)}&location=${encodeURIComponent(jobLocation)}&remote_only=${jobRemoteOnly}`);
       if (res.ok) {
         const data = await res.json();
         setJobsList(data);
@@ -205,7 +207,7 @@ export default function App() {
     if (!stressPrompt.trim()) return;
     setStressLoading(true);
     try {
-      const res = await fetch('/api/stress-test', {
+      const res = await fetch(`${API_URL}/api/stress-test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: stressPrompt })
@@ -237,7 +239,7 @@ export default function App() {
       formData.append('premium_mode', premiumMode);
       
       try {
-        const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+        const res = await fetch(`${API_URL}/api/analyze`, { method: 'POST', body: formData });
         const data = await res.json();
         results.push({
           name: file.name,
@@ -263,6 +265,15 @@ export default function App() {
 
   return (
     <div className="app-layout">
+      {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
+        <div className="p5-loading-overlay">
+          <div className="p5-loading-spinner" />
+          <div className="p5-loading-text">Now Loading</div>
+          <div className="p5-loading-bar">
+            <div className="p5-loading-bar-fill" />
+          </div>
+        </div>
+      )}
       {/* ── HEADER ────────────────────────────────────────────────── */}
       <header className="app-header">
         <div className="header-badges">
