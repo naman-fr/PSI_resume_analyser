@@ -19,9 +19,10 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: frontend
+          working-directory: .
           vercel-args: --prod
           vercel-version: latest
+
 
   deploy-backend:
     name: Deploy Backend to Render
