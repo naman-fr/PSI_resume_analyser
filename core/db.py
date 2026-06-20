@@ -2,7 +2,7 @@ import os
 import sqlite3
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ def set_cache(key: str, value: Any, expire_seconds: int = 3600):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        expires_at = datetime.utcnow().timestamp() + expire_seconds
+        expires_at = datetime.now(timezone.utc).timestamp() + expire_seconds
         cursor.execute(
             "INSERT OR REPLACE INTO kv_cache (key, value, expires_at) VALUES (?, ?, ?)",
             (key, json.dumps(value), expires_at)
@@ -156,7 +156,7 @@ def get_cache(key: str) -> Optional[Any]:
         conn.close()
         if row:
             value, expires_at = row[0], float(row[1])
-            if expires_at > datetime.utcnow().timestamp():
+            if expires_at > datetime.now(timezone.utc).timestamp():
                 return json.loads(value)
             else:
                 # Clean up expired
@@ -169,3 +169,4 @@ def get_cache(key: str) -> Optional[Any]:
     except Exception as e:
         logger.error(f"SQLite cache get failed for {key}: {e}")
         return None
+

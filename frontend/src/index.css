@@ -229,16 +229,24 @@
   padding: 0;
 }
 
+html {
+  overflow-y: auto !important;
+  scroll-behavior: smooth;
+  height: auto;
+}
+
 /* Body: Animated diagonal stripes + halftone dot overlay */
 body {
   font-family: var(--font-body);
   background-color: var(--p5-black);
   color: var(--text-primary);
   min-height: 100vh;
+  overflow-y: auto !important;
   overflow-x: hidden;
   line-height: 1.5;
   position: relative;
 }
+
 
 /* Animated diagonal stripe background */
 body::before {

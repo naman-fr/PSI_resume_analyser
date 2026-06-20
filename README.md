@@ -205,5 +205,16 @@ python -m pytest
 ## 🔄 CI/CD Pipelines
 Located under `.github/workflows/`:
 * **`ci.yml`**: Automatically triggers on pushes or pull requests to `main` and `webapp` branches. Sets up Python + Node matrix environments, executes the 103+ unit test suite, and compiles the React build bundle.
-* **`deploy.yml`**: Triggered automatically on push to `webapp`. Deploys the frontend build target to Vercel and notifies the Render backend deployment hook to pull and execute the updated backend container.
+* **`deploy.yml`**: Triggered automatically on push to `main` and `webapp` branches. Deploys the frontend build target to Vercel and triggers the Render API deploy endpoint to deploy the updated backend service.
+
+---
+
+## 🛠️ Industrial Refinements
+
+1. **CORS Wildcard Regex Parser**: Rewrote origin sanitisation in [api.py](file:///c:/Users/naman/Downloads/PSI_resume_analyser/api.py) to compile wildcard domains (like `https://psi-resume-analyser-*.vercel.app`) into regular expressions passed to Starlette's `allow_origin_regex`. This resolved the silent `ValueError` crash on startup.
+2. **Real-time Logging Observability**: Integrated `PYTHONUNBUFFERED=1` in [render.yaml](file:///c:/Users/naman/Downloads/PSI_resume_analyser/render.yaml) environment parameters to disable Python output buffering.
+3. **Explicit Server Dependencies**: Added explicit dependencies to [requirements.txt](file:///c:/Users/naman/Downloads/PSI_resume_analyser/requirements.txt) including `fastapi`, `uvicorn`, `python-multipart`, `pytest`, and `httpx`.
+4. **Scrollable Product Landing Directory**: Redesigned the Home tab in the frontend React app to be a scrollable landing portal explaining all 6 AI chambers (math/models, security parameters, STAR bullet optimization), integrated with active navigation controls.
+5. **Universal Scrollability**: Restructured [index.css](file:///c:/Users/naman/Downloads/PSI_resume_analyser/frontend/src/index.css) layout constraints to force vertical scrolling on all tabs.
+
 

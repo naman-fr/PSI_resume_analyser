@@ -7,6 +7,7 @@ import shutil
 import logging
 import sqlite3
 import json
+import re
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
@@ -41,9 +42,28 @@ app = FastAPI(
 _allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS", "*")
 _allowed_origins = [o.strip() for o in _allowed_origins_raw.split(",") if o.strip()]
 
+allow_origins = []
+allow_origin_regex = None
+
+regex_patterns = []
+for origin in _allowed_origins:
+    if origin == "*":
+        allow_origins = ["*"]
+        break
+    elif "*" in origin:
+        # Convert wildcard domain to regex pattern
+        pattern = re.escape(origin).replace(r"\*", r"[^/]*")
+        regex_patterns.append(f"^{pattern}$")
+    else:
+        allow_origins.append(origin)
+
+if regex_patterns:
+    allow_origin_regex = "|".join(regex_patterns)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_allowed_origins,
+    allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
