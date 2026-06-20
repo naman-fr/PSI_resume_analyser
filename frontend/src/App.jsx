@@ -289,19 +289,43 @@ export default function App() {
         </div>
       )}
       {/* ── HEADER ────────────────────────────────────────────────── */}
-      <header className="app-header">
-        <div className="header-badges">
-          <span className="badge badge-purple">⚡ LangGraph Orchestrated</span>
-          <span className="badge badge-blue">🤖 Llama 3.3 / Gemini</span>
-          <span className="badge badge-green">🛡️ EEOC Audit Safe</span>
+      <header className="app-header p5-glitch-header" style={{ position: 'relative', overflow: 'visible' }}>
+        
+        {/* Massive Joker Mask / Phantom Thieves SVG Sticker */}
+        <div className="p5-joker-sticker" style={{
+          position: 'absolute',
+          top: '-40px',
+          right: '-20px',
+          width: '150px',
+          height: '150px',
+          transform: 'rotate(15deg) scale(1.2)',
+          zIndex: 10,
+          pointerEvents: 'none',
+          animation: 'floatBob 3s ease-in-out infinite'
+        }}>
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10,30 L30,10 L70,10 L90,30 L80,70 L50,95 L20,70 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4"/>
+            <path d="M20,40 C30,20 40,30 50,40 C60,30 70,20 80,40" stroke="var(--p5-red)" strokeWidth="6" fill="none"/>
+            <circle cx="35" cy="50" r="8" fill="var(--p5-yellow)"/>
+            <circle cx="65" cy="50" r="8" fill="var(--p5-yellow)"/>
+            <path d="M30,80 L70,80 L50,60 Z" fill="var(--p5-red)"/>
+          </svg>
         </div>
-        <h1 className="app-title">PSI Resume Analyser</h1>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
-          <p className="app-subtitle" style={{ margin: 0, maxWidth: '75%' }}>
-            Professional Enterprise grade multi-agent talent scanner, alignment optimizer, and continuous fine-tuning data pipeline.
+
+        <div className="header-badges" style={{ transform: 'skewX(-10deg)', marginBottom: '1rem' }}>
+          <span className="badge badge-purple" style={{ border: '2px solid var(--p5-white)', borderRadius: 0, boxShadow: '4px 4px 0px #000' }}>⚡ LangGraph Core</span>
+          <span className="badge badge-blue" style={{ border: '2px solid var(--p5-white)', borderRadius: 0, boxShadow: '4px 4px 0px #000' }}>🤖 Llama 3.3 Orchestrator</span>
+          <span className="badge badge-green" style={{ border: '2px solid var(--p5-white)', borderRadius: 0, boxShadow: '4px 4px 0px #000' }}>🛡️ EEOC Blind Audit Safe</span>
+        </div>
+        <h1 className="app-title" style={{ fontSize: '3.5rem', textTransform: 'uppercase', textShadow: '4px 4px 0px var(--p5-red), -2px -2px 0px var(--p5-yellow)', letterSpacing: '-2px', transform: 'scaleY(1.2) skewX(-5deg)' }}>
+          PSI Resume Analyser
+        </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginTop: '1rem' }}>
+          <p className="app-subtitle" style={{ margin: 0, maxWidth: '65%', fontWeight: 800, color: 'var(--text-secondary)', transform: 'skewX(2deg)' }}>
+            Enterprise-grade cognitive alignment scanner. Expose the hidden stats of every candidate.
           </p>
-          <div className="p5-calling-card-sticker" onClick={() => setShowCheckout(true)}>
-            <span className="p5-star-badge">★</span> Take Your Heart
+          <div className="p5-calling-card-sticker" onClick={() => setShowCheckout(true)} style={{ transform: 'rotate(-5deg) scale(1.1)', cursor: 'pointer', zIndex: 100 }}>
+            <span className="p5-star-badge">★</span> TAKE YOUR HEART
           </div>
         </div>
       </header>
@@ -1563,18 +1587,28 @@ export default function App() {
       </footer>
 
       {/* ── MORGANA HELPER ────────────────────────────────────────── */}
-      <div className="p5-morgana-helper">
+      <div className="p5-morgana-helper" style={{ zIndex: 9999 }}>
         <div className="p5-morgana-bubble">
           {getMorganaQuote()}
         </div>
-        <div className="p5-morgana-avatar">
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15,30 L35,10 L50,25 L65,10 L85,30 L75,70 L25,70 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4" />
-            <path d="M25,25 L35,35 L20,38 Z" fill="var(--p5-red)" />
-            <path d="M75,25 L65,35 L80,38 Z" fill="var(--p5-red)" />
-            <circle cx="38" cy="48" r="6" fill="var(--p5-yellow)" />
-            <circle cx="62" cy="48" r="6" fill="var(--p5-yellow)" />
-            <path d="M45,58 Q50,62 55,58" stroke="var(--p5-white)" strokeWidth="3" strokeLinecap="round" />
+        <div className="p5-morgana-avatar" style={{ transform: 'scale(1.2) rotate(5deg)' }}>
+          {/* Detailed Pixel Art Morgana SVG */}
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(4px 4px 0px rgba(0,0,0,0.5))' }}>
+            {/* Base Head */}
+            <path d="M20,40 L30,20 L45,30 L55,30 L70,20 L80,40 L85,60 L75,80 L25,80 L15,60 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="3" />
+            {/* White Muzzle */}
+            <path d="M35,60 C35,50 65,50 65,60 C65,75 35,75 35,60 Z" fill="var(--p5-white)" />
+            {/* Eyes */}
+            <polygon points="25,45 35,40 45,45 35,55" fill="var(--p5-yellow)" stroke="var(--p5-red)" strokeWidth="2" />
+            <polygon points="75,45 65,40 55,45 65,55" fill="var(--p5-yellow)" stroke="var(--p5-red)" strokeWidth="2" />
+            {/* Pupils */}
+            <rect x="32" y="43" width="6" height="8" fill="var(--p5-black)" />
+            <rect x="62" y="43" width="6" height="8" fill="var(--p5-black)" />
+            {/* Nose & Mouth */}
+            <polygon points="48,60 52,60 50,65" fill="var(--p5-black)" />
+            <path d="M45,68 Q50,72 55,68" stroke="var(--p5-black)" strokeWidth="2" fill="none" />
+            {/* Bandana */}
+            <path d="M20,80 L50,85 L80,80 L85,95 L50,90 L15,95 Z" fill="var(--p5-yellow)" stroke="var(--p5-black)" strokeWidth="2" />
           </svg>
         </div>
       </div>
