@@ -10,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [hoveredNode, setHoveredNode] = useState(null);
   const [premiumMode, setPremiumMode] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   
@@ -374,7 +375,155 @@ export default function App() {
             </div>
           </div>
 
+
+          {/* Interactive Cognitive Node Map */}
+          <div className="glass-panel" style={{ background: 'var(--p5-black)', borderColor: 'var(--p5-white)', padding: '1.5rem', transform: 'skewX(-1deg)' }}>
+            <h3 style={{ fontFamily: 'var(--font-title)', fontWeight: 900, fontSize: '1.2rem', color: 'var(--p5-yellow)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>⚙️ Interactive Multi-Agent Pipeline Map</span>
+              <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>Hover Nodes to Inspect Tech Stack</span>
+            </h3>
+            
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
+              {[
+                {
+                  id: 'planner',
+                  title: '🎯 Graph Orchestrator (Planner)',
+                  role: 'Pipeline Planning & Strategy',
+                  tech: 'Llama-3.3-70b / Gemini-2.0-Flash',
+                  desc: 'Analyses inputs dynamically to compile an execution workflow. Adjusts scoring weights and focus parameters according to the target job description seniority.',
+                  coords: 'Stage 1'
+                },
+                {
+                  id: 'parser',
+                  title: '📄 Multi-Format Ingestion (Parser)',
+                  role: 'Sanitisation & Text Extraction',
+                  tech: 'pdfplumber / PyPDF2 / EEOC anonymizer',
+                  desc: 'Strips demographics (gender, race, name indicators) to enforce blind audit compliance, cleans text, and runs structural metadata scans for hidden background keywords.',
+                  coords: 'Stage 2'
+                },
+                {
+                  id: 'normalizer',
+                  title: '🔤 Skill Normalizer Agent',
+                  role: 'Taxonomy Alignment Mapping',
+                  tech: 'Cosine Similarity / Jaro-Winkler alias table',
+                  desc: 'Matches raw resume skills against our standardized database of 500+ categories. Groups variations (e.g. "ReactJS", "React.js" -> "React") to bypass keyword filters.',
+                  coords: 'Stage 3'
+                },
+                {
+                  id: 'critic',
+                  title: '🛡️ Validation Critic Node',
+                  role: 'Guardrails & Security scan',
+                  tech: 'Prompt Injection Classifier',
+                  desc: 'Intercepts inputs to scan for black-hat resume manipulations, adversarial prompt overrides, and template stuffing. Halts evaluation if injection confidence is >75%.',
+                  coords: 'Stage 4'
+                },
+                {
+                  id: 'scorer',
+                  title: '📊 Composite Scorer Agent',
+                  role: '7-Factor Alignment Valuation',
+                  tech: 'text-embedding-004 / Lexical overlap',
+                  desc: 'Blends Semantic Similarity (Transformer vector distance) and Lexical overlap (exact taxonomy match) to output a validated match score (0-100). Uses hybrid local & API embeddings fallback.',
+                  coords: 'Stage 5'
+                }
+              ].map((node) => (
+                <div
+                  key={node.id}
+                  onMouseEnter={() => setHoveredNode(node.id)}
+                  onMouseLeave={() => setHoveredNode(null)}
+                  style={{
+                    background: hoveredNode === node.id ? 'var(--p5-red)' : 'var(--p5-charcoal)',
+                    color: 'var(--p5-white)',
+                    border: hoveredNode === node.id ? '2px solid var(--p5-yellow)' : '2px solid var(--p5-white)',
+                    padding: '0.5rem 1rem',
+                    cursor: 'pointer',
+                    transform: 'skewX(-8deg)',
+                    transition: 'all 0.15s ease',
+                    boxShadow: hoveredNode === node.id ? '4px 4px 0px #000' : 'none',
+                    flexGrow: 1,
+                    textAlign: 'center',
+                    fontWeight: 800,
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  <div style={{ transform: 'skewX(8deg)' }}>{node.coords} • {node.id.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Blueprint detail drawer */}
+            <div style={{
+              background: 'var(--p5-panel-bg)',
+              border: '3px dashed var(--p5-red)',
+              padding: '1.25rem',
+              position: 'relative',
+              minHeight: '120px',
+              transition: 'all 0.3s ease'
+            }}>
+              {hoveredNode ? (() => {
+                const cognitiveNodes = [
+                  {
+                    id: 'planner',
+                    title: '🎯 Graph Orchestrator (Planner)',
+                    role: 'Pipeline Planning & Strategy',
+                    tech: 'Llama-3.3-70b / Gemini-2.0-Flash',
+                    desc: 'Analyses inputs dynamically to compile an execution workflow. Adjusts scoring weights and focus parameters according to the target job description seniority.',
+                    coords: 'Stage 1'
+                  },
+                  {
+                    id: 'parser',
+                    title: '📄 Multi-Format Ingestion (Parser)',
+                    role: 'Sanitisation & Text Extraction',
+                    tech: 'pdfplumber / PyPDF2 / EEOC anonymizer',
+                    desc: 'Strips demographics (gender, race, name indicators) to enforce blind audit compliance, cleans text, and runs structural metadata scans for hidden background keywords.',
+                    coords: 'Stage 2'
+                  },
+                  {
+                    id: 'normalizer',
+                    title: '🔤 Skill Normalizer Agent',
+                    role: 'Taxonomy Alignment Mapping',
+                    tech: 'Cosine Similarity / Jaro-Winkler alias table',
+                    desc: 'Matches raw resume skills against our standardized database of 500+ categories. Groups variations (e.g. "ReactJS", "React.js" -> "React") to bypass keyword filters.',
+                    coords: 'Stage 3'
+                  },
+                  {
+                    id: 'critic',
+                    title: '🛡️ Validation Critic Node',
+                    role: 'Guardrails & Security scan',
+                    tech: 'Prompt Injection Classifier',
+                    desc: 'Intercepts inputs to scan for black-hat resume manipulations, adversarial prompt overrides, and template stuffing. Halts evaluation if injection confidence is >75%.',
+                    coords: 'Stage 4'
+                  },
+                  {
+                    id: 'scorer',
+                    title: '📊 Composite Scorer Agent',
+                    role: '7-Factor Alignment Valuation',
+                    tech: 'text-embedding-004 / Lexical overlap',
+                    desc: 'Blends Semantic Similarity (Transformer vector distance) and Lexical overlap (exact taxonomy match) to output a validated match score (0-100). Uses hybrid local & API embeddings fallback.',
+                    coords: 'Stage 5'
+                  }
+                ];
+                const node = cognitiveNodes.find(n => n.id === hoveredNode);
+                return (
+                  <div style={{ animation: 'fadeSkewUp 0.3s ease' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <h4 style={{ color: 'var(--p5-yellow)', fontWeight: 900, textTransform: 'uppercase', fontSize: '1.05rem', fontFamily: 'var(--font-title)' }}>{node.title}</h4>
+                      <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>{node.tech}</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--p5-white)', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase' }}>Role: {node.role}</div>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>{node.desc}</p>
+                  </div>
+                );
+              })() : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100px', color: 'var(--text-dim)', textAlign: 'center' }}>
+                  <Cpu className="animate-pulse" size={28} style={{ marginBottom: '0.5rem' }} />
+                  <p style={{ fontSize: '0.85rem' }}>Hover over any pipeline stage above to reveal real-time execution specs & backend algorithms.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Multi-Product Feature Breakdown */}
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem', marginTop: '1rem' }}>
             
             {/* FEATURE 1: ATS MATCH ENGINE */}
