@@ -441,6 +441,64 @@ export default function App() {
 
           </div>
 
+          {/* ── MASSIVE CONTENT EXPANSION (SYSTEM ARCHITECTURE) ──────────────────────── */}
+          <div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', gap: '3rem', position: 'relative' }}>
+            
+            {/* Giant Title */}
+            <div style={{ textAlign: 'center', position: 'relative', zIndex: 10 }}>
+              <div className="p5-giant-text">EXPOSE THEIR STATS</div>
+              <p style={{ fontFamily: 'monospace', color: 'var(--p5-yellow)', fontSize: '1.2rem', fontWeight: 'bold', transform: 'skewX(-5deg)', letterSpacing: '0.1em' }}>
+                // COGNITIVE PIPELINE ARCHITECTURE //
+              </p>
+            </div>
+
+            {/* Feature Block 1 */}
+            <div className="p5-feature-block">
+              <div style={{ transform: 'translateZ(20px)' }}>
+                <h3 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-red)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '1rem', textShadow: '2px 2px 0px #000' }}>
+                  Algorithmic<br/>Infiltration
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>
+                  Traditional recruiters rely on rigid keyword filters. Our <span style={{ color: 'var(--p5-yellow)' }}>Semantic Cosine Similarity</span> engines bypass exact-match defenses, analyzing the true conceptual meaning of a candidate's background against your Target Job Description.
+                </p>
+              </div>
+              <div style={{ background: '#000', padding: '1.5rem', border: '3px dashed var(--p5-white)', transform: 'rotate(2deg)' }}>
+                <pre style={{ color: '#34c759', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+{`> RUN: text-embedding-004
+> VECTORIZING TARGET JD... [DONE]
+> VECTORIZING RESUME... [DONE]
+> CALCULATING COSINE DISTANCE:
+> SIMILARITY SCORE = 0.892 (MATCH)
+> BYPASS SUCCESSFUL.`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Feature Block 2 */}
+            <div className="p5-feature-block" style={{ gridTemplateColumns: '1.2fr 1fr', transform: 'skewX(2deg)', background: 'var(--p5-red)' }}>
+              <div style={{ background: 'var(--p5-charcoal)', padding: '2rem', border: '3px solid var(--p5-black)', transform: 'rotate(-2deg)' }}>
+                <h4 style={{ color: 'var(--p5-yellow)', fontSize: '1.2rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '0.5rem' }}>EEOC Anonymization</h4>
+                <div style={{ height: '8px', width: '100%', background: '#333', marginBottom: '1rem' }}>
+                  <div style={{ height: '100%', width: '100%', background: 'var(--p5-red)', animation: 'loadingBarFill 2s infinite' }}></div>
+                </div>
+                <ul style={{ color: 'var(--p5-white)', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <li>[REDACTED] Candidate Name</li>
+                  <li>[REDACTED] Gender Pronouns</li>
+                  <li>[REDACTED] Graduation Year</li>
+                </ul>
+              </div>
+              <div style={{ paddingLeft: '2rem' }}>
+                <h3 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-black)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '1rem', textShadow: '2px 2px 0px var(--p5-white)' }}>
+                  Blind Justice<br/>Protocol
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1.6 }}>
+                  Before any LLM evaluation occurs, the <span style={{ color: 'var(--p5-black)', background: 'var(--p5-white)', padding: '0 4px' }}>pdfplumber</span> ingestion layer violently strips all demographic and chronological identifiers. Our pipeline executes pure, unadulterated skill meritocracy.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       )}
 

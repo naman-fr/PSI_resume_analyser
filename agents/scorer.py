@@ -311,7 +311,7 @@ def _detect_upward_trajectory(resume_parsed: dict) -> dict:
     
     levels = []
     for _, role in entries_sorted:
-        r_lower = role.lower()
+        r_lower = (role or "").lower()
         if "lead" in r_lower or "principal" in r_lower or "manager" in r_lower or "director" in r_lower or "head" in r_lower:
             levels.append(3)
         elif "senior" in r_lower or "sr" in r_lower:
