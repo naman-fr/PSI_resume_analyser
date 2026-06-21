@@ -376,7 +376,7 @@ export default function App() {
             objectFit: 'cover', 
             width: '100vw', 
             height: '100vh',
-            opacity: 0.3,
+            opacity: 0.15,
             mixBlendMode: 'screen',
             transform: 'scale(1.2)'
           }}

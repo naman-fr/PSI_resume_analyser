@@ -79,23 +79,23 @@ export default function AuthScreen() {
         {/* Floating Hologram Data */}
         <div style={{ position: 'absolute', top: '15%', left: '10%', zIndex: 1, animation: 'floatBob 4s infinite', opacity: 0.8 }}>
           <div style={{ borderLeft: '4px solid var(--red)', paddingLeft: '10px', fontFamily: 'var(--ff-mono)', color: 'var(--red)', fontSize: '0.85rem' }}>
-            [ SYS.SCAN: active ]<br/>
-            &gt; resume_db_04.pdf<br/>
-            &gt; EXTRACTING NODES...
+            [ MISSION: INFILTRATION ]<br/>
+            &gt; TARGET: ATS ALGORITHMS<br/>
+            &gt; BYPASSING RIGID FILTERS...
           </div>
         </div>
 
         <div style={{ position: 'absolute', bottom: '25%', right: '10%', zIndex: 1, animation: 'floatBob 3.5s infinite reverse', opacity: 0.8 }}>
           <div style={{ borderRight: '4px solid var(--p5-yellow)', paddingRight: '10px', textAlign: 'right', fontFamily: 'var(--ff-mono)', color: 'var(--p5-yellow)', fontSize: '0.85rem' }}>
-            [ MATCH RATE ]<br/>
-            &gt; 98.4% ALIGNMENT<br/>
-            &gt; STATUS: CLEAR
+            [ INTELLIGENCE SUITE ]<br/>
+            &gt; SCANNING CANDIDATE ALIGNMENT<br/>
+            &gt; REVEALING HIDDEN POTENTIAL
           </div>
         </div>
 
         <div style={{ position: 'absolute', top: '45%', right: '5%', zIndex: 1, opacity: 0.4, transform: 'rotate(90deg)', transformOrigin: 'right center' }}>
-          <div style={{ fontFamily: 'var(--ff-display)', fontSize: '4rem', color: 'var(--panel-2)', letterSpacing: '0.2em' }}>
-            COGNITIVE // ATS
+          <div style={{ fontFamily: 'var(--ff-display)', fontSize: '4rem', color: 'var(--panel-2)', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
+            PERSONA // ANALYTICS
           </div>
         </div>
 
