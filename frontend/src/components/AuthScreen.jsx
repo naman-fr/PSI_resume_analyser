@@ -46,7 +46,11 @@ export default function AuthScreen() {
   return (
     <div className="auth-container">
       {/* Left side: 3D showcase */}
-      <div className="auth-left">
+      <div className="auth-left" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Persona 5 Meme Background Sequence */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.15, pointerEvents: 'none', backgroundImage: 'url(https://media.tenor.com/UvQ_aPZg5xAAAAAi/persona-5-all-out-attack.gif)', backgroundSize: 'cover', backgroundPosition: 'center', mixBlendMode: 'screen', filter: 'grayscale(50%) contrast(150%)' }}></div>
+        <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', zIndex: 0, opacity: 0.4, pointerEvents: 'none', backgroundImage: 'url(https://media.tenor.com/Z4O8vA1Ua4oAAAAi/persona-5-joker.gif)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', mixBlendMode: 'lighten' }}></div>
+        
         {/* Floating Hologram Data */}
         <div style={{ position: 'absolute', top: '15%', left: '10%', zIndex: 1, animation: 'floatBob 4s infinite', opacity: 0.8 }}>
           <div style={{ borderLeft: '4px solid var(--red)', paddingLeft: '10px', fontFamily: 'var(--ff-mono)', color: 'var(--red)', fontSize: '0.85rem' }}>
@@ -75,7 +79,7 @@ export default function AuthScreen() {
         </div>
         <div style={{ position: 'relative', zIndex: 10, marginTop: '400px', textAlign: 'center' }}>
             <GlitchText text="PHANTOM CV" />
-            <p style={{ fontFamily: 'var(--ff-mono)', color: 'var(--gray)', letterSpacing: '0.3em', textAlign: 'center', marginTop: '5px' }}>COGNITIVE ATS PIPELINE</p>
+            <p style={{ fontFamily: 'var(--ff-mono)', color: 'var(--gray)', letterSpacing: '0.3em', textAlign: 'center', marginTop: '5px', textShadow: '2px 2px 0px #000' }}>COGNITIVE ATS PIPELINE</p>
         </div>
       </div>
       
@@ -110,7 +114,12 @@ export default function AuthScreen() {
               
               <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
                 <P5Button type="submit" disabled={loading} style={{ width: '100%' }}>
-                  {loading ? 'AUTHENTICATING...' : (isRegister ? 'INITIALIZE CONNECTION' : 'INFILTRATE')}
+                  {loading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                      <img src="https://media.tenor.com/FwB8a_7D9hQAAAAi/persona-5-take-your-time.gif" alt="loading" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
+                      AUTHENTICATING...
+                    </div>
+                  ) : (isRegister ? 'INITIALIZE CONNECTION' : 'INFILTRATE')}
                 </P5Button>
               </div>
             </form>

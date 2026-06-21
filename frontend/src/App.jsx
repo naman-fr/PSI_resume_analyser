@@ -424,7 +424,21 @@ export default function App() {
             </p>
           </div>
 
-          <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+          {/* Floating P5 Meme Corner Character */}
+          <div style={{
+            position: 'fixed',
+            bottom: '-10px',
+            right: '-30px',
+            zIndex: 10,
+            pointerEvents: 'none',
+            opacity: 0.9,
+            transform: 'scale(0.85)',
+            transformOrigin: 'bottom right'
+          }}>
+            <img src="https://media.tenor.com/Z4O8vA1Ua4oAAAAi/persona-5-joker.gif" alt="Joker Running" style={{ filter: 'drop-shadow(5px 5px 0px #000)' }} />
+          </div>
+
+          <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '6rem' }}>
             
             {/* Scroll Section 1: Analyze Resumes */}
             <ScrollSection direction="left">
@@ -438,24 +452,26 @@ export default function App() {
                   INITIATE ROUTE →
                 </button>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
-                <svg viewBox="0 0 100 100" style={{ width: '350px', height: '350px', filter: 'drop-shadow(15px 15px 0 #000)' }}>
-                  <path d="M20,10 L70,10 L80,20 L80,90 L20,90 Z" fill="var(--p5-charcoal)" stroke="var(--p5-yellow)" strokeWidth="3"/>
-                  <line x1="30" y1="30" x2="60" y2="30" stroke="var(--p5-white)" strokeWidth="3"/>
-                  <line x1="30" y1="50" x2="70" y2="50" stroke="var(--p5-white)" strokeWidth="3"/>
-                  <line x1="30" y1="70" x2="50" y2="70" stroke="var(--p5-white)" strokeWidth="3"/>
-                  <rect x="0" y="45" width="100" height="10" fill="rgba(230,0,18,0.7)" style={{ animation: 'scanLine 3s linear infinite' }} />
-                </svg>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-isometric-server">
+                  <div className="iso-layer top"></div>
+                  <div className="iso-layer middle"></div>
+                  <div className="iso-layer bottom"></div>
+                </div>
               </div>
             </ScrollSection>
 
             {/* Scroll Section 2: Improve Bullets */}
             <ScrollSection direction="right">
-              <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
-                <svg viewBox="0 0 100 100" style={{ width: '350px', height: '350px', animation: 'spinPulse 15s linear infinite', filter: 'drop-shadow(15px 15px 0 var(--p5-red))' }}>
-                  <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" fill="var(--p5-white)" />
-                  <circle cx="50" cy="50" r="10" fill="var(--p5-charcoal)"/>
-                </svg>
+              <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-hypercube">
+                  <div className="cube-face front"></div>
+                  <div className="cube-face back"></div>
+                  <div className="cube-face right"></div>
+                  <div className="cube-face left"></div>
+                  <div className="cube-face top"></div>
+                  <div className="cube-face bottom"></div>
+                </div>
               </div>
               <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
                 <span className="badge badge-blue" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 02</span>
@@ -470,7 +486,7 @@ export default function App() {
             </ScrollSection>
 
             {/* Scroll Section 3: Swipe Deck */}
-            <ScrollSection direction="bottom">
+            <ScrollSection direction="left">
               <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
                 <span className="badge badge-green" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 03</span>
                 <h2 className="scroll-title">Swipe<br/>Deck</h2>
@@ -481,93 +497,104 @@ export default function App() {
                   INITIATE ROUTE →
                 </button>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1000px', zIndex: 1 }}>
-                <div style={{ position: 'relative', width: '250px', height: '350px' }}>
-                  <div style={{ position: 'absolute', top: '20px', left: '-30px', width: '100%', height: '100%', border: '8px solid var(--p5-yellow)', background: 'var(--p5-charcoal)', transform: 'rotate(-10deg) translateZ(-50px)', opacity: 0.5 }}></div>
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '8px solid var(--p5-red)', background: 'var(--p5-black)', transform: 'rotate(0deg) translateZ(0)', animation: 'swipeRight 3s ease-in-out infinite' }}></div>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+                <div className="geometry-carousel">
+                  <div className="carousel-card card-1"></div>
+                  <div className="carousel-card card-2"></div>
+                  <div className="carousel-card card-3"></div>
                 </div>
               </div>
             </ScrollSection>
 
-            {/* Scroll Section 4: Telemetry & Extras */}
-            <ScrollSection direction="left">
-               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
-                <svg viewBox="0 0 200 100" style={{ width: '400px', height: '200px', filter: 'drop-shadow(0 0 15px #34c759)' }}>
-                  <polyline points="0,50 30,50 40,20 60,80 70,50 100,50" fill="none" stroke="#34c759" strokeWidth="4" />
-                  <polyline points="100,50 130,50 140,20 160,80 170,50 200,50" fill="none" stroke="#34c759" strokeWidth="4" />
-                </svg>
+            {/* Scroll Section 4: Cognitive Archive */}
+            <ScrollSection direction="right">
+               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-vault">
+                  <div className="vault-door">
+                    <div className="vault-wheel"></div>
+                  </div>
+                </div>
               </div>
               <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
-                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: 'var(--p5-black)', border: '2px solid var(--p5-white)' }}>ADVANCED OPS</span>
-                <h2 className="scroll-title" style={{ color: 'var(--p5-white)' }}>System<br/>Access</h2>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: 'var(--p5-charcoal)', border: '2px solid var(--p5-yellow)' }}>OPERATION 04</span>
+                <h2 className="scroll-title" style={{ color: 'var(--p5-white)' }}>Cognitive<br/>Archive</h2>
                 <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                  Enter the Cognitive Archive, monitor live LLM token telemetry, execute massive Batch Audits, or stress-test agent security.
+                  A secure, encrypted memory vault for all parsed candidate profiles. Infiltrate past semantic structures and extract vital JSON artifacts.
                 </p>
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                  <button className="btn btn-secondary" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Archive</button>
-                  <button className="btn btn-secondary" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Telemetry</button>
-                  <button className="btn btn-secondary" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Batch</button>
+                <button className="btn btn-secondary" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)' }}>
+                  OPEN ARCHIVE →
+                </button>
+              </div>
+            </ScrollSection>
+
+            {/* Scroll Section 5: Telemetry */}
+            <ScrollSection direction="left">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: '#000', border: '2px solid #34c759', color: '#34c759' }}>OPERATION 05</span>
+                <h2 className="scroll-title" style={{ color: '#34c759' }}>Token<br/>Telemetry</h2>
+                <p className="scroll-subtitle">
+                  Monitor live LLM execution bandwidth. Track embedding vectors, generation tokens, and cost-per-inference across all LangGraph nodes.
+                </p>
+                <button className="btn btn-secondary" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)', borderColor: '#34c759', color: '#34c759' }}>
+                  VIEW METRICS →
+                </button>
+              </div>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+                <div className="geometry-equalizer">
+                  <div className="bar bar-1"></div>
+                  <div className="bar bar-2"></div>
+                  <div className="bar bar-3"></div>
+                  <div className="bar bar-4"></div>
+                  <div className="bar bar-5"></div>
                 </div>
               </div>
             </ScrollSection>
 
-          </div>
-
-          {/* ── MASSIVE CONTENT EXPANSION (SYSTEM ARCHITECTURE) ──────────────────────── */}
-          <div style={{ marginTop: '5rem', display: 'flex', flexDirection: 'column', gap: '3rem', position: 'relative' }}>
-            
-            {/* Giant Title */}
-            <div style={{ textAlign: 'center', position: 'relative', zIndex: 10 }}>
-              <div className="p5-giant-text">EXPOSE THEIR STATS</div>
-              <p style={{ fontFamily: 'monospace', color: 'var(--p5-yellow)', fontSize: '1.2rem', fontWeight: 'bold', transform: 'skewX(-5deg)', letterSpacing: '0.1em' }}>
-                // COGNITIVE PIPELINE ARCHITECTURE //
-              </p>
-            </div>
-
-            {/* Feature Block 1 */}
-            <div className="p5-feature-block">
-              <div style={{ transform: 'translateZ(20px)' }}>
-                <h3 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-red)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '1rem', textShadow: '2px 2px 0px #000' }}>
-                  Algorithmic<br/>Infiltration
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6 }}>
-                  Traditional recruiters rely on rigid keyword filters. Our <span style={{ color: 'var(--p5-yellow)' }}>Semantic Cosine Similarity</span> engines bypass exact-match defenses, analyzing the true conceptual meaning of a candidate's background against your Target Job Description.
-                </p>
-              </div>
-              <div style={{ background: '#000', padding: '1.5rem', border: '3px dashed var(--p5-white)', transform: 'rotate(2deg)' }}>
-                <pre style={{ color: '#34c759', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-{`> RUN: text-embedding-004
-> VECTORIZING TARGET JD... [DONE]
-> VECTORIZING RESUME... [DONE]
-> CALCULATING COSINE DISTANCE:
-> SIMILARITY SCORE = 0.892 (MATCH)
-> BYPASS SUCCESSFUL.`}
-                </pre>
-              </div>
-            </div>
-
-            {/* Feature Block 2 */}
-            <div className="p5-feature-block" style={{ gridTemplateColumns: '1.2fr 1fr', transform: 'skewX(2deg)', background: 'var(--p5-red)' }}>
-              <div style={{ background: 'var(--p5-charcoal)', padding: '2rem', border: '3px solid var(--p5-black)', transform: 'rotate(-2deg)' }}>
-                <h4 style={{ color: 'var(--p5-yellow)', fontSize: '1.2rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '0.5rem' }}>EEOC Anonymization</h4>
-                <div style={{ height: '8px', width: '100%', background: '#333', marginBottom: '1rem' }}>
-                  <div style={{ height: '100%', width: '100%', background: 'var(--p5-red)', animation: 'loadingBarFill 2s infinite' }}></div>
+            {/* Scroll Section 6: Batch Audit */}
+            <ScrollSection direction="right">
+               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-vortex">
+                  <div className="vortex-doc doc-1"></div>
+                  <div className="vortex-doc doc-2"></div>
+                  <div className="vortex-doc doc-3"></div>
+                  <div className="vortex-doc doc-4"></div>
                 </div>
-                <ul style={{ color: 'var(--p5-white)', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <li>[REDACTED] Candidate Name</li>
-                  <li>[REDACTED] Gender Pronouns</li>
-                  <li>[REDACTED] Graduation Year</li>
-                </ul>
               </div>
-              <div style={{ paddingLeft: '2rem' }}>
-                <h3 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-black)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '1rem', textShadow: '2px 2px 0px var(--p5-white)' }}>
-                  Blind Justice<br/>Protocol
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 700, lineHeight: 1.6 }}>
-                  Before any LLM evaluation occurs, the <span style={{ color: 'var(--p5-black)', background: 'var(--p5-white)', padding: '0 4px' }}>pdfplumber</span> ingestion layer violently strips all demographic and chronological identifiers. Our pipeline executes pure, unadulterated skill meritocracy.
+              <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
+                <span className="badge badge-purple" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 06</span>
+                <h2 className="scroll-title" style={{ color: '#c084fc' }}>Batch<br/>Audit</h2>
+                <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  Automate ingestion of 100+ PDF profiles simultaneously. The pipeline violently extracts data at scale without breaking a sweat.
                 </p>
+                <button className="btn btn-secondary" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)' }}>
+                  INITIALIZE BATCH →
+                </button>
               </div>
-            </div>
+            </ScrollSection>
+
+            {/* Scroll Section 7: Blind Justice Protocol */}
+            <ScrollSection direction="left">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge badge-red" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 07</span>
+                <h2 className="scroll-title">Blind<br/>Justice</h2>
+                <p className="scroll-subtitle">
+                  EEOC Anonymization shielding. Our ingestion layer violently strips all demographic and chronological identifiers to ensure pure skill meritocracy.
+                </p>
+                <div style={{ padding: '1rem', background: '#000', borderLeft: '4px solid var(--p5-red)', fontSize: '0.9rem', color: 'var(--p5-white)' }}>
+                  &gt; [REDACTED] Candidate Name<br/>
+                  &gt; [REDACTED] Gender Pronouns
+                </div>
+              </div>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+                <div className="geometry-pyramid">
+                  <div className="pyramid-face face-front"></div>
+                  <div className="pyramid-face face-back"></div>
+                  <div className="pyramid-face face-right"></div>
+                  <div className="pyramid-face face-left"></div>
+                  <div className="pyramid-base"></div>
+                </div>
+              </div>
+            </ScrollSection>
 
           </div>
 
