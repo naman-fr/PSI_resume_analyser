@@ -376,7 +376,7 @@ export default function App() {
             objectFit: 'cover', 
             width: '100vw', 
             height: '100vh',
-            opacity: 0.35,
+            opacity: 0.3,
             mixBlendMode: 'screen',
             transform: 'scale(1.2)'
           }}
@@ -384,11 +384,8 @@ export default function App() {
       </div>
       {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
         <div className="p5-loading-overlay" style={{ background: 'rgba(8,8,8,0.95)', zIndex: 10000, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <div style={{ animation: 'runCycle 0.5s infinite linear', marginBottom: '2rem' }}>
-            <img src={loadingGif} alt="Loading..." style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
-          </div>
-          <div className="p5-loading-text" style={{ fontSize: '3rem', animation: 'timePulse 1.5s infinite', letterSpacing: '0.1em' }}>
-            TAKE YOUR TIME
+          <div style={{ animation: 'runCycle 0.5s infinite linear' }}>
+            <img src={loadingGif} alt="Loading..." style={{ width: '400px', height: '400px', objectFit: 'contain' }} />
           </div>
         </div>
       )}

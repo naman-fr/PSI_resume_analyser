@@ -430,7 +430,7 @@ body::after {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--p5-black);
+  background: transparent;
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 4rem;
@@ -1726,7 +1726,7 @@ body::after {
   align-items: center;
   justify-content: center;
   position: relative;
-  border-right: 1px solid var(--panel-2, #222226);
+  border-right: none;
 }
 
 .auth-right {
@@ -1748,7 +1748,7 @@ body::after {
   }
   .auth-left {
     border-right: none !important;
-    border-bottom: 1px solid var(--panel-2, #222226);
+    border-bottom: none !important;
     height: 350px !important;
     min-height: 350px !important;
   }
