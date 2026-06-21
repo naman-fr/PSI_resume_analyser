@@ -363,7 +363,7 @@ export default function App() {
         zIndex: -1,
         pointerEvents: 'none',
         overflow: 'hidden',
-        background: '#000'
+        background: 'transparent'
       }}>
         <iframe 
           src="https://tenor.com/embed/3415022122425697676" 
@@ -376,7 +376,7 @@ export default function App() {
             objectFit: 'cover', 
             width: '100vw', 
             height: '100vh',
-            opacity: 0.1,
+            opacity: 0.35,
             mixBlendMode: 'screen',
             transform: 'scale(1.2)'
           }}
@@ -395,27 +395,6 @@ export default function App() {
       {/* ── HEADER ────────────────────────────────────────────────── */}
       <header className="app-header p5-glitch-header" style={{ position: 'relative', overflow: 'visible' }}>
         
-        {/* Massive Joker Mask / Phantom Thieves SVG Sticker */}
-        <div className="p5-joker-sticker" style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-20px',
-          width: '150px',
-          height: '150px',
-          transform: 'rotate(15deg) scale(1.2)',
-          zIndex: 10,
-          pointerEvents: 'none',
-          animation: 'floatBob 3s ease-in-out infinite'
-        }}>
-          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10,30 L30,10 L70,10 L90,30 L80,70 L50,95 L20,70 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4"/>
-            <path d="M20,40 C30,20 40,30 50,40 C60,30 70,20 80,40" stroke="var(--p5-red)" strokeWidth="6" fill="none"/>
-            <circle cx="35" cy="50" r="8" fill="var(--p5-yellow)"/>
-            <circle cx="65" cy="50" r="8" fill="var(--p5-yellow)"/>
-            <path d="M30,80 L70,80 L50,60 Z" fill="var(--p5-red)"/>
-          </svg>
-        </div>
-
         <div className="header-badges" style={{ transform: 'skewX(-10deg)', marginBottom: '1rem' }}>
           <span className="badge badge-purple" style={{ border: '2px solid var(--p5-white)', borderRadius: 0, boxShadow: '4px 4px 0px #000' }}>⚡ LangGraph Core</span>
           <span className="badge badge-blue" style={{ border: '2px solid var(--p5-white)', borderRadius: 0, boxShadow: '4px 4px 0px #000' }}>🤖 Llama 3.3 Orchestrator</span>
@@ -494,23 +473,6 @@ export default function App() {
             <p style={{ fontSize: '1rem', fontWeight: 800, opacity: 0.9 }}>
               Select your target operation below to infiltrate the candidate data.
             </p>
-          </div>
-
-          {/* Floating P5 Meme Corner Character */}
-          <div style={{
-            position: 'fixed',
-            bottom: '-50px',
-            right: '-50px',
-            zIndex: 10,
-            pointerEvents: 'none',
-            opacity: 0.9,
-            width: '350px',
-            height: '350px',
-            mixBlendMode: 'lighten',
-            transform: 'scale(0.85)',
-            transformOrigin: 'bottom right'
-          }}>
-            <iframe src="https://giphy.com/embed/LwsA3k0EweuDS" width="100%" height="100%" frameBorder="0" className="giphy-embed" allowFullScreen style={{ pointerEvents: 'none' }}></iframe>
           </div>
 
           <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '6rem' }}>

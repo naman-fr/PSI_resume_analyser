@@ -99,10 +99,10 @@ export default function AuthScreen() {
           </div>
         </div>
 
-        <div style={{ width: '100%', maxWidth: '600px', height: '600px', position: 'absolute', top: '10%', zIndex: 5 }}>
+        <div style={{ width: '100%', maxWidth: '350px', height: '350px', position: 'absolute', top: '15%', zIndex: 5, left: '50%', transform: 'translateX(-50%)' }}>
             <ThreeGem />
         </div>
-        <div style={{ position: 'relative', zIndex: 10, marginTop: '400px', textAlign: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 10, marginTop: '300px', textAlign: 'center' }}>
             <GlitchText text="PHANTOM CV" />
             <p style={{ fontFamily: 'var(--ff-mono)', color: 'var(--gray)', letterSpacing: '0.3em', textAlign: 'center', marginTop: '5px', textShadow: '2px 2px 0px #000' }}>COGNITIVE ATS PIPELINE</p>
         </div>
@@ -110,7 +110,7 @@ export default function AuthScreen() {
       
       {/* Right side: Auth Form */}
       <div className="auth-right">
-        <div style={{ width: '100%', maxWidth: '420px', background: 'var(--panel)', padding: '3.5rem', borderTop: '4px solid var(--red)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div style={{ width: '100%', maxWidth: '420px', background: 'rgba(26,26,26,0.65)', backdropFilter: 'blur(10px)', padding: '3.5rem', borderTop: '4px solid var(--red)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
             <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '2.5rem', marginBottom: '2rem', color: 'var(--white)', letterSpacing: '0.02em' }}>
               {isRegister ? 'JOIN THE PHANTOMS' : 'ACCESS TERMINAL'}
             </h2>

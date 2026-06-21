@@ -1735,7 +1735,7 @@ body::after {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: radial-gradient(circle at center, #141417 0%, #0a0a0c 100%);
+  background: transparent;
   z-index: 20;
 }
 
