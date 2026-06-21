@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Building2, FileText, CheckCircle2, ShieldAlert, Cpu, 
   HelpCircle, Sparkles, Search, Layers, RefreshCw, 
@@ -10,6 +10,31 @@ import { useAuth } from './AuthContext';
 import AuthScreen from './components/AuthScreen';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+
+function ScrollSection({ children, direction = 'bottom' }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+      }
+    }, { threshold: 0.2 });
+    
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section 
+      ref={ref} 
+      className={`scroll-section scroll-hidden-${direction} ${isVisible ? 'scroll-visible' : ''}`}
+    >
+      {children}
+    </section>
+  );
+}
 
 export default function App() {
   const { currentUser, logout } = useAuth();
@@ -399,184 +424,92 @@ export default function App() {
             </p>
           </div>
 
-          <div className="p5-heist-deck">
+          <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '4rem' }}>
             
-            {/* CALLING CARD 1 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('analyze'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge badge-purple" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 01</span>
-                
-                {/* Visualizer: Scanning Laser */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
-                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', filter: 'drop-shadow(2px 2px 0 #000)' }}>
-                    <path d="M20,10 L70,10 L80,20 L80,90 L20,90 Z" fill="none" stroke="var(--p5-yellow)" strokeWidth="4"/>
-                    <line x1="30" y1="30" x2="60" y2="30" stroke="var(--p5-white)" strokeWidth="4"/>
-                    <line x1="30" y1="50" x2="70" y2="50" stroke="var(--p5-white)" strokeWidth="4"/>
-                    <line x1="30" y1="70" x2="50" y2="70" stroke="var(--p5-white)" strokeWidth="4"/>
-                  </svg>
-                  <div className="scan-laser" style={{ position: 'absolute', top: 0, left: '10px', right: '50px', height: '2px', background: 'var(--p5-red)', boxShadow: '0 0 10px var(--p5-red)', animation: 'scanLine 2s linear infinite' }} />
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Analyze<br/>Resumes
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Execute a multi-agent Semantic & Lexical scan to expose hidden candidate alignments against our Target JD.
+            {/* Scroll Section 1: Analyze Resumes */}
+            <ScrollSection direction="left">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge badge-purple" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 01</span>
+                <h2 className="scroll-title">Analyze<br/>Resumes</h2>
+                <p className="scroll-subtitle">
+                  Execute a multi-agent Semantic & Lexical scan to expose hidden candidate alignments against our Target JD. Bypasses rigid ATS filters with ease.
                 </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Launch Matcher <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                <button className="btn btn-primary" onClick={() => { setActiveTab('analyze'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)' }}>
+                  INITIATE ROUTE →
+                </button>
+              </div>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+                <svg viewBox="0 0 100 100" style={{ width: '350px', height: '350px', filter: 'drop-shadow(15px 15px 0 #000)' }}>
+                  <path d="M20,10 L70,10 L80,20 L80,90 L20,90 Z" fill="var(--p5-charcoal)" stroke="var(--p5-yellow)" strokeWidth="3"/>
+                  <line x1="30" y1="30" x2="60" y2="30" stroke="var(--p5-white)" strokeWidth="3"/>
+                  <line x1="30" y1="50" x2="70" y2="50" stroke="var(--p5-white)" strokeWidth="3"/>
+                  <line x1="30" y1="70" x2="50" y2="70" stroke="var(--p5-white)" strokeWidth="3"/>
+                  <rect x="0" y="45" width="100" height="10" fill="rgba(230,0,18,0.7)" style={{ animation: 'scanLine 3s linear infinite' }} />
+                </svg>
+              </div>
+            </ScrollSection>
+
+            {/* Scroll Section 2: Improve Bullets */}
+            <ScrollSection direction="right">
+              <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+                <svg viewBox="0 0 100 100" style={{ width: '350px', height: '350px', animation: 'spinPulse 15s linear infinite', filter: 'drop-shadow(15px 15px 0 var(--p5-red))' }}>
+                  <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" fill="var(--p5-white)" />
+                  <circle cx="50" cy="50" r="10" fill="var(--p5-charcoal)"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
+                <span className="badge badge-blue" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 02</span>
+                <h2 className="scroll-title" style={{ color: 'var(--p5-yellow)', textShadow: '-6px 6px 0px var(--p5-red)' }}>Improve<br/>Bullets</h2>
+                <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  Rewrite weak resume bullet points into ultra-optimized STAR-format statements. Weaponize your experience to bypass recruiter defenses instantly.
+                </p>
+                <button className="btn btn-primary" onClick={() => { setActiveTab('improve'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', background: 'var(--p5-yellow)', color: 'var(--p5-black)', transform: 'skewX(-4deg)' }}>
+                  INITIATE ROUTE →
+                </button>
+              </div>
+            </ScrollSection>
+
+            {/* Scroll Section 3: Swipe Deck */}
+            <ScrollSection direction="bottom">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge badge-green" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>OPERATION 03</span>
+                <h2 className="scroll-title">Swipe<br/>Deck</h2>
+                <p className="scroll-subtitle">
+                  A rapid-fire Tinder-style interface for live global job APIs. Stop scrolling mindlessly and start executing applications with a flick of the wrist.
+                </p>
+                <button className="btn btn-primary" onClick={() => { setActiveTab('jobs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)' }}>
+                  INITIATE ROUTE →
+                </button>
+              </div>
+              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1000px', zIndex: 1 }}>
+                <div style={{ position: 'relative', width: '250px', height: '350px' }}>
+                  <div style={{ position: 'absolute', top: '20px', left: '-30px', width: '100%', height: '100%', border: '8px solid var(--p5-yellow)', background: 'var(--p5-charcoal)', transform: 'rotate(-10deg) translateZ(-50px)', opacity: 0.5 }}></div>
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '8px solid var(--p5-red)', background: 'var(--p5-black)', transform: 'rotate(0deg) translateZ(0)', animation: 'swipeRight 3s ease-in-out infinite' }}></div>
                 </div>
               </div>
-            </div>
+            </ScrollSection>
 
-            {/* CALLING CARD 2 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('improve'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge badge-blue" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 02</span>
-                
-                {/* Visualizer: Expanding Stars */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
-                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'spinPulse 4s linear infinite', filter: 'drop-shadow(2px 2px 0 var(--p5-red))' }}>
-                    <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" fill="var(--p5-white)" />
-                    <circle cx="50" cy="50" r="10" fill="var(--p5-charcoal)"/>
-                  </svg>
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Improve<br/>Bullets
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Rewrite weak resume bullet points into ultra-optimized STAR-format statements to bypass recruiter defenses.
+            {/* Scroll Section 4: Telemetry & Extras */}
+            <ScrollSection direction="left">
+               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1 }}>
+                <svg viewBox="0 0 200 100" style={{ width: '400px', height: '200px', filter: 'drop-shadow(0 0 15px #34c759)' }}>
+                  <polyline points="0,50 30,50 40,20 60,80 70,50 100,50" fill="none" stroke="#34c759" strokeWidth="4" />
+                  <polyline points="100,50 130,50 140,20 160,80 170,50 200,50" fill="none" stroke="#34c759" strokeWidth="4" />
+                </svg>
+              </div>
+              <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: 'var(--p5-black)', border: '2px solid var(--p5-white)' }}>ADVANCED OPS</span>
+                <h2 className="scroll-title" style={{ color: 'var(--p5-white)' }}>System<br/>Access</h2>
+                <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  Enter the Cognitive Archive, monitor live LLM token telemetry, execute massive Batch Audits, or stress-test agent security.
                 </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Optimize Stats <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <button className="btn btn-secondary" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Archive</button>
+                  <button className="btn btn-secondary" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Telemetry</button>
+                  <button className="btn btn-secondary" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1rem 2rem' }}>Batch</button>
                 </div>
               </div>
-            </div>
-
-            {/* CALLING CARD 3 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('jobs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge badge-green" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 03</span>
-                
-                {/* Visualizer: Swiping Cards */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative', perspective: '800px' }}>
-                  <div style={{ position: 'absolute', top: '10px', left: '10px', width: '50px', height: '60px', border: '3px solid var(--p5-yellow)', background: 'var(--p5-charcoal)', transform: 'rotate(-10deg) translateZ(-20px)', opacity: 0.5 }}></div>
-                  <div style={{ position: 'absolute', top: '5px', left: '15px', width: '50px', height: '60px', border: '3px solid var(--p5-red)', background: 'var(--p5-black)', transform: 'rotate(0deg) translateZ(0)', animation: 'swipeRight 2s ease-in-out infinite' }}></div>
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Swipe<br/>Deck
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  A rapid-fire Tinder-style interface for live global job APIs. Swipe right to execute applications.
-                </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Find Targets <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
-                </div>
-              </div>
-            </div>
-
-            {/* CALLING CARD 4 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 04</span>
-                
-                {/* Visualizer: Spinning Vault */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
-                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'spinPulse 6s linear infinite reverse' }}>
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--p5-yellow)" strokeWidth="6" strokeDasharray="10 15"/>
-                    <circle cx="50" cy="50" r="25" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4"/>
-                    <circle cx="50" cy="50" r="10" fill="var(--p5-red)"/>
-                  </svg>
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Cognitive<br/>Archive
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Access your encrypted MongoDB history. Review past extractions, scores, and candidate data.
-                </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Open Vault <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
-                </div>
-              </div>
-            </div>
-
-            {/* CALLING CARD 5 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 05</span>
-                
-                {/* Visualizer: Heartbeat Wave */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative', overflow: 'hidden' }}>
-                  <svg viewBox="0 0 200 100" style={{ width: '120px', height: '60px', filter: 'drop-shadow(0 0 5px #34c759)' }}>
-                    <polyline points="0,50 30,50 40,20 60,80 70,50 100,50" fill="none" stroke="#34c759" strokeWidth="4" />
-                    <polyline points="100,50 130,50 140,20 160,80 170,50 200,50" fill="none" stroke="#34c759" strokeWidth="4" />
-                  </svg>
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  LLMOps<br/>Metrics
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Monitor AI agent performance, token usage, latency, and system health in real-time.
-                </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  View Telemetry <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
-                </div>
-              </div>
-            </div>
-
-            {/* CALLING CARD 6 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 06</span>
-                
-                {/* Visualizer: Layered Files */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
-                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-red)', position: 'absolute', top: '20px', left: '20px', transform: 'rotate(-15deg)', border: '2px solid #000' }} />
-                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-yellow)', position: 'absolute', top: '10px', left: '15px', transform: 'rotate(-5deg)', border: '2px solid #000' }} />
-                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-white)', position: 'absolute', top: '0px', left: '10px', border: '2px solid #000', animation: 'floatBob 2s ease-in-out infinite' }} />
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Batch<br/>Audit
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Upload massive ZIP payloads of candidate data and let the swarm evaluate them simultaneously.
-                </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Start Batch <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
-                </div>
-              </div>
-            </div>
-
-            {/* CALLING CARD 7 */}
-            <div className="p5-heist-card" onClick={() => { setActiveTab('stress'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-              <div className="p5-heist-card-content">
-                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 07</span>
-                
-                {/* Visualizer: Glowing Eye Shield */}
-                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
-                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'pulseNeon 2s infinite' }}>
-                    <path d="M50,10 L90,25 L90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 L10,25 Z" fill="none" stroke="var(--p5-red)" strokeWidth="6" />
-                    <path d="M30,45 Q50,30 70,45 Q50,60 30,45 Z" fill="var(--p5-white)" />
-                    <circle cx="50" cy="45" r="5" fill="var(--p5-black)" />
-                  </svg>
-                </div>
-
-                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
-                  Security<br/>Labs
-                </h3>
-                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Penetration test our own LLM agents against malicious prompt injection attacks.
-                </p>
-                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Init Test <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
-                </div>
-              </div>
-            </div>
+            </ScrollSection>
 
           </div>
 
@@ -644,17 +577,38 @@ export default function App() {
       {/* ── TAB CONTENT: ANALYZE RESUME ───────────────────────────── */}
       {activeTab === 'analyze' && (
         <div className="glass-panel">
-          <div className="panel-header" style={{ marginBottom: '0.5rem' }}>
-            <h2 className="panel-title" style={{ fontFamily: 'var(--font-title)', fontWeight: 900, fontSize: '2rem', textTransform: 'uppercase', color: 'var(--p5-yellow)', textShadow: '2px 2px 0px var(--p5-red)' }}><FileText /> Multi-Agent ATS Matcher</h2>
-            <p className="panel-desc">Submit your resume and target JD to calculate match ratings, normalize skills, and inspect flags.</p>
-          </div>
-
-          <div className="p5-lore-terminal" style={{ marginBottom: '2rem', fontSize: '0.85rem' }}>
-            <strong style={{ color: 'var(--p5-white)' }}>// TERMINAL UPLINK: LANGGRAPH ORCHESTRATOR</strong><br/>
-            <span>&gt; INITIALIZING SEMANTIC &amp; LEXICAL AUDIT...</span><br/>
-            <span>&gt; [MODULE 1] pdfplumber engaged: Stripping EEOC demographic data (names/gender/race) to ensure blind analysis.</span><br/>
-            <span>&gt; [MODULE 2] Skill Normalizer mapping 500+ alias groups via Jaro-Winkler distance.</span><br/>
-            <span>&gt; [MODULE 3] text-embedding-004 fallback activated. Calculating Cosine Similarity distance across n-dimensional space.</span>
+          {/* HUGE ANIMATED HERO INTRO */}
+          <div className="tool-hero-container">
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)', zIndex: 0, pointerEvents: 'none' }}></div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 400px' }}>
+                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--p5-white)', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>// MODULE 01</div>
+                <h2 className="tool-hero-title">Multi-Agent<br/>ATS Matcher</h2>
+                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  Drop your resume into the LangGraph orchestrator. Our pipeline calculates absolute Semantic Distance against the Job Description, exposing hidden alignments that standard ATS filters miss.
+                </p>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div style={{ padding: '0.5rem 1rem', background: 'var(--p5-black)', borderLeft: '4px solid var(--p5-yellow)', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--p5-white)' }}>
+                    <span style={{ color: 'var(--p5-yellow)' }}>1.</span> pdfplumber ingestion
+                  </div>
+                  <div style={{ padding: '0.5rem 1rem', background: 'var(--p5-black)', borderLeft: '4px solid var(--p5-red)', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--p5-white)' }}>
+                    <span style={{ color: 'var(--p5-red)' }}>2.</span> Jaro-Winkler norm
+                  </div>
+                </div>
+              </div>
+              
+              <div style={{ width: '200px', height: '200px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+                <svg viewBox="0 0 100 100" style={{ width: '150px', height: '150px', filter: 'drop-shadow(0 0 10px var(--p5-red))', animation: 'spinPulse 10s linear infinite' }}>
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--p5-red)" strokeWidth="2" strokeDasharray="5 5" />
+                  <circle cx="50" cy="50" r="30" fill="none" stroke="var(--p5-yellow)" strokeWidth="4" />
+                  <path d="M40,40 L60,40 L60,60 L40,60 Z" fill="var(--p5-white)" style={{ animation: 'floatBob 2s infinite' }} />
+                </svg>
+                <div style={{ position: 'absolute', bottom: '-10px', left: 0, width: '100%', textAlign: 'center', color: 'var(--p5-yellow)', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.85rem', background: '#000', padding: '2px 0' }}>
+                  COSINE_SIM = 0.982
+                </div>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={handleAnalyzeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -926,17 +880,31 @@ export default function App() {
       {/* ── TAB CONTENT: IMPROVE RESUME ───────────────────────────── */}
       {activeTab === 'improve' && (
         <div className="glass-panel">
-          <div className="panel-header" style={{ marginBottom: '0.5rem' }}>
-            <h2 className="panel-title" style={{ fontFamily: 'var(--font-title)', fontWeight: 900, fontSize: '2rem', textTransform: 'uppercase', color: 'var(--p5-yellow)', textShadow: '2px 2px 0px var(--p5-red)' }}><Sparkles /> AI Bullet Optimizer</h2>
-            <p className="panel-desc">Paste your resume bullet points and the job description to optimize them against professional metrics standards.</p>
-          </div>
-
-          <div className="p5-lore-terminal" style={{ marginBottom: '2rem', fontSize: '0.85rem' }}>
-            <strong style={{ color: 'var(--p5-white)' }}>// TERMINAL UPLINK: WRITER AGENT [STAR FRAMEWORK]</strong><br/>
-            <span>&gt; INGESTING RAW EXPERIENCE DATA...</span><br/>
-            <span>&gt; [ANALYSIS] Scanning for missing impact metrics and action verbs.</span><br/>
-            <span>&gt; [REWRITE PROTOCOL] Enforcing STAR (Situation, Task, Action, Result) geometry.</span><br/>
-            <span>&gt; [ALIGNMENT] Injecting high-weight semantic keywords derived from Target JD vector space.</span>
+          {/* HUGE ANIMATED HERO INTRO */}
+          <div className="tool-hero-container">
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'radial-gradient(circle at right, rgba(230,0,18,0.1) 0%, transparent 50%)', zIndex: 0, pointerEvents: 'none' }}></div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 400px' }}>
+                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--p5-white)', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>// MODULE 02</div>
+                <h2 className="tool-hero-title" style={{ color: 'var(--p5-white)' }}>Bullet<br/><span style={{ color: 'var(--p5-yellow)' }}>Optimizer</span></h2>
+                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  Our Writer Agent ingests raw experience data, scans for missing impact metrics, and violently enforces STAR (Situation, Task, Action, Result) geometry.
+                </p>
+              </div>
+              
+              <div style={{ flex: '1 1 300px', background: '#000', padding: '1.5rem', border: '2px dashed #333', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ color: 'var(--p5-red)', fontSize: '0.85rem', marginBottom: '0.5rem', textDecoration: 'line-through' }}>
+                  "Did some coding on the backend database."
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                  <div style={{ color: 'var(--p5-yellow)', fontSize: '1.2rem' }}>&gt;</div>
+                  <div className="typewriter-text" style={{ color: 'var(--p5-white)', fontSize: '1rem', fontWeight: 'bold' }}>
+                    Engineered high-throughput PostgreSQL backend...
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={handleImproveSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -1007,6 +975,33 @@ export default function App() {
       {/* ── TAB CONTENT: FIND JOBS ────────────────────────────────── */}
       {activeTab === 'jobs' && (
         <div className="glass-panel">
+          {/* HUGE ANIMATED HERO INTRO */}
+          <div className="tool-hero-container">
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'radial-gradient(circle at bottom, rgba(52, 199, 89, 0.1) 0%, transparent 60%)', zIndex: 0, pointerEvents: 'none' }}></div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 400px' }}>
+                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--p5-white)', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>// MODULE 03</div>
+                <h2 className="tool-hero-title" style={{ color: 'var(--p5-white)' }}>Swipe<br/><span style={{ color: '#34c759' }}>Deck</span></h2>
+                <p style={{ color: 'var(--p5-white)', fontSize: '1.1rem', fontWeight: 600, lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                  A rapid-fire Tinder-style interface for live global job APIs. Stop scrolling mindlessly. Lock onto target coordinates and execute applications with a flick of the wrist.
+                </p>
+              </div>
+              
+              <div style={{ flex: '1 1 300px', position: 'relative', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: '1000px', margin: '0 auto' }}>
+                <div style={{ position: 'relative', width: '120px', height: '160px' }}>
+                  <div style={{ position: 'absolute', top: '10px', left: '-20px', width: '100%', height: '100%', border: '4px solid var(--p5-yellow)', background: 'var(--p5-charcoal)', transform: 'rotate(-15deg) translateZ(-50px)', opacity: 0.5 }}></div>
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid #34c759', background: 'var(--p5-black)', transform: 'rotate(0deg) translateZ(0)', animation: 'swipeRight 2s ease-in-out infinite' }}>
+                    <div style={{ padding: '10px' }}>
+                      <div style={{ width: '80%', height: '10px', background: 'var(--p5-white)', marginBottom: '10px' }}></div>
+                      <div style={{ width: '60%', height: '8px', background: 'var(--text-dim)' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="panel-header">
             <h2 className="panel-title"><Search /> Discovery Job Matcher</h2>
             <p className="panel-desc">Scrapes live job listings using normalizer taxonomies and renders them as interactive swipe decks.</p>
