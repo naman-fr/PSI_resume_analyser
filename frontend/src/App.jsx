@@ -3,16 +3,25 @@ import {
   Building2, FileText, CheckCircle2, ShieldAlert, Cpu, 
   HelpCircle, Sparkles, Search, Layers, RefreshCw, 
   Settings, Award, HelpCircle as HelpIcon, CreditCard,
-  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle
+  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut
 } from 'lucide-react';
+
+import { useAuth } from './AuthContext';
+import AuthScreen from './components/AuthScreen';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function App() {
+  const { currentUser, logout } = useAuth();
+  
   const [activeTab, setActiveTab] = useState('home');
   const [hoveredNode, setHoveredNode] = useState(null);
   const [premiumMode, setPremiumMode] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  
+  if (!currentUser) {
+    return <AuthScreen />;
+  }
   
   // Checkout Form State
   const [checkoutName, setCheckoutName] = useState('');
@@ -360,10 +369,16 @@ export default function App() {
           <Cpu size={16} /> LLMOps Metrics
         </button>
         <button className={`nav-tab-btn ${activeTab === 'batch' ? 'active' : ''}`} onClick={() => setActiveTab('batch')}>
-          <Layers size={16} /> Batch scan
+          <Layers size={16} /> Batch Audit
         </button>
         <button className={`nav-tab-btn ${activeTab === 'stress' ? 'active' : ''}`} onClick={() => setActiveTab('stress')}>
-          <ShieldAlert size={16} /> Security Audit
+          <ShieldAlert size={16} /> Security Labs
+        </button>
+        <button className={`nav-tab-btn ${activeTab === 'memory' ? 'active' : ''}`} onClick={() => setActiveTab('memory')}>
+          <BookOpen size={16} /> Memory
+        </button>
+        <button className="nav-tab-btn" onClick={logout} style={{ color: 'var(--red)', marginLeft: 'auto' }}>
+          <LogOut size={16} /> Logout
         </button>
       </nav>
 
@@ -1230,6 +1245,41 @@ export default function App() {
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* ── MEMORY ──────────────────────────────────────────────────── */}
+      {activeTab === 'memory' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="section-header">
+            <h2 className="section-title"><BookOpen size={24}/> Cognitive Archive</h2>
+            <p className="section-subtitle">Access your past analysis results and candidate scores.</p>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {currentUser?.memory?.length > 0 ? (
+              currentUser.memory.slice().reverse().map((mem, idx) => (
+                <div key={idx} style={{ background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '1.5rem', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem 0', fontFamily: 'var(--ff-display)', fontSize: '1.5rem', letterSpacing: '0.05em' }}>{mem.resume_name}</h3>
+                    <p style={{ margin: 0, color: 'var(--gray)', fontSize: '0.85rem', fontFamily: 'var(--ff-mono)' }}>{new Date(mem.timestamp).toLocaleString()}</p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 900, color: getScoreColor(mem.match_score), fontFamily: 'var(--ff-display)' }}>
+                      {Math.round(mem.match_score || 0)}%
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase', fontFamily: 'var(--ff-mono)' }}>Match Score</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--ink)', border: '1px dashed var(--panel-2)', borderRadius: '8px' }}>
+                <BookOpen size={48} style={{ color: 'var(--gray)', marginBottom: '1rem', opacity: 0.5 }} />
+                <h3 style={{ color: 'var(--white)', marginBottom: '0.5rem', fontFamily: 'var(--ff-display)' }}>Archive Empty</h3>
+                <p style={{ color: 'var(--gray)', fontFamily: 'var(--ff-body)' }}>No resumes have been analyzed and saved to your account yet.</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

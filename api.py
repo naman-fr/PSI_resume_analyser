@@ -11,7 +11,7 @@ import re
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, BackgroundTasks
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, BackgroundTasks, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -23,6 +23,8 @@ from core.job_search import search_jobs
 from core.job_matcher import score_jobs
 from core.job_query_generator import generate_search_queries
 from core.db import get_db_connection, set_cache, get_cache, init_db
+from core.mongo_db import get_db
+from routers import auth
 from agents.graph import run_analysis
 from agents.improver import improve_resume
 from core.telemetry import TelemetryLogger
@@ -36,6 +38,8 @@ app = FastAPI(
     description="Enterprise API backing the React resume scanning & matching application.",
     version="1.0.0"
 )
+
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 
 # Enable CORS – read allowed origins from environment variable
 # Default to "*" for local development; set ALLOWED_ORIGINS in production
@@ -147,7 +151,8 @@ def health_check():
 async def analyze_endpoint(
     file: UploadFile = File(...),
     jd_text: str = Form(...),
-    premium_mode: bool = Form(False)
+    premium_mode: bool = Form(False),
+    user_id: Optional[str] = Depends(auth.get_current_user)
 ):
     start_time = time.time()
     
@@ -263,6 +268,33 @@ async def analyze_endpoint(
             
         conn.commit()
         conn.close()
+        
+        # Push to MongoDB User Memory if authenticated
+        if user_id:
+            try:
+                from core.mongo_db import get_db
+                mongo_db = get_db()
+                if mongo_db is not None:
+                    memory_entry = {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "resume_name": file.filename,
+                        "match_score": analysis_result.get("match_score"),
+                        "analysis": analysis_result
+                    }
+                    # Keep only the latest 15 resumes to prevent extreme document bloat
+                    mongo_db.users.update_one(
+                        {"user_id": user_id},
+                        {
+                            "$push": {
+                                "memory": {
+                                    "$each": [memory_entry],
+                                    "$slice": -15
+                                }
+                            }
+                        }
+                    )
+            except Exception as e:
+                logger.error(f"Failed to save to MongoDB memory: {e}")
         
         return analysis_result
         
