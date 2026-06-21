@@ -47,9 +47,19 @@ export default function AuthScreen() {
     <div className="auth-container">
       {/* Left side: 3D showcase */}
       <div className="auth-left" style={{ position: 'relative', overflow: 'hidden' }}>
-        {/* Persona 5 Meme Background Sequence */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.15, pointerEvents: 'none', backgroundImage: 'url(https://media.tenor.com/UvQ_aPZg5xAAAAAi/persona-5-all-out-attack.gif)', backgroundSize: 'cover', backgroundPosition: 'center', mixBlendMode: 'screen', filter: 'grayscale(50%) contrast(150%)' }}></div>
-        <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', zIndex: 0, opacity: 0.4, pointerEvents: 'none', backgroundImage: 'url(https://media.tenor.com/Z4O8vA1Ua4oAAAAi/persona-5-joker.gif)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', mixBlendMode: 'lighten' }}></div>
+        {/* Persona 5 All-Out Attack looping background */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundImage: 'url("https://i.pinimg.com/originals/82/38/2d/82382d5e7592451f280b2a7bd2dbbbd2.gif")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.15,
+          zIndex: 0,
+          pointerEvents: 'none',
+          mixBlendMode: 'luminosity'
+        }}></div>
+        <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', zIndex: 0, opacity: 0.4, pointerEvents: 'none', backgroundImage: 'url(https://i.pinimg.com/originals/1e/b4/06/1eb4064379a5d15a5198083769970868.gif)', backgroundSize: 'contain', backgroundRepeat: 'no-repeat', mixBlendMode: 'lighten' }}></div>
         
         {/* Floating Hologram Data */}
         <div style={{ position: 'absolute', top: '15%', left: '10%', zIndex: 1, animation: 'floatBob 4s infinite', opacity: 0.8 }}>

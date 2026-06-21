@@ -435,7 +435,7 @@ export default function App() {
             transform: 'scale(0.85)',
             transformOrigin: 'bottom right'
           }}>
-            <img src="https://media.tenor.com/Z4O8vA1Ua4oAAAAi/persona-5-joker.gif" alt="Joker Running" style={{ filter: 'drop-shadow(5px 5px 0px #000)' }} />
+            <img src="https://i.pinimg.com/originals/c9/2a/e0/c92ae07559c5d012170ccbf25a80572e.gif" alt="Joker" style={{ filter: 'drop-shadow(5px 5px 0px #000)' }} />
           </div>
 
           <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '6rem' }}>
@@ -452,7 +452,7 @@ export default function App() {
                   INITIATE ROUTE →
                 </button>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
                 <div className="geometry-isometric-server">
                   <div className="iso-layer top"></div>
                   <div className="iso-layer middle"></div>
@@ -463,7 +463,7 @@ export default function App() {
 
             {/* Scroll Section 2: Improve Bullets */}
             <ScrollSection direction="right">
-              <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
                 <div className="geometry-hypercube">
                   <div className="cube-face front"></div>
                   <div className="cube-face back"></div>
@@ -497,7 +497,7 @@ export default function App() {
                   INITIATE ROUTE →
                 </button>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
                 <div className="geometry-carousel">
                   <div className="carousel-card card-1"></div>
                   <div className="carousel-card card-2"></div>
@@ -508,7 +508,7 @@ export default function App() {
 
             {/* Scroll Section 4: Cognitive Archive */}
             <ScrollSection direction="right">
-               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
                 <div className="geometry-vault">
                   <div className="vault-door">
                     <div className="vault-wheel"></div>
@@ -539,7 +539,7 @@ export default function App() {
                   VIEW METRICS →
                 </button>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
                 <div className="geometry-equalizer">
                   <div className="bar bar-1"></div>
                   <div className="bar bar-2"></div>
@@ -552,7 +552,7 @@ export default function App() {
 
             {/* Scroll Section 6: Batch Audit */}
             <ScrollSection direction="right">
-               <div className="scroll-hidden-left" style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
                 <div className="geometry-vortex">
                   <div className="vortex-doc doc-1"></div>
                   <div className="vortex-doc doc-2"></div>
@@ -585,7 +585,7 @@ export default function App() {
                   &gt; [REDACTED] Gender Pronouns
                 </div>
               </div>
-              <div className="scroll-hidden-right" style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
                 <div className="geometry-pyramid">
                   <div className="pyramid-face face-front"></div>
                   <div className="pyramid-face face-back"></div>
