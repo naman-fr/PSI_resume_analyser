@@ -447,6 +447,7 @@ export default function App() {
                   Find Targets <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
                 </div>
               </div>
+            </div>
             {/* CALLING CARD 4 */}
             <div className="p5-heist-card" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
