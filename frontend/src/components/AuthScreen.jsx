@@ -46,23 +46,36 @@ export default function AuthScreen() {
   return (
     <div className="auth-container">
       {/* Left side: 3D showcase */}
-      <div className="auth-left" style={{ position: 'relative', overflow: 'hidden' }}>
-        {/* Persona 5 All-Out Attack looping background (IFrame Fix) */}
-        <div style={{
-          position: 'absolute',
-          top: '-10%', left: '-10%', width: '120%', height: '120%',
-          opacity: 0.15,
-          zIndex: 0,
-          pointerEvents: 'none',
-          mixBlendMode: 'luminosity'
-        }}>
-          <iframe src="https://giphy.com/embed/3o7bukaBzZhgCMB3u8" width="100%" height="100%" frameBorder="0" className="giphy-embed" allowFullScreen style={{ pointerEvents: 'none' }}></iframe>
-        </div>
-        
-        {/* Joker background element */}
-        <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '400px', height: '400px', zIndex: 0, opacity: 0.4, pointerEvents: 'none', mixBlendMode: 'lighten' }}>
-          <iframe src="https://giphy.com/embed/LwsA3k0EweuDS" width="100%" height="100%" frameBorder="0" className="giphy-embed" allowFullScreen style={{ pointerEvents: 'none' }}></iframe>
-        </div>
+      {/* Massive Immersive Background Scene */}
+      <div style={{
+        position: 'absolute',
+        top: 0, left: 0, width: '100%', height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        background: '#000'
+      }}>
+        <iframe 
+          src="https://giphy.com/embed/3o7bukaBzZhgCMB3u8" 
+          width="100%" 
+          height="100%" 
+          frameBorder="0" 
+          allowFullScreen 
+          style={{ 
+            pointerEvents: 'none', 
+            objectFit: 'cover', 
+            width: '100vw', 
+            height: '100vh',
+            opacity: 0.3,
+            mixBlendMode: 'screen',
+            transform: 'scale(1.2)' // Hide iframe borders
+          }}
+        ></iframe>
+      </div>
+
+      {/* Left side: 3D showcase */}
+      <div className="auth-left" style={{ position: 'relative', overflow: 'hidden', zIndex: 1, background: 'transparent' }}>
+        {/* Removed the random floating GIFs */}
         
         {/* Floating Hologram Data */}
         <div style={{ position: 'absolute', top: '15%', left: '10%', zIndex: 1, animation: 'floatBob 4s infinite', opacity: 0.8 }}>

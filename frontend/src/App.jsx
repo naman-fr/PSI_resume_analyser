@@ -322,7 +322,34 @@ export default function App() {
   }
 
   return (
-    <div className="app-layout">
+    <div className="app-layout" style={{ position: 'relative' }}>
+      
+      {/* Massive Immersive Background Scene */}
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, width: '100vw', height: '100vh',
+        zIndex: -1,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        background: '#000'
+      }}>
+        <iframe 
+          src="https://giphy.com/embed/LwsA3k0EweuDS" 
+          width="100%" 
+          height="100%" 
+          frameBorder="0" 
+          allowFullScreen 
+          style={{ 
+            pointerEvents: 'none', 
+            objectFit: 'cover', 
+            width: '100vw', 
+            height: '100vh',
+            opacity: 0.1,
+            mixBlendMode: 'screen',
+            transform: 'scale(1.2)'
+          }}
+        ></iframe>
+      </div>
       {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
         <div className="p5-loading-overlay" style={{ background: 'rgba(8,8,8,0.95)', zIndex: 10000, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ animation: 'runCycle 0.5s infinite linear', marginBottom: '2rem' }}>
@@ -474,6 +501,40 @@ export default function App() {
                   <div className="scanner-text-line" style={{ width: '80%' }}></div>
                   <div className="scanner-text-line" style={{ width: '40%' }}></div>
                 </div>
+              </div>
+            </ScrollSection>
+
+            {/* VIP Scroll Section: Ultimate Intelligence Suite */}
+            <ScrollSection direction="right">
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-premium-vault">
+                  <div className="premium-panel">V</div>
+                  <div className="premium-panel">I</div>
+                  <div className="premium-panel">P</div>
+                  <div className="premium-panel">A</div>
+                  <div className="premium-panel">I</div>
+                  <div className="premium-panel">X</div>
+                </div>
+              </div>
+              <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: 'var(--p5-yellow)', color: '#000', border: 'none', fontWeight: '900' }}>OPERATION VIP</span>
+                <h2 className="scroll-title" style={{ color: 'var(--p5-yellow)', textShadow: '-6px 6px 0px var(--p5-red)' }}>Intelligence<br/>Suite</h2>
+                <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right', color: 'var(--text-secondary)' }}>
+                  A massive GenAI deep-scan. Simulates a Multi-Agent hiring panel (Recruiter vs Tech Lead), validates external portfolio link integrity, and calculates precise interview conversion probabilities.
+                </p>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => { 
+                    if (premiumMode) {
+                      setActiveTab('analyze'); 
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                      setShowCheckout(true);
+                    }
+                  }} 
+                  style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', background: 'var(--p5-yellow)', color: 'var(--p5-black)', transform: 'skewX(-4deg)', boxShadow: '6px 6px 0px var(--p5-red)', border: '2px solid var(--p5-red)', fontWeight: '900' }}>
+                  {premiumMode ? 'INITIATE ROUTE →' : 'UNLOCK CLEARANCE 🔓'}
+                </button>
               </div>
             </ScrollSection>
 

@@ -2392,3 +2392,37 @@ body::after {
   20% { opacity: 1; }
   30%, 100% { transform: translateZ(5px) scale(1); box-shadow: 5px 5px 0 var(--p5-red); opacity: 1; }
 }
+
+/* 8. 3D Premium Vault (VIP Suite) */
+.geometry-premium-vault {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  transform-style: preserve-3d;
+  animation: rotatePremium 12s infinite linear;
+}
+.premium-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4px solid var(--p5-yellow);
+  background: rgba(230, 0, 18, 0.15); /* P5 Red tint */
+  box-shadow: inset 0 0 30px rgba(230, 0, 18, 0.8), 0 0 30px rgba(255, 215, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-display);
+  font-size: 5rem;
+  color: var(--p5-white);
+  text-shadow: 4px 4px 0 var(--p5-red);
+}
+.premium-panel:nth-child(1) { transform: translateZ(125px); }
+.premium-panel:nth-child(2) { transform: rotateY(90deg) translateZ(125px); }
+.premium-panel:nth-child(3) { transform: rotateY(180deg) translateZ(125px); }
+.premium-panel:nth-child(4) { transform: rotateY(-90deg) translateZ(125px); }
+.premium-panel:nth-child(5) { transform: rotateX(90deg) translateZ(125px); }
+.premium-panel:nth-child(6) { transform: rotateX(-90deg) translateZ(125px); }
+@keyframes rotatePremium {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(360deg) rotateY(360deg); }
+}
