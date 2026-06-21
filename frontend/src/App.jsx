@@ -44,10 +44,6 @@ export default function App() {
   const [premiumMode, setPremiumMode] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   
-  if (!currentUser) {
-    return <AuthScreen />;
-  }
-  
   // Checkout Form State
   const [checkoutName, setCheckoutName] = useState('');
   const [checkoutCard, setCheckoutCard] = useState('');
@@ -311,6 +307,10 @@ export default function App() {
     }
   };
 
+  if (!currentUser) {
+    return <AuthScreen />;
+  }
+
   return (
     <div className="app-layout">
       {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
@@ -453,10 +453,13 @@ export default function App() {
                 </button>
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
-                <div className="geometry-isometric-server">
-                  <div className="iso-layer top"></div>
-                  <div className="iso-layer middle"></div>
-                  <div className="iso-layer bottom"></div>
+                <div className="geometry-scanner">
+                  <div className="scanner-laser"></div>
+                  <div className="scanner-text-line"></div>
+                  <div className="scanner-text-line" style={{ width: '50%' }}></div>
+                  <div className="scanner-text-line"></div>
+                  <div className="scanner-text-line" style={{ width: '80%' }}></div>
+                  <div className="scanner-text-line" style={{ width: '40%' }}></div>
                 </div>
               </div>
             </ScrollSection>
@@ -464,13 +467,10 @@ export default function App() {
             {/* Scroll Section 2: Improve Bullets */}
             <ScrollSection direction="right">
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
-                <div className="geometry-hypercube">
-                  <div className="cube-face front"></div>
-                  <div className="cube-face back"></div>
-                  <div className="cube-face right"></div>
-                  <div className="cube-face left"></div>
-                  <div className="cube-face top"></div>
-                  <div className="cube-face bottom"></div>
+                <div className="geometry-bullet-morph">
+                  <div className="bullet-line"></div>
+                  <div className="bullet-line upgraded"></div>
+                  <div className="bullet-line"></div>
                 </div>
               </div>
               <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
@@ -498,10 +498,10 @@ export default function App() {
                 </button>
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
-                <div className="geometry-carousel">
-                  <div className="carousel-card card-1"></div>
-                  <div className="carousel-card card-2"></div>
-                  <div className="carousel-card card-3"></div>
+                <div className="geometry-swipe-deck">
+                  <div className="swipe-card bottom"></div>
+                  <div className="swipe-card middle"></div>
+                  <div className="swipe-card top"></div>
                 </div>
               </div>
             </ScrollSection>
@@ -509,10 +509,10 @@ export default function App() {
             {/* Scroll Section 4: Cognitive Archive */}
             <ScrollSection direction="right">
                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
-                <div className="geometry-vault">
-                  <div className="vault-door">
-                    <div className="vault-wheel"></div>
-                  </div>
+                <div className="geometry-archive">
+                  <div className="folder-back"></div>
+                  <div className="json-file">{"{ \"data\": \"...\" }"}</div>
+                  <div className="folder-front"></div>
                 </div>
               </div>
               <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
@@ -540,12 +540,12 @@ export default function App() {
                 </button>
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
-                <div className="geometry-equalizer">
-                  <div className="bar bar-1"></div>
-                  <div className="bar bar-2"></div>
-                  <div className="bar bar-3"></div>
-                  <div className="bar bar-4"></div>
-                  <div className="bar bar-5"></div>
+                <div className="geometry-hud">
+                  <div className="hud-graph">
+                    <div className="hud-bar"></div>
+                    <div className="hud-bar"></div>
+                    <div className="hud-bar"></div>
+                  </div>
                 </div>
               </div>
             </ScrollSection>
@@ -553,11 +553,10 @@ export default function App() {
             {/* Scroll Section 6: Batch Audit */}
             <ScrollSection direction="right">
                <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
-                <div className="geometry-vortex">
-                  <div className="vortex-doc doc-1"></div>
-                  <div className="vortex-doc doc-2"></div>
-                  <div className="vortex-doc doc-3"></div>
-                  <div className="vortex-doc doc-4"></div>
+                <div className="geometry-funnel">
+                  <div className="funnel-ring"></div>
+                  <div className="funnel-falling-doc">PDF</div>
+                  <div className="funnel-falling-doc">PDF</div>
                 </div>
               </div>
               <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
@@ -586,12 +585,13 @@ export default function App() {
                 </div>
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
-                <div className="geometry-pyramid">
-                  <div className="pyramid-face face-front"></div>
-                  <div className="pyramid-face face-back"></div>
-                  <div className="pyramid-face face-right"></div>
-                  <div className="pyramid-face face-left"></div>
-                  <div className="pyramid-base"></div>
+                <div className="geometry-redaction">
+                  <div className="redaction-text"></div>
+                  <div className="redaction-text" style={{ width: '60%' }}></div>
+                  <div className="redaction-text" style={{ width: '90%' }}></div>
+                  <div className="redaction-text" style={{ width: '50%' }}></div>
+                  <div className="redaction-text"></div>
+                  <div className="redaction-block">REDACTED</div>
                 </div>
               </div>
             </ScrollSection>
