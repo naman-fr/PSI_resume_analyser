@@ -76,35 +76,16 @@ export default function AuthScreen() {
       <div className="auth-left" style={{ position: 'relative', overflow: 'hidden', zIndex: 1, background: 'transparent' }}>
         {/* Removed the random floating GIFs */}
         
-        {/* Floating Hologram Data */}
-        <div style={{ position: 'absolute', top: '15%', left: '10%', zIndex: 1, animation: 'floatBob 4s infinite', opacity: 0.8 }}>
-          <div style={{ borderLeft: '4px solid var(--red)', paddingLeft: '10px', fontFamily: 'var(--ff-mono)', color: 'var(--red)', fontSize: '0.85rem' }}>
-            [ MISSION: INFILTRATION ]<br/>
-            &gt; TARGET: ATS ALGORITHMS<br/>
-            &gt; BYPASSING RIGID FILTERS...
-          </div>
-        </div>
-
-        <div style={{ position: 'absolute', bottom: '25%', right: '10%', zIndex: 1, animation: 'floatBob 3.5s infinite reverse', opacity: 0.8 }}>
-          <div style={{ borderRight: '4px solid var(--p5-yellow)', paddingRight: '10px', textAlign: 'right', fontFamily: 'var(--ff-mono)', color: 'var(--p5-yellow)', fontSize: '0.85rem' }}>
-            [ INTELLIGENCE SUITE ]<br/>
-            &gt; SCANNING CANDIDATE ALIGNMENT<br/>
-            &gt; REVEALING HIDDEN POTENTIAL
-          </div>
-        </div>
-
-        <div style={{ position: 'absolute', top: '45%', right: '5%', zIndex: 1, opacity: 0.4, transform: 'rotate(90deg)', transformOrigin: 'right center' }}>
-          <div style={{ fontFamily: 'var(--ff-display)', fontSize: '4rem', color: 'var(--panel-2)', letterSpacing: '0.2em', whiteSpace: 'nowrap' }}>
-            PERSONA // ANALYTICS
-          </div>
-        </div>
-
         <div style={{ width: '100%', maxWidth: '350px', height: '350px', position: 'absolute', top: '15%', zIndex: 5, left: '50%', transform: 'translateX(-50%)' }}>
             <ThreeGem />
         </div>
-        <div style={{ position: 'relative', zIndex: 10, marginTop: '300px', textAlign: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 10, marginTop: '280px', textAlign: 'center', background: 'rgba(8,8,8,0.7)', padding: '2rem', backdropFilter: 'blur(10px)', borderTop: '4px solid var(--p5-red)', borderBottom: '4px solid var(--p5-red)', width: '80%' }}>
+            <div style={{ position: 'absolute', top: '-12px', left: '10px', background: 'var(--p5-yellow)', color: '#000', padding: '2px 10px', fontFamily: 'var(--ff-mono)', fontSize: '0.7rem', fontWeight: 'bold' }}>SYSTEM ACTIVE</div>
             <GlitchText text="PHANTOM CV" />
-            <p style={{ fontFamily: 'var(--ff-mono)', color: 'var(--gray)', letterSpacing: '0.3em', textAlign: 'center', marginTop: '5px', textShadow: '2px 2px 0px #000' }}>COGNITIVE ATS PIPELINE</p>
+            <h3 style={{ fontFamily: 'var(--ff-display)', color: 'var(--p5-white)', fontSize: '1.2rem', letterSpacing: '0.2em', margin: '0.5rem 0', textTransform: 'uppercase' }}>Cognitive ATS Pipeline</h3>
+            <p style={{ fontFamily: 'var(--ff-mono)', color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto', lineHeight: '1.4' }}>
+              Infiltrate black-box ATS algorithms. Upload your candidate data to reveal alignment scores and hidden potential.
+            </p>
         </div>
       </div>
       

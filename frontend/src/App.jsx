@@ -464,7 +464,7 @@ export default function App() {
             position: 'relative',
             animation: 'shakeEntry 0.6s var(--ease-p5)'
           }}>
-            <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+            <h2 className="heist-briefing-title" style={{ fontFamily: 'var(--font-title)', fontSize: '2.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
               Heist Briefing
             </h2>
             <p style={{ fontSize: '1rem', fontWeight: 800, opacity: 0.9 }}>

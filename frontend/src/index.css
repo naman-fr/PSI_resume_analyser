@@ -1798,6 +1798,32 @@ body::after {
     padding: 1.25rem;
   }
 
+  .scroll-section {
+    flex-direction: column !important;
+    padding: 2rem 1rem !important;
+    gap: 3rem;
+  }
+  
+  .scroll-section > div {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+  
+  .scroll-subtitle {
+    margin: 0 auto 1.5rem auto !important;
+    text-align: center !important;
+  }
+  
+  .scroll-title {
+    font-size: 2.5rem !important;
+  }
+
+  .heist-briefing-title {
+    font-size: 2rem !important;
+  }
+  
   .panel-title {
     font-size: 1.3rem;
   }
