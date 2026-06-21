@@ -1,0 +1,86 @@
+.p5-menu-container {
+  position: relative;
+  display: inline-block;
+  min-width: 200px;
+  height: 60px;
+  cursor: pointer;
+  margin: 10px 0;
+  outline: none;
+}
+
+.p5-menu-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  background-color: var(--black, #0a0a0c);
+  clip-path: polygon(3% 13%, 97% 12%, 96% 91%, 4% 86%);
+  transition: background-color 0.2s ease;
+}
+
+.p5-menu-text {
+  position: relative;
+  z-index: 2;
+  padding: 10px 20px;
+  font-family: var(--ff-display, 'Bebas Neue', sans-serif);
+  font-weight: bold;
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  color: var(--white, #fafaf6);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.p5-menu-container:not(:disabled):hover .p5-menu-text {
+  color: var(--white, #fafaf6);
+}
+
+.p5-menu-container:not(:disabled):hover .p5-menu-inner {
+  background-color: var(--red, #ff0a2c);
+  animation: 0.75s p5MenuInnerAnime ease-in-out infinite;
+}
+
+.p5-menu-outer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+  background-color: var(--white, #fafaf6);
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+  transition: all 0.2s ease;
+}
+
+.p5-menu-container:not(:disabled):hover .p5-menu-outer {
+  background-color: var(--black, #0a0a0c);
+  box-shadow: none;
+  animation: 1s p5MenuOuterAnime ease-in-out infinite;
+}
+
+.p5-menu-container:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes p5MenuInnerAnime {
+  0% { clip-path: polygon(12% 25%, 80% 10%, 100% 85%, 6% 85%); }
+  30% { clip-path: polygon(4% 0%, 90% 14%, 90% 100%, 20% 75%); }
+  50% { clip-path: polygon(0% 24%, 88% 0%, 80% 80%, 0% 100%); }
+  75% { clip-path: polygon(16% 2%, 100% 7%, 91% 91%, 17% 80%); }
+  100% { clip-path: polygon(12% 25%, 80% 10%, 100% 85%, 6% 85%); }
+}
+
+@keyframes p5MenuOuterAnime {
+  0% { clip-path: polygon(3% 4%, 95% 20%, 95% 85%, 5% 95%); }
+  30% { clip-path: polygon(0% 7%, 90% 0%, 100% 90%, 3% 100%); }
+  50% { clip-path: polygon(4% 0%, 97% 9%, 90% 95%, 0% 93%); }
+  75% { clip-path: polygon(7% 2%, 92% 0%, 91% 91%, 7% 99%); }
+  100% { clip-path: polygon(3% 4%, 95% 20%, 95% 85%, 5% 95%); }
+}

@@ -1711,6 +1711,29 @@ body::after {
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column !important;
+  }
+  .auth-left {
+    border-right: none !important;
+    border-bottom: 1px solid var(--panel-2, #222226);
+    height: 350px !important;
+    min-height: 350px !important;
+  }
+  .auth-left > div:first-child {
+    height: 250px !important;
+    top: 0% !important;
+  }
+  .auth-left > div:last-child {
+    margin-top: 180px !important;
+  }
+  .auth-right {
+    padding: 1rem !important;
+  }
+  .auth-right > div {
+    padding: 1.5rem !important;
+  }
+  
   .app-layout {
     padding: 1rem;
     gap: 1.5rem;

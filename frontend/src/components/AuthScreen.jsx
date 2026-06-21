@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ThreeGem from './ThreeGem';
 import GlitchText from './GlitchText';
+import P5Button from './P5Button';
 import { useAuth } from '../AuthContext';
 
 export default function AuthScreen() {
@@ -43,9 +44,9 @@ export default function AuthScreen() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--black, #0a0a0c)', color: 'var(--white, #fafaf6)', overflow: 'hidden' }}>
+    <div className="auth-container">
       {/* Left side: 3D showcase */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid var(--panel-2, #222226)', position: 'relative' }}>
+      <div className="auth-left">
         <div style={{ width: '100%', maxWidth: '600px', height: '600px', position: 'absolute', top: '10%' }}>
             <ThreeGem />
         </div>
@@ -56,7 +57,7 @@ export default function AuthScreen() {
       </div>
       
       {/* Right side: Auth Form */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'radial-gradient(circle at center, #141417 0%, #0a0a0c 100%)' }}>
+      <div className="auth-right">
         <div style={{ width: '100%', maxWidth: '420px', background: 'var(--panel)', padding: '3.5rem', borderTop: '4px solid var(--red)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
             <h2 style={{ fontFamily: 'var(--ff-display)', fontSize: '2.5rem', marginBottom: '2rem', color: 'var(--white)', letterSpacing: '0.02em' }}>
               {isRegister ? 'JOIN THE PHANTOMS' : 'ACCESS TERMINAL'}
@@ -84,9 +85,11 @@ export default function AuthScreen() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--panel-2)', color: 'var(--white)', padding: '1rem', fontFamily: 'var(--ff-body)', fontSize: '1rem' }} />
               </div>
               
-              <button type="submit" disabled={loading} style={{ background: 'var(--red)', color: 'var(--black)', border: 'none', padding: '1.2rem', fontFamily: 'var(--ff-display)', fontSize: '1.3rem', cursor: 'pointer', letterSpacing: '0.05em', marginTop: '1rem', transition: 'background 0.2s', boxShadow: '5px 5px 0px #7a0014' }}>
-                {loading ? 'AUTHENTICATING...' : (isRegister ? 'INITIALIZE CONNECTION' : 'INFILTRATE')}
-              </button>
+              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <P5Button type="submit" disabled={loading} style={{ width: '100%' }}>
+                  {loading ? 'AUTHENTICATING...' : (isRegister ? 'INITIALIZE CONNECTION' : 'INFILTRATE')}
+                </P5Button>
+              </div>
             </form>
             
             <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
