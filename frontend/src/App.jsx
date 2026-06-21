@@ -353,7 +353,7 @@ export default function App() {
 
       {/* ── NAVIGATION (PREMIUM HUB ARCHITECTURE) ──────────────────────── */}
       {activeTab !== 'home' ? (
-        <div style={{ padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--panel)', borderBottom: '1px solid var(--panel-2)' }}>
+        <div style={{ padding: '1rem 2rem', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--panel)', borderBottom: '1px solid var(--panel-2)' }}>
           <button 
             onClick={() => setActiveTab('home')}
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}

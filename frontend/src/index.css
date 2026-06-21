@@ -427,13 +427,13 @@ body::after {
    APP LAYOUT
    ══════════════════════════════════════════════════════════════════ */
 .app-layout {
-  max-width: 1500px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--p5-black);
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 3rem;
-  position: relative;
+  padding: 2rem 4rem;
 }
 
 /* ══════════════════════════════════════════════════════════════════
