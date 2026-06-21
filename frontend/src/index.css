@@ -1708,6 +1708,38 @@ body::after {
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   AUTH SCREEN LAYOUT (DESKTOP)
+   ══════════════════════════════════════════════════════════════════ */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  background: var(--p5-black, #0a0a0c);
+  color: var(--p5-white, #fafaf6);
+  overflow: hidden;
+  flex-direction: row;
+}
+
+.auth-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-right: 1px solid var(--panel-2, #222226);
+}
+
+.auth-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle at center, #141417 0%, #0a0a0c 100%);
+  z-index: 20;
+}
+
+/* ══════════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
    ══════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {

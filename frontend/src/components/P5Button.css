@@ -23,11 +23,11 @@
 .p5-menu-text {
   position: relative;
   z-index: 2;
-  padding: 10px 20px;
+  padding: 18px 30px;
   font-family: var(--ff-display, 'Bebas Neue', sans-serif);
   font-weight: bold;
   font-size: 1.5rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
   color: var(--white, #fafaf6);
   text-align: center;
@@ -35,6 +35,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  text-transform: uppercase;
 }
 
 .p5-menu-container:not(:disabled):hover .p5-menu-text {

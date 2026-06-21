@@ -351,37 +351,32 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── NAVIGATION ────────────────────────────────────────────── */}
-      <nav className="nav-tabs">
-        <button className={`nav-tab-btn ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-          <Building2 size={16} /> Enterprise Portal
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'analyze' ? 'active' : ''}`} onClick={() => setActiveTab('analyze')}>
-          <FileText size={16} /> Analyze Resume
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'improve' ? 'active' : ''}`} onClick={() => setActiveTab('improve')}>
-          <Sparkles size={16} /> Improve Bullets
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'jobs' ? 'active' : ''}`} onClick={() => setActiveTab('jobs')}>
-          <Search size={16} /> Find Jobs
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'telemetry' ? 'active' : ''}`} onClick={() => setActiveTab('telemetry')}>
-          <Cpu size={16} /> LLMOps Metrics
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'batch' ? 'active' : ''}`} onClick={() => setActiveTab('batch')}>
-          <Layers size={16} /> Batch Audit
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'stress' ? 'active' : ''}`} onClick={() => setActiveTab('stress')}>
-          <ShieldAlert size={16} /> Security Labs
-        </button>
-        <button className={`nav-tab-btn ${activeTab === 'memory' ? 'active' : ''}`} onClick={() => setActiveTab('memory')}>
-          <BookOpen size={16} /> Memory
-        </button>
-        <button className="nav-tab-btn" onClick={logout} style={{ color: 'var(--red)', marginLeft: 'auto' }}>
-          <LogOut size={16} /> Logout
-        </button>
-      </nav>
-
+      {/* ── NAVIGATION (PREMIUM HUB ARCHITECTURE) ──────────────────────── */}
+      {activeTab !== 'home' ? (
+        <div style={{ padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--panel)', borderBottom: '1px solid var(--panel-2)' }}>
+          <button 
+            onClick={() => setActiveTab('home')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+          >
+            <span style={{ color: 'var(--p5-red)' }}>←</span> RETURN TO HUB
+          </button>
+          <button 
+            onClick={logout}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+          >
+            <LogOut size={16} /> LOGOUT
+          </button>
+        </div>
+      ) : (
+        <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 100 }}>
+          <button 
+            onClick={logout}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+          >
+            <LogOut size={16} /> LOGOUT
+          </button>
+        </div>
+      )}
       {/* ── HEIST BRIEFING (PREMIUM 3D HOME) ────────────────────────── */}
       {activeTab === 'home' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '4rem' }}>
@@ -450,6 +445,68 @@ export default function App() {
                 </p>
                 <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   Find Targets <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                </div>
+              </div>
+            {/* CALLING CARD 4 */}
+            <div className="p5-heist-card" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <div className="p5-heist-card-content">
+                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 04</span>
+                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
+                  Cognitive<br/>Archive
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  Access your encrypted MongoDB history. Review past extractions, scores, and candidate data.
+                </p>
+                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Open Vault <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CALLING CARD 5 */}
+            <div className="p5-heist-card" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <div className="p5-heist-card-content">
+                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 05</span>
+                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
+                  LLMOps<br/>Metrics
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  Monitor AI agent performance, token usage, latency, and system health in real-time.
+                </p>
+                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  View Telemetry <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CALLING CARD 6 */}
+            <div className="p5-heist-card" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <div className="p5-heist-card-content">
+                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 06</span>
+                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
+                  Batch<br/>Audit
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  Upload massive ZIP payloads of candidate data and let the swarm evaluate them simultaneously.
+                </p>
+                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Start Batch <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CALLING CARD 7 */}
+            <div className="p5-heist-card" onClick={() => { setActiveTab('stress'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+              <div className="p5-heist-card-content">
+                <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 07</span>
+                <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
+                  Security<br/>Labs
+                </h3>
+                <p style={{ color: 'var(--p5-white)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  Penetration test our own LLM agents against malicious prompt injection attacks.
+                </p>
+                <div style={{ color: 'var(--p5-red)', fontWeight: 900, textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Init Test <span style={{ transform: 'translateX(0)', transition: 'transform 0.3s ease' }}>→</span>
                 </div>
               </div>
             </div>
