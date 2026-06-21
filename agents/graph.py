@@ -303,6 +303,18 @@ def run_analysis(
                 if val and val in redacting_map:
                     resume_parsed[key] = redacting_map[val]
                     
+        # ── 2.5 Run Premium Intelligence Suite ──────────────────────────────
+        if premium_mode:
+            try:
+                from core.premium_intelligence import run_premium_intelligence_suite
+                final_state["premium_report"] = run_premium_intelligence_suite(
+                    resume_text=resume_text,
+                    parsed_data=final_state.get("resume_parsed", {}),
+                    final_state=final_state
+                )
+            except Exception as e:
+                logger.error(f"Failed to run premium intelligence suite: {e}")
+                    
         # ── 3. Run MLOps Evaluator Benchmarking ─────────────────────────────
         final_state["evaluation_logs"] = SystemEvaluator.run_benchmark(start_eval_time, final_state)
         

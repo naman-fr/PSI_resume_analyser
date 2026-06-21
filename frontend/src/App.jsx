@@ -41,7 +41,13 @@ export default function App() {
   
   const [activeTab, setActiveTab] = useState('home');
   const [hoveredNode, setHoveredNode] = useState(null);
-  const [premiumMode, setPremiumMode] = useState(false);
+  const [premiumMode, setPremiumMode] = useState(currentUser ? currentUser.is_premium : false);
+  
+  useEffect(() => {
+    if (currentUser && currentUser.is_premium) {
+      setPremiumMode(true);
+    }
+  }, [currentUser]);
   const [showCheckout, setShowCheckout] = useState(false);
   
   // Checkout Form State
@@ -131,9 +137,13 @@ export default function App() {
     }
     setCheckoutLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/checkout`, {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/auth/upgrade_premium`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           cardholder: checkoutName,
           card_number: checkoutCard,
@@ -144,7 +154,7 @@ export default function App() {
       if (res.ok) {
         setPremiumMode(true);
         setShowCheckout(false);
-        alert('Payment successful! Premium clearance activated.');
+        alert('Payment successful! Premium clearance activated. Please refresh if needed.');
       } else {
         alert('Payment authorization failed.');
       }
@@ -427,15 +437,18 @@ export default function App() {
           {/* Floating P5 Meme Corner Character */}
           <div style={{
             position: 'fixed',
-            bottom: '-10px',
-            right: '-30px',
+            bottom: '-50px',
+            right: '-50px',
             zIndex: 10,
             pointerEvents: 'none',
             opacity: 0.9,
+            width: '350px',
+            height: '350px',
+            mixBlendMode: 'lighten',
             transform: 'scale(0.85)',
             transformOrigin: 'bottom right'
           }}>
-            <img src="https://i.pinimg.com/originals/c9/2a/e0/c92ae07559c5d012170ccbf25a80572e.gif" alt="Joker" style={{ filter: 'drop-shadow(5px 5px 0px #000)' }} />
+            <iframe src="https://giphy.com/embed/LwsA3k0EweuDS" width="100%" height="100%" frameBorder="0" className="giphy-embed" allowFullScreen style={{ pointerEvents: 'none' }}></iframe>
           </div>
 
           <div className="scroll-unveil-container" style={{ marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '6rem' }}>
@@ -795,40 +808,91 @@ export default function App() {
               </div>
 
               {/* Premium Verification results */}
-              {premiumMode && analysisResult.links_verification && (
-                <div className="glass-panel" style={{ border: '1px solid rgba(255,215,0,0.3)', background: 'rgba(255,215,0,0.01)' }}>
-                  <h3 className="panel-title" style={{ color: 'var(--accent)', fontSize: '1.15rem' }}><Award /> Premium Verified Integrity Audit</h3>
-                  <div className="split-layout" style={{ marginTop: '1.25rem' }}>
-                    
-                    {/* SVG Gauge for Candidate Trust Score */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(0,0,0,0.15)', padding: '1.25rem', borderRadius: '12px' }}>
-                      <svg viewBox="0 0 100 50" style={{ width: '130px', height: '65px' }}>
-                        <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" strokeLinecap="round" />
-                        <path 
-                          d="M 10 50 A 40 40 0 0 1 90 50" 
-                          fill="none" 
-                          stroke="var(--accent)" 
-                          strokeWidth="8" 
-                          strokeLinecap="round"
-                          strokeDasharray="126"
-                          strokeDashoffset={126 - (126 * (analysisResult.links_verification.trust_score || 50.0)) / 100}
-                        />
-                      </svg>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)', marginTop: '0.25rem' }}>
-                        {analysisResult.links_verification.trust_score || 50}/100
+              {/* Premium Verification results */}
+              {premiumMode && analysisResult.premium_report && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem', marginBottom: '2rem' }}>
+                  <h2 style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-display)', fontSize: '1.8rem', borderBottom: '2px solid var(--p5-red)', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>
+                    <ShieldAlert style={{ display: 'inline', verticalAlign: 'middle', marginRight: '10px' }}/> 
+                    Ultimate Intelligence Suite
+                  </h2>
+
+                  <div className="split-layout">
+                    {/* Feature 1: ATS Integrity */}
+                    <div className="glass-panel" style={{ border: '2px solid var(--p5-red)', background: 'rgba(230,0,18,0.05)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'var(--p5-red)', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(5deg)' }}>MODULE 01</div>
+                      <h3 style={{ color: 'var(--p5-red)', fontSize: '1.2rem', fontWeight: 800 }}>ATS Integrity Analysis</h3>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--p5-red)', fontFamily: 'var(--ff-display)' }}>
+                          {analysisResult.premium_report.integrity.integrity_score}/100
+                        </div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Risk: <span style={{ color: 'var(--p5-red)' }}>{analysisResult.premium_report.integrity.manipulation_risk}</span></span>
                       </div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Candidate Trust score</span>
+                      <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>{analysisResult.premium_report.integrity.impact}</p>
+                      <ul style={{ fontSize: '0.8rem', paddingLeft: '20px', color: '#fca5a5', marginTop: '1rem' }}>
+                        {analysisResult.premium_report.integrity.issues.map((i, idx) => <li key={idx}>{i}</li>)}
+                      </ul>
                     </div>
 
-                    <div style={{ fontSize: '0.85rem' }}>
-                      <span className="input-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Link Integrity Verification logs:</span>
-                      <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingLeft: 0 }}>
-                        {(analysisResult.links_verification.logs || []).map((log, idx) => (
-                          <li key={idx} style={{ display: 'flex', gap: '6px', alignItems: 'flex-start', color: log.includes('Failed') || log.includes('error') ? '#fca5a5' : 'var(--text-primary)' }}>
-                            <span style={{ color: log.includes('Failed') || log.includes('error') ? 'var(--danger)' : 'var(--success)' }}>●</span> {log}
-                          </li>
-                        ))}
+                    {/* Feature 2: Consistency Index */}
+                    <div className="glass-panel" style={{ border: '2px solid #34c759', background: 'rgba(52,199,89,0.05)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#34c759', color: '#000', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(-5deg)' }}>MODULE 02</div>
+                      <h3 style={{ color: '#34c759', fontSize: '1.2rem', fontWeight: 800 }}>Consistency Index</h3>
+                      <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#34c759', fontFamily: 'var(--ff-display)' }}>
+                        {analysisResult.premium_report.consistency.consistency_index}/100
+                      </div>
+                      <ul style={{ fontSize: '0.8rem', paddingLeft: '20px', marginTop: '1rem' }}>
+                        {analysisResult.premium_report.consistency.verified.map((v, idx) => <li key={`v-${idx}`} style={{ color: '#34c759', marginBottom: '4px' }}>{v}</li>)}
+                        {analysisResult.premium_report.consistency.partially_verified.map((v, idx) => <li key={`pv-${idx}`} style={{ color: 'var(--p5-yellow)', marginBottom: '4px' }}>{v}</li>)}
+                        {analysisResult.premium_report.consistency.unsupported.map((v, idx) => <li key={`u-${idx}`} style={{ color: '#fca5a5', marginBottom: '4px' }}>{v}</li>)}
                       </ul>
+                    </div>
+                  </div>
+
+                  <div className="split-layout">
+                    {/* Feature 3: Hiring Readiness */}
+                    <div className="glass-panel" style={{ border: '2px solid #c084fc', background: 'rgba(192,132,252,0.05)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#c084fc', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(5deg)' }}>MODULE 03</div>
+                      <h3 style={{ color: '#c084fc', fontSize: '1.2rem', fontWeight: 800 }}>Hiring Readiness Intelligence</h3>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#c084fc', fontFamily: 'var(--ff-display)' }}>
+                          {analysisResult.premium_report.readiness.overall_readiness}%
+                        </div>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Conv: <span style={{ color: '#c084fc' }}>{analysisResult.premium_report.readiness.conversion_estimate}</span></span>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '1rem', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Software Eng:</span> <span style={{ fontWeight: 'bold' }}>{analysisResult.premium_report.readiness.subscores.software_engineering}%</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Data Science:</span> <span style={{ fontWeight: 'bold' }}>{analysisResult.premium_report.readiness.subscores.data_science}%</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Product Mgmt:</span> <span style={{ fontWeight: 'bold' }}>{analysisResult.premium_report.readiness.subscores.product_management}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Feature 4: Simulation Engine */}
+                    <div className="glass-panel" style={{ border: '2px solid var(--p5-yellow)', background: 'rgba(255,215,0,0.05)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: 'var(--p5-yellow)', color: '#000', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(-5deg)' }}>MODULE 04</div>
+                      <h3 style={{ color: 'var(--p5-yellow)', fontSize: '1.2rem', fontWeight: 800 }}>Recruiter Simulation Engine</h3>
+                      <div style={{ fontSize: '0.85rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #444', paddingBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>ATS Scanner:</span> <span style={{ fontWeight: 'bold', color: '#c084fc' }}>{analysisResult.premium_report.simulation.ats_score}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #444', paddingBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Human Recruiter:</span> <span style={{ fontWeight: 'bold', color: '#34c759' }}>{analysisResult.premium_report.simulation.recruiter_score}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #444', paddingBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Hiring Manager:</span> <span style={{ fontWeight: 'bold', color: '#3b82f6' }}>{analysisResult.premium_report.simulation.manager_score}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #444', paddingBottom: '4px' }}>
+                          <span style={{ color: 'var(--text-secondary)' }}>Technical Lead:</span> <span style={{ fontWeight: 'bold', color: 'var(--p5-red)' }}>{analysisResult.premium_report.simulation.tech_lead_score}</span>
+                        </div>
+                        <div style={{ marginTop: '0.5rem', color: 'var(--p5-yellow)', background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '4px', fontStyle: 'italic' }}>
+                          <strong>Analysis:</strong> {analysisResult.premium_report.simulation.gap_analysis}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1430,6 +1494,86 @@ export default function App() {
       )}
 
       {/* ── FOOTER ────────────────────────────────────────────────── */}
+      
+      {/* ── PREMIUM CHECKOUT MODAL ────────────────────────────────── */}
+      {showCheckout && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 100000
+        }}>
+          <div style={{
+            background: 'var(--p5-black)',
+            border: '4px solid var(--p5-red)',
+            padding: '2rem',
+            width: '90%', maxWidth: '400px',
+            transform: 'rotate(-2deg)',
+            boxShadow: '20px 20px 0 #000',
+            position: 'relative'
+          }}>
+            <button 
+              onClick={() => setShowCheckout(false)}
+              style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'var(--p5-yellow)', border: '2px solid #000', color: '#000', fontWeight: 'bold', width: '30px', height: '30px', cursor: 'pointer' }}
+            >
+              X
+            </button>
+            <h2 style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '2rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
+              VIP Access Required
+            </h2>
+            <p style={{ color: 'var(--p5-red)', fontFamily: 'var(--ff-mono)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+              Access the Ultimate Intelligence Suite.
+            </p>
+            <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)' }}>CARDHOLDER NAME</label>
+                <input 
+                  type="text" 
+                  value={checkoutName} 
+                  onChange={(e) => setCheckoutName(e.target.value)}
+                  style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '0.8rem', fontFamily: 'var(--ff-mono)' }}
+                  required 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)' }}>CARD NUMBER (STRIPE / RAZORPAY)</label>
+                <input 
+                  type="text" 
+                  value={checkoutCard} 
+                  onChange={(e) => setCheckoutCard(e.target.value)}
+                  style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '0.8rem', fontFamily: 'var(--ff-mono)', letterSpacing: '2px' }}
+                  placeholder="**** **** **** ****"
+                  required 
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)' }}>EXP</label>
+                  <input type="text" value={checkoutExpiry} onChange={(e) => setCheckoutExpiry(e.target.value)} style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '0.8rem' }} placeholder="MM/YY" required />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)' }}>CVV</label>
+                  <input type="text" value={checkoutCvv} onChange={(e) => setCheckoutCvv(e.target.value)} style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '0.8rem' }} placeholder="***" required />
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                disabled={checkoutLoading}
+                style={{ 
+                  marginTop: '1rem', 
+                  background: 'var(--p5-red)', color: 'var(--p5-white)', border: '2px solid #000', 
+                  padding: '1rem', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer',
+                  transform: 'rotate(2deg)', transition: 'all 0.2s'
+                }}
+              >
+                {checkoutLoading ? 'AUTHORIZING...' : 'UPGRADE CLEARANCE'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <footer className="app-footer">
         PSI Resume Analyser v1.0.0 • React + FastAPI Full-Stack Architecture • Built with 
         <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 

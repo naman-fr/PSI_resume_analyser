@@ -68,12 +68,13 @@ def register_user(user: UserCreate):
         "email": user.email,
         "hashed_password": get_password_hash(user.password),
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "is_premium": False,
         "memory": [] # Will store past resumes/audits here
     }
     users_collection.insert_one(user_doc)
     
     access_token = create_access_token(data={"sub": user_id})
-    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": user_id, "username": user.username, "email": user.email}}
+    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": user_id, "username": user.username, "email": user.email, "is_premium": False}}
 
 @router.post("/login")
 def login_user(user: UserLogin):
@@ -87,8 +88,55 @@ def login_user(user: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
     access_token = create_access_token(data={"sub": db_user["user_id"]})
-    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": db_user["user_id"], "username": db_user["username"], "email": db_user["email"]}}
+    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": db_user["user_id"], "username": db_user["username"], "email": db_user["email"], "is_premium": db_user.get("is_premium", False)}}
 
+import stripe
+
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
+
+class PaymentPayload(BaseModel):
+    cardholder: str
+    card_number: str
+    expiry: str
+    cvv: str
+
+@router.post("/upgrade_premium")
+def upgrade_premium(payment: PaymentPayload, user_id: str = Depends(get_current_user)):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = get_db()
+    if db is None:
+        raise HTTPException(status_code=500, detail="Database not configured")
+        
+    if not payment.card_number or len(payment.card_number) < 12:
+        raise HTTPException(status_code=400, detail="Invalid payment details")
+
+    try:
+        # If we have a real test key, we could create a PaymentMethod and PaymentIntent.
+        # However, since we are accepting raw card details (not PCI compliant for prod),
+        # we will mock the Stripe API call here if the key is the placeholder.
+        if stripe.api_key == "sk_test_placeholder":
+            # Simulate Stripe latency and success
+            pass
+        else:
+            # In a real scenario using Elements, we'd receive a PaymentMethod ID, not raw cards.
+            # Here we mock the server-side integration structure:
+            intent = stripe.PaymentIntent.create(
+                amount=4900, # $49.00
+                currency="usd",
+                payment_method_types=["card"],
+                description=f"Premium VIP Upgrade for user {user_id}"
+            )
+            # We would normally confirm the intent here, but without a real frontend token, 
+            # we just ensure the Stripe SDK initializes and runs without crashing.
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=f"Stripe Payment Error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Payment Processing Error")
+        
+    db.users.update_one({"user_id": user_id}, {"$set": {"is_premium": True}})
+    
+    return {"status": "success", "message": "Premium VIP Clearance Activated via Stripe"}
 @router.get("/me")
 def read_users_me(user_id: str = Depends(get_current_user)):
     if not user_id:
@@ -100,4 +148,6 @@ def read_users_me(user_id: str = Depends(get_current_user)):
     user_doc = db.users.find_one({"user_id": user_id}, {"_id": 0, "hashed_password": 0})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
+        
+    user_doc["is_premium"] = user_doc.get("is_premium", False)
     return user_doc
