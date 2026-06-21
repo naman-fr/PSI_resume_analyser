@@ -237,9 +237,9 @@
    PREMIUM HEIST CLASSES (3D Calling Cards & Lore)
    ══════════════════════════════════════════════════════════════════ */
 .p5-heist-deck {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
   perspective: 1200px; /* Crucial for 3D card tilts */
   margin-top: 2rem;
 }

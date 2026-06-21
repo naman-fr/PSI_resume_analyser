@@ -405,6 +405,18 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('analyze'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge badge-purple" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 01</span>
+                
+                {/* Visualizer: Scanning Laser */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
+                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', filter: 'drop-shadow(2px 2px 0 #000)' }}>
+                    <path d="M20,10 L70,10 L80,20 L80,90 L20,90 Z" fill="none" stroke="var(--p5-yellow)" strokeWidth="4"/>
+                    <line x1="30" y1="30" x2="60" y2="30" stroke="var(--p5-white)" strokeWidth="4"/>
+                    <line x1="30" y1="50" x2="70" y2="50" stroke="var(--p5-white)" strokeWidth="4"/>
+                    <line x1="30" y1="70" x2="50" y2="70" stroke="var(--p5-white)" strokeWidth="4"/>
+                  </svg>
+                  <div className="scan-laser" style={{ position: 'absolute', top: 0, left: '10px', right: '50px', height: '2px', background: 'var(--p5-red)', boxShadow: '0 0 10px var(--p5-red)', animation: 'scanLine 2s linear infinite' }} />
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Analyze<br/>Resumes
                 </h3>
@@ -421,6 +433,15 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('improve'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge badge-blue" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 02</span>
+                
+                {/* Visualizer: Expanding Stars */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
+                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'spinPulse 4s linear infinite', filter: 'drop-shadow(2px 2px 0 var(--p5-red))' }}>
+                    <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" fill="var(--p5-white)" />
+                    <circle cx="50" cy="50" r="10" fill="var(--p5-charcoal)"/>
+                  </svg>
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Improve<br/>Bullets
                 </h3>
@@ -437,6 +458,13 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('jobs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge badge-green" style={{ marginBottom: '1rem', display: 'inline-block' }}>OPERATION 03</span>
+                
+                {/* Visualizer: Swiping Cards */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative', perspective: '800px' }}>
+                  <div style={{ position: 'absolute', top: '10px', left: '10px', width: '50px', height: '60px', border: '3px solid var(--p5-yellow)', background: 'var(--p5-charcoal)', transform: 'rotate(-10deg) translateZ(-20px)', opacity: 0.5 }}></div>
+                  <div style={{ position: 'absolute', top: '5px', left: '15px', width: '50px', height: '60px', border: '3px solid var(--p5-red)', background: 'var(--p5-black)', transform: 'rotate(0deg) translateZ(0)', animation: 'swipeRight 2s ease-in-out infinite' }}></div>
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Swipe<br/>Deck
                 </h3>
@@ -448,10 +476,21 @@ export default function App() {
                 </div>
               </div>
             </div>
+
             {/* CALLING CARD 4 */}
             <div className="p5-heist-card" onClick={() => { setActiveTab('memory'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 04</span>
+                
+                {/* Visualizer: Spinning Vault */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
+                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'spinPulse 6s linear infinite reverse' }}>
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--p5-yellow)" strokeWidth="6" strokeDasharray="10 15"/>
+                    <circle cx="50" cy="50" r="25" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="4"/>
+                    <circle cx="50" cy="50" r="10" fill="var(--p5-red)"/>
+                  </svg>
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Cognitive<br/>Archive
                 </h3>
@@ -468,6 +507,15 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('telemetry'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 05</span>
+                
+                {/* Visualizer: Heartbeat Wave */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative', overflow: 'hidden' }}>
+                  <svg viewBox="0 0 200 100" style={{ width: '120px', height: '60px', filter: 'drop-shadow(0 0 5px #34c759)' }}>
+                    <polyline points="0,50 30,50 40,20 60,80 70,50 100,50" fill="none" stroke="#34c759" strokeWidth="4" />
+                    <polyline points="100,50 130,50 140,20 160,80 170,50 200,50" fill="none" stroke="#34c759" strokeWidth="4" />
+                  </svg>
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   LLMOps<br/>Metrics
                 </h3>
@@ -484,6 +532,14 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('batch'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 06</span>
+                
+                {/* Visualizer: Layered Files */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
+                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-red)', position: 'absolute', top: '20px', left: '20px', transform: 'rotate(-15deg)', border: '2px solid #000' }} />
+                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-yellow)', position: 'absolute', top: '10px', left: '15px', transform: 'rotate(-5deg)', border: '2px solid #000' }} />
+                  <div style={{ width: '40px', height: '50px', background: 'var(--p5-white)', position: 'absolute', top: '0px', left: '10px', border: '2px solid #000', animation: 'floatBob 2s ease-in-out infinite' }} />
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Batch<br/>Audit
                 </h3>
@@ -500,6 +556,16 @@ export default function App() {
             <div className="p5-heist-card" onClick={() => { setActiveTab('stress'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <div className="p5-heist-card-content">
                 <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block', background: 'var(--p5-black)', color: 'var(--p5-white)', border: '1px solid var(--p5-white)' }}>OPERATION 07</span>
+                
+                {/* Visualizer: Glowing Eye Shield */}
+                <div className="p5-card-visualizer" style={{ height: '80px', marginBottom: '1rem', position: 'relative' }}>
+                  <svg viewBox="0 0 100 100" style={{ width: '60px', height: '60px', animation: 'pulseNeon 2s infinite' }}>
+                    <path d="M50,10 L90,25 L90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 L10,25 Z" fill="none" stroke="var(--p5-red)" strokeWidth="6" />
+                    <path d="M30,45 Q50,30 70,45 Q50,60 30,45 Z" fill="var(--p5-white)" />
+                    <circle cx="50" cy="45" r="5" fill="var(--p5-black)" />
+                  </svg>
+                </div>
+
                 <h3 style={{ fontSize: '2rem', fontFamily: 'var(--font-title)', fontWeight: 900, color: 'var(--p5-yellow)', textTransform: 'uppercase', lineHeight: 1.1, marginBottom: '0.5rem', textShadow: '3px 3px 0px #000' }}>
                   Security<br/>Labs
                 </h3>
@@ -711,7 +777,7 @@ export default function App() {
                       strokeDasharray="408"
                       strokeDashoffset={408 - (408 * (analysisResult.match_score || 0)) / 100}
                     />
-                    <text className="score-text" x="80" y="92" textAnchor="middle">
+                    <text className="score-text" x="80" y="92" textAnchor="middle" transform="rotate(90 80 80)">
                       {Math.round(analysisResult.match_score)}
                     </text>
                   </svg>
