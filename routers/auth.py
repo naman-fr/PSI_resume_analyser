@@ -151,3 +151,22 @@ def read_users_me(user_id: str = Depends(get_current_user)):
         
     user_doc["is_premium"] = user_doc.get("is_premium", False)
     return user_doc
+
+class ChangePasswordPayload(BaseModel):
+    old_password: str
+    new_password: str
+
+@router.post("/change_password")
+def change_password(payload: ChangePasswordPayload, user_id: str = Depends(get_current_user)):
+    db = get_db()
+    if db is None:
+        raise HTTPException(status_code=500, detail="Database not configured")
+        
+    user_doc = db.users.find_one({"user_id": user_id})
+    if not user_doc or not verify_password(payload.old_password, user_doc["hashed_password"]):
+        raise HTTPException(status_code=400, detail="Invalid old password")
+        
+    new_hash = get_password_hash(payload.new_password)
+    db.users.update_one({"user_id": user_id}, {"$set": {"hashed_password": new_hash}})
+    
+    return {"status": "success", "message": "Password changed successfully"}

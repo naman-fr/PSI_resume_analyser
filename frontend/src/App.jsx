@@ -6,8 +6,10 @@ import {
   Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut
 } from 'lucide-react';
 
-import { useAuth } from './AuthContext';
+import P5Button from './components/P5Button';
 import AuthScreen from './components/AuthScreen';
+import { useAuth } from './AuthContext';
+import loadingGif from './components/Scenes/loading_gif.gif';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -56,6 +58,13 @@ export default function App() {
   const [checkoutExpiry, setCheckoutExpiry] = useState('');
   const [checkoutCvv, setCheckoutCvv] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  
+  // Password Change State
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordChangeStatus, setPasswordChangeStatus] = useState(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   
   // Analysis Form State
   const [resumeFile, setResumeFile] = useState(null);
@@ -131,37 +140,60 @@ export default function App() {
 
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
-    if (!checkoutName || !checkoutCard) {
-      alert('Cardholder Name and Card Number are required.');
-      return;
-    }
     setCheckoutLoading(true);
+    
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/auth/upgrade_premium`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          cardholder: checkoutName,
           card_number: checkoutCard,
           expiry: checkoutExpiry,
           cvv: checkoutCvv
         })
       });
-      if (res.ok) {
-        setPremiumMode(true);
-        setShowCheckout(false);
-        alert('Payment successful! Premium clearance activated. Please refresh if needed.');
-      } else {
-        alert('Payment authorization failed.');
-      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Payment failed');
+      
+      setPremiumMode(true);
+      setShowCheckout(false);
+      alert("VIP CLEARANCE UNLOCKED: " + data.message);
     } catch (err) {
-      console.error('Payment checkout failed:', err);
+      alert("PAYMENT ERROR: " + err.message);
     } finally {
       setCheckoutLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordChangeStatus(null);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/change_password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Password change failed');
+      setPasswordChangeStatus({ type: 'success', message: 'PASSWORD UPDATED SECURELY.' });
+      setTimeout(() => {
+        setShowPasswordModal(false);
+        setPasswordChangeStatus(null);
+        setOldPassword('');
+        setNewPassword('');
+      }, 2000);
+    } catch (err) {
+      setPasswordChangeStatus({ type: 'error', message: err.message.toUpperCase() });
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -334,7 +366,7 @@ export default function App() {
         background: '#000'
       }}>
         <iframe 
-          src="https://giphy.com/embed/LwsA3k0EweuDS" 
+          src="https://tenor.com/embed/3415022122425697676" 
           width="100%" 
           height="100%" 
           frameBorder="0" 
@@ -353,18 +385,7 @@ export default function App() {
       {(analysisLoading || improveLoading || jobsLoading || batchLoading || stressLoading) && (
         <div className="p5-loading-overlay" style={{ background: 'rgba(8,8,8,0.95)', zIndex: 10000, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ animation: 'runCycle 0.5s infinite linear', marginBottom: '2rem' }}>
-            {/* Running Joker SVG */}
-            <svg viewBox="0 0 100 100" width="120" height="120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(6px 6px 0px var(--p5-red))' }}>
-              <path d="M40,20 L60,20 L70,40 L60,50 L40,50 L30,40 Z" fill="var(--p5-white)" stroke="var(--p5-black)" strokeWidth="4" />
-              {/* Hair */}
-              <path d="M30,30 L20,10 L45,15 L60,5 L70,20 L80,10 L75,30 Z" fill="var(--p5-black)" />
-              {/* Mask */}
-              <path d="M35,35 L45,30 L55,30 L65,35 L55,45 L45,45 Z" fill="var(--p5-red)" />
-              {/* Coat body */}
-              <path d="M35,50 L65,50 L75,80 L65,80 L60,95 L40,95 L35,80 L25,80 Z" fill="var(--p5-black)" stroke="var(--p5-white)" strokeWidth="2" />
-              {/* Legs running */}
-              <path d="M45,95 L40,110 L30,110 M55,95 L65,105 L75,105" stroke="var(--p5-black)" strokeWidth="8" />
-            </svg>
+            <img src={loadingGif} alt="Loading..." style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
           </div>
           <div className="p5-loading-text" style={{ fontSize: '3rem', animation: 'timePulse 1.5s infinite', letterSpacing: '0.1em' }}>
             TAKE YOUR TIME
@@ -422,15 +443,29 @@ export default function App() {
           >
             <span style={{ color: 'var(--p5-red)' }}>←</span> RETURN TO HUB
           </button>
-          <button 
-            onClick={logout}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
-          >
-            <LogOut size={16} /> LOGOUT
-          </button>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <button 
+              onClick={() => setShowPasswordModal(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+            >
+              <Settings size={16} /> SETTINGS
+            </button>
+            <button 
+              onClick={logout}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+            >
+              <LogOut size={16} /> LOGOUT
+            </button>
+          </div>
         </div>
       ) : (
-        <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 100 }}>
+        <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 100, display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={() => setShowPasswordModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+          >
+            <Settings size={16} /> SETTINGS
+          </button>
           <button 
             onClick={logout}
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
@@ -868,7 +903,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Premium Verification results */}
               {/* Premium Verification results */}
               {premiumMode && analysisResult.premium_report && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem', marginBottom: '2rem' }}>
@@ -1556,7 +1590,77 @@ export default function App() {
 
       {/* ── FOOTER ────────────────────────────────────────────────── */}
       
-      {/* ── PREMIUM CHECKOUT MODAL ────────────────────────────────── */}
+      {/* ── CHANGE PASSWORD MODAL ────────────────────────────────────────── */}
+      {showPasswordModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', backdropFilter: 'blur(5px)' }}>
+          <div style={{
+            background: 'var(--p5-black)',
+            border: '4px solid var(--p5-white)',
+            padding: '2.5rem',
+            width: '90%', maxWidth: '400px',
+            boxShadow: '15px 15px 0 var(--p5-red)',
+            position: 'relative'
+          }}>
+            <button 
+              onClick={() => setShowPasswordModal(false)}
+              style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'var(--p5-red)', border: '4px solid var(--p5-white)', color: '#fff', fontWeight: '900', width: '40px', height: '40px', cursor: 'pointer', fontSize: '1.2rem', zIndex: 10 }}
+            >
+              X
+            </button>
+            <h2 style={{ color: 'var(--p5-white)', fontFamily: 'var(--font-title)', fontSize: '2rem', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              SECURITY OVERRIDE
+            </h2>
+            <p style={{ color: 'var(--p5-red)', fontFamily: 'var(--ff-mono)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+              Change your cognitive palace key.
+            </p>
+            {passwordChangeStatus && (
+              <div style={{ 
+                background: passwordChangeStatus.type === 'error' ? 'var(--p5-red)' : 'var(--p5-yellow)', 
+                color: passwordChangeStatus.type === 'error' ? '#fff' : '#000', 
+                padding: '1rem', marginBottom: '1rem', fontFamily: 'var(--ff-mono)', fontWeight: 'bold' 
+              }}>
+                &gt; {passwordChangeStatus.message}
+              </div>
+            )}
+            <form onSubmit={handlePasswordChange} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div>
+                <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)', marginBottom: '0.5rem' }}>PAST PASSWORD</label>
+                <input 
+                  type="password" 
+                  value={oldPassword} 
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '1rem', fontFamily: 'var(--ff-mono)' }}
+                  required 
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', color: 'var(--p5-yellow)', fontSize: '0.8rem', fontFamily: 'var(--ff-mono)', marginBottom: '0.5rem' }}>NEW PASSWORD</label>
+                <input 
+                  type="password" 
+                  value={newPassword} 
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={{ width: '100%', background: '#111', border: '1px solid var(--p5-red)', color: '#fff', padding: '1rem', fontFamily: 'var(--ff-mono)' }}
+                  required 
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={passwordLoading}
+                style={{ 
+                  marginTop: '1rem', 
+                  background: 'var(--p5-white)', color: 'var(--p5-black)', border: '4px solid var(--p5-red)', 
+                  padding: '1rem', fontFamily: 'var(--font-title)', fontSize: '1.5rem', cursor: 'pointer',
+                  transform: 'skewX(-5deg)', transition: 'all 0.2s', fontWeight: '900', letterSpacing: '0.05em'
+                }}
+              >
+                {passwordLoading ? 'ENCRYPTING...' : 'CONFIRM OVERRIDE'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── VIP CHECKOUT MODAL ────────────────────────────────────────── */}
       {showCheckout && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -1635,10 +1739,17 @@ export default function App() {
         </div>
       )}
 
-      <footer className="app-footer">
-        PSI Resume Analyser v1.0.0 • React + FastAPI Full-Stack Architecture • Built with 
-        <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 
-        <a href="https://ai.google.dev" target="_blank" rel="noreferrer"> Gemini</a>
+      <footer className="app-footer" style={{ position: 'relative', overflow: 'hidden' }}>
+        <img 
+          src={loadingGif} 
+          alt="Loading Scene" 
+          style={{ position: 'absolute', bottom: '-20px', left: '10px', width: '80px', opacity: 0.8, pointerEvents: 'none' }} 
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          PSI Resume Analyser v1.0.0 • React + FastAPI Full-Stack Architecture • Built with 
+          <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 
+          <a href="https://ai.google.dev" target="_blank" rel="noreferrer"> Gemini</a>
+        </div>
       </footer>
 
       {/* ── MORGANA HELPER ────────────────────────────────────────── */}

@@ -4,6 +4,8 @@ import GlitchText from './GlitchText';
 import P5Button from './P5Button';
 import { useAuth } from '../AuthContext';
 
+import backgroundLogin from './Scenes/background_login.gif';
+
 export default function AuthScreen() {
   const { login } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
@@ -55,22 +57,19 @@ export default function AuthScreen() {
         overflow: 'hidden',
         background: '#000'
       }}>
-        <iframe 
-          src="https://giphy.com/embed/3o7bukaBzZhgCMB3u8" 
-          width="100%" 
-          height="100%" 
-          frameBorder="0" 
-          allowFullScreen 
+        <img 
+          src={backgroundLogin} 
+          alt="Persona 5 Background"
           style={{ 
             pointerEvents: 'none', 
             objectFit: 'cover', 
             width: '100vw', 
             height: '100vh',
-            opacity: 0.3,
+            opacity: 0.35,
             mixBlendMode: 'screen',
-            transform: 'scale(1.2)' // Hide iframe borders
+            transform: 'scale(1.05)'
           }}
-        ></iframe>
+        />
       </div>
 
       {/* Left side: 3D showcase */}
