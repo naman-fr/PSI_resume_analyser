@@ -172,18 +172,15 @@ docker-compose down
 
 ---
 
-## 📅 18-Month Implementation Roadmap
+## 🌐 Project Architecture Access & Versatility
 
-```
-Jul '26 - Aug '26: Requirements & Design (FTE-mo: 4)
-Sep '26 - Nov '26: Core Platform Build (FTE-mo: 8)
-Dec '26 - Feb '27: AI Components MVP (FTE-mo: 12)
-Mar '27 - Apr '27: Advanced AI Features (FTE-mo: 8)
-May '27 - Jun '27: MLOps & Monitoring (FTE-mo: 4)
-Jul '27 - Aug '27: Security & Compliance (FTE-mo: 4)
-Sep '27 - Oct '27: Integrations & API (FTE-mo: 4)
-Nov '27 - Dec '27: Pilot & Launch (FTE-mo: 6)
-```
+The PSI Resume Analyser is designed as a highly versatile, multi-channel GenAI application. It is structured to be accessible across three primary entry points:
+
+1. **Modern Web UI**: A responsive, animated React/Vite frontend backed by a robust FastAPI server. Ideal for candidate-facing and recruiter-facing interactive analysis sessions.
+2. **Command-Line Interface (CLI)**: A terminal-native Click/Rich application tailored for developers, DevOps automation, batch processing, and offline sandbox simulations.
+3. **Hugging Face Spaces**: A serverless deployment channel optimized for public demonstration, testing, and community-driven AI/ML evaluations.
+
+This architecture decouples the core multi-agent graph logic (powered by LangGraph) from the presentation layers. Whether integrated into local pipelines via the CLI, run inside isolated Docker/Kubernetes clusters, or accessed via web protocols, the system guarantees 100% blind parsing, deterministic vector caching, and real-time telemetry extraction.
 
 ---
 

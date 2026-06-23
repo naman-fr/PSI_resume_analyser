@@ -22,7 +22,6 @@ try:
     from rich.table import Table
     from rich.panel import Panel
     from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-    from rich.markdown import Markdown
     from rich import box
     from rich.syntax import Syntax  # noqa: F401
     RICH_AVAILABLE = True

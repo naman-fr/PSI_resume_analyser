@@ -11,6 +11,8 @@ import re
 from typing import Any, Dict, Tuple
 
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import AIMessage
+from langchain_core.outputs import ChatResult, ChatGeneration
 
 from agents.state import ResumeJDState
 
@@ -19,8 +21,6 @@ logger = logging.getLogger(__name__)
 
 # ── LLM factory (reused by other agent modules) ────────────────────────────
 
-from langchain_core.messages import AIMessage
-from langchain_core.outputs import ChatResult, ChatGeneration
 
 class MockChatModel(BaseChatModel):
     """Local simulation mock model when no live API keys are provided."""
@@ -94,12 +94,16 @@ def get_llm() -> Tuple[BaseChatModel, str]:
     from config.settings import settings
     
     api_key = settings.models.groq_api_key or os.environ.get("GROQ_API_KEY")
-    if not api_key or "placeholder" in api_key.lower():
+    is_pytest = "PYTEST_CURRENT_TEST" in os.environ
+    if (not api_key or "placeholder" in api_key.lower()) and not is_pytest:
         logger.info("GROQ_API_KEY is missing or contains placeholder. Initializing local Mock Simulation LLM.")
         return MockChatModel(), "mock"
 
     try:
         from langchain_groq import ChatGroq
+
+        if is_pytest and not api_key:
+            raise RuntimeError("No LLM provider available. Set GROQ_API_KEY.")
 
         llm = ChatGroq(
             model=settings.models.groq_model,
@@ -109,6 +113,8 @@ def get_llm() -> Tuple[BaseChatModel, str]:
         logger.info("LLM provider: Groq (%s)", settings.models.groq_model)
         return llm, "groq"
     except Exception as exc:
+        if is_pytest:
+            raise RuntimeError("No LLM provider available. Set GROQ_API_KEY.") from exc
         logger.warning("Failed to initialize Groq client: %s. Falling back to Mock Simulation LLM.", exc)
         return MockChatModel(), "mock"
 
