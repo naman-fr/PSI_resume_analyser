@@ -105,6 +105,11 @@ export default function App() {
   const [batchResults, setBatchResults] = useState([]);
   const [batchLoading, setBatchLoading] = useState(false);
 
+  const [clearanceData, setClearanceData] = useState(null);
+  const [clearanceLoading, setClearanceLoading] = useState(false);
+  const [digitalTwinData, setDigitalTwinData] = useState(null);
+  const [fairnessData, setFairnessData] = useState(null);
+
   const [sampleJds, setSampleJds] = useState([]);
   const [selectedJdId, setSelectedJdId] = useState('');
 
@@ -113,6 +118,39 @@ export default function App() {
     fetchTelemetry();
     fetchSampleJds();
   }, []);
+
+  const fetchClearanceData = async () => {
+    setClearanceLoading(true);
+    try {
+      const res1 = await fetch(`${API_URL}/api/clearance_metrics`);
+      if (res1.ok) {
+        const data1 = await res1.json();
+        setClearanceData(data1);
+      }
+      
+      const res2 = await fetch(`${API_URL}/api/digital_twin?run_id=latest`);
+      if (res2.ok) {
+        const data2 = await res2.json();
+        setDigitalTwinData(data2);
+      }
+      
+      const res3 = await fetch(`${API_URL}/api/fairness_audit?run_id=latest`);
+      if (res3.ok) {
+        const data3 = await res3.json();
+        setFairnessData(data3);
+      }
+    } catch (err) {
+      console.error('Failed to fetch clearance hub data:', err);
+    } finally {
+      setClearanceLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'clearance') {
+      fetchClearanceData();
+    }
+  }, [activeTab]);
 
   const fetchSampleJds = async () => {
     try {
@@ -377,6 +415,7 @@ export default function App() {
       case 'telemetry': return "LLM latency and pricing dashboard. The database size is growing!";
       case 'batch': return "Parallel processing! We're targeting multiple candidate files at once!";
       case 'stress': return "Safety stress-testing. Let's make sure prompt injections can't bypass our guardrails!";
+      case 'clearance': return "Welcome to the Clearance Hub, Joker! The multi-agent cognitive planes are fully secure!";
       default: return "Looking cool, Joker!";
     }
   };
@@ -693,6 +732,28 @@ export default function App() {
                   <div className="redaction-text"></div>
                   <div className="redaction-block">REDACTED</div>
                 </div>
+              </div>
+            </ScrollSection>
+
+            {/* Scroll Section 8: Clearance Hub */}
+            <ScrollSection direction="right">
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', zIndex: 1, perspective: '1200px' }}>
+                <div className="geometry-scanner" style={{ border: '4px solid var(--p5-yellow)' }}>
+                  <div className="scanner-laser" style={{ backgroundColor: 'var(--p5-yellow)', height: '4px' }}></div>
+                  <div className="scanner-text-line" style={{ background: '#444' }}></div>
+                  <div className="scanner-text-line" style={{ width: '70%', background: '#444' }}></div>
+                  <div className="scanner-text-line" style={{ width: '40%', background: '#444' }}></div>
+                </div>
+              </div>
+              <div style={{ flex: 1, paddingLeft: '4rem', textAlign: 'right', zIndex: 2 }}>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: 'var(--p5-yellow)', color: '#000', border: 'none', fontWeight: 900 }}>OPERATION 08</span>
+                <h2 className="scroll-title" style={{ color: 'var(--p5-yellow)', textShadow: '-6px 6px 0px var(--p5-red)' }}>Clearance<br/>Hub</h2>
+                <p className="scroll-subtitle" style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                  Access the control center of the Candidate Intelligence Platform. Manage model gateways, view event bus streams, and inspect the sandboxed MCP client.
+                </p>
+                <button className="btn btn-primary" onClick={() => { setActiveTab('clearance'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)', background: 'var(--p5-yellow)', color: '#000', border: '2px solid var(--p5-red)', boxShadow: '6px 6px 0px var(--p5-red)', fontWeight: 900 }}>
+                  INITIATE ROUTE →
+                </button>
               </div>
             </ScrollSection>
 
@@ -1576,6 +1637,309 @@ export default function App() {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {/* ── CLEARANCE HUB ───────────────────────────────────────────── */}
+      {activeTab === 'clearance' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingBottom: '4rem' }}>
+          <div className="section-header" style={{ borderBottom: '4px solid var(--p5-red)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <h2 className="section-title" style={{ color: 'var(--p5-yellow)', textShadow: '-3px 3px 0px var(--p5-red)', fontSize: '2.5rem', fontFamily: 'var(--font-title)', textTransform: 'uppercase' }}>
+              <Layers style={{ display: 'inline', marginRight: '12px', verticalAlign: 'middle' }} /> Clearance Hub
+            </h2>
+            <p className="section-subtitle" style={{ fontWeight: 800, color: 'var(--text-secondary)' }}>
+              Candidate Intelligence Platform Control Center • Ingestion, Reasoning, Governance, and Learning Planes.
+            </p>
+          </div>
+
+          {clearanceLoading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--p5-yellow)', fontFamily: 'var(--ff-mono)', fontSize: '1.2rem' }}>
+              &gt; ACCESSING ENCRYPTED SECURITY CORE...
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              
+              {/* Row 1: Model Gateway + Event Bus + MCP Sandbox */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                
+                {/* 1. Model Gateway Routing */}
+                <div className="glass-panel" style={{ border: '2px solid var(--p5-white)', padding: '1.5rem', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '-12px', right: '15px', background: 'var(--p5-white)', color: '#000', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.75rem', transform: 'skewX(-6deg)' }}>INGESTION & ROUTING</div>
+                  <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--p5-white)', fontSize: '1.4rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>Model Gateway</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', margin: '1rem 0', background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '4px', fontFamily: 'var(--ff-mono)', fontSize: '0.85rem' }}>
+                    <div>Tier: <span style={{ color: 'var(--p5-yellow)', fontWeight: 'bold' }}>{clearanceData?.model_routing?.tenant_tier?.toUpperCase()}</span></div>
+                    <div>Session Cost: <span style={{ color: 'var(--p5-red)', fontWeight: 'bold' }}>${clearanceData?.model_routing?.current_session_cost_usd?.toFixed(5)}</span></div>
+                  </div>
+                  
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--p5-yellow)', marginBottom: '0.5rem' }}>Routing Decider Trace</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                    {clearanceData?.model_routing?.history?.map((h, i) => (
+                      <div key={i} style={{ background: 'rgba(255,255,255,0.02)', padding: '8px', borderLeft: '3px solid var(--p5-red)', fontSize: '0.8rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                          <span>{h.task}</span>
+                          <span style={{ color: 'var(--p5-yellow)' }}>${h.cost?.toFixed(5)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '0.75rem', marginTop: '2px' }}>
+                          <span>Model: {h.model}</span>
+                          <span>{h.truncated ? '⚠️ Sliced' : '✓ Full Context'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Pub-Sub Event Bus */}
+                <div className="glass-panel" style={{ border: '2px solid var(--p5-red)', padding: '1.5rem', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '-12px', right: '15px', background: 'var(--p5-red)', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.75rem', transform: 'skewX(-6deg)' }}>REASONING PLANE</div>
+                  <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--p5-white)', fontSize: '1.4rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>Async Event Queue</h3>
+                  <div style={{ margin: '1rem 0', fontFamily: 'var(--ff-mono)', fontSize: '0.85rem' }}>
+                    Events Processed: <span style={{ color: 'var(--p5-red)', fontWeight: 'bold' }}>{clearanceData?.event_bus?.events_processed || 0}</span>
+                  </div>
+                  
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--p5-yellow)', marginBottom: '0.5rem' }}>Pipeline Event Log</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                    {clearanceData?.event_bus?.audit_trail?.map((ev, i) => (
+                      <div key={i} style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderLeft: '3px solid #3b82f6', fontSize: '0.75rem', fontFamily: 'var(--ff-mono)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontWeight: 'bold', color: 'var(--p5-white)' }}>{ev.event_type.toUpperCase()}</span>
+                          <span style={{ 
+                            color: ev.status === 'completed' ? '#34c759' : ev.status === 'retrying' ? 'var(--p5-yellow)' : 'var(--p5-red)',
+                            fontWeight: 'bold'
+                          }}>{ev.status.toUpperCase()}</span>
+                        </div>
+                        <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginTop: '2px' }}>
+                          ID: {ev.event_id.slice(0, 8)}... | Retries: {ev.retries}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. MCP Sandboxing */}
+                <div className="glass-panel" style={{ border: '2px solid var(--p5-yellow)', padding: '1.5rem', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '-12px', right: '15px', background: 'var(--p5-yellow)', color: '#000', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.75rem', transform: 'skewX(-6deg)' }}>GOVERNANCE PLANE</div>
+                  <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--p5-white)', fontSize: '1.4rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>MCP Sandbox Client</h3>
+                  <div style={{ margin: '1rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Allowlisted external APIs: <span style={{ color: 'var(--p5-white)', fontWeight: 'bold' }}>{clearanceData?.mcp_sandbox?.allowlisted_tools?.length} active</span>
+                  </div>
+                  
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--p5-yellow)', marginBottom: '0.5rem' }}>MCP Audit Trails</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                    {clearanceData?.mcp_sandbox?.audit_trail?.map((call, i) => (
+                      <div key={i} style={{ background: 'rgba(255,215,0,0.02)', padding: '8px', borderLeft: call.status === 'success' ? '3px solid #34c759' : '3px solid var(--p5-red)', fontSize: '0.75rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                          <span>Tool: {call.tool}</span>
+                          <span style={{ color: call.status === 'success' ? '#34c759' : 'var(--p5-red)' }}>{call.status.toUpperCase()}</span>
+                        </div>
+                        {call.reason && <div style={{ color: 'var(--p5-red)', fontSize: '0.7rem', marginTop: '2px' }}>{call.reason}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Row 2: Digital Twin Cockpits */}
+              <div className="section-header" style={{ borderBottom: '2px solid var(--p5-white)', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
+                <h3 style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.6rem', textTransform: 'uppercase' }}>Candidate & Recruiter Digital Twins</h3>
+              </div>
+
+              {digitalTwinData ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2.5rem' }}>
+                  
+                  {/* Candidate Digital Twin */}
+                  <div className="glass-panel" style={{ border: '2px solid var(--p5-white)', padding: '2rem', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-14px', left: '20px', background: 'var(--p5-white)', color: '#000', padding: '4px 12px', fontWeight: 'bold', fontSize: '0.85rem', transform: 'rotate(-1deg)' }}>CANDIDATE TWIN COCKPIT</div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid #333', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--p5-yellow)' }}>{digitalTwinData.candidate_twin?.candidate_name}</h4>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Comp Band: <strong style={{ color: '#34c759' }}>{digitalTwinData.candidate_twin?.compensation_band}</strong></span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: '1 1 200px' }}>
+                        <h5 style={{ color: 'var(--p5-white)', fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Job Family Alignments</h5>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {digitalTwinData.candidate_twin?.job_families?.map((jf, idx) => (
+                            <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '6px 10px', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                              <span>{jf.family}</span>
+                              <span style={{ color: 'var(--p5-yellow)', fontWeight: 'bold' }}>{Math.round(jf.confidence * 100)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ flex: '1 1 180px', textAlign: 'center', background: 'rgba(230,0,18,0.03)', border: '1px solid rgba(230,0,18,0.2)', padding: '1rem', borderRadius: '8px' }}>
+                        <h5 style={{ color: 'var(--p5-red)', fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Interview Risk Index</h5>
+                        <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--p5-red)', fontFamily: 'var(--ff-display)', margin: '0.5rem 0' }}>
+                          {Math.round(digitalTwinData.candidate_twin?.interview_risk_score)}%
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Confidence based on bio data anomalies</span>
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #333', paddingTop: '1rem' }}>
+                      <h5 style={{ color: 'var(--p5-white)', fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Personalized Prep Roadmap</h5>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {digitalTwinData.candidate_twin?.study_roadmap?.map((rm, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderLeft: '3px solid var(--p5-yellow)', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                            <div>
+                              <div style={{ fontWeight: 'bold', color: 'var(--p5-white)' }}>{rm.topic}</div>
+                              <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem', marginTop: '2px' }}>Resource: {rm.resource}</div>
+                            </div>
+                            <span style={{ color: 'var(--p5-yellow)', fontWeight: 'bold', fontSize: '0.75rem' }}>⏱ {rm.time_estimate}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recruiter Digital Twin */}
+                  <div className="glass-panel" style={{ border: '2px solid var(--p5-red)', padding: '2rem', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-14px', left: '20px', background: 'var(--p5-red)', color: '#fff', padding: '4px 12px', fontWeight: 'bold', fontSize: '0.85rem', transform: 'rotate(1deg)' }}>RECRUITER TWIN COCKPIT</div>
+
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--p5-white)', borderBottom: '1px solid #333', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+                      Simulated Screening Objections
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
+                      {digitalTwinData.recruiter_twin?.objections_raised?.map((obj, idx) => (
+                        <div key={idx} style={{ background: obj.severity === 'High' ? 'rgba(230,0,18,0.05)' : 'rgba(255,255,255,0.02)', padding: '10px', border: obj.severity === 'High' ? '1px solid var(--p5-red)' : '1px solid #333', borderRadius: '4px', fontSize: '0.8rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                            <span style={{ color: obj.severity === 'High' ? 'var(--p5-red)' : 'var(--p5-yellow)' }}>{obj.type}</span>
+                            <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Severity: {obj.severity}</span>
+                          </div>
+                          <div style={{ marginTop: '4px', color: 'var(--text-secondary)' }}>{obj.detail}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--p5-white)', borderBottom: '1px solid #333', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
+                      Recruiter Eye-Tracking Attention Heatmap
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '160px', overflowY: 'auto', background: '#000', padding: '10px', border: '1px solid #222' }}>
+                      {digitalTwinData.recruiter_twin?.attention_heatmap?.map((item, idx) => (
+                        <div key={idx} style={{ padding: '6px 8px', borderLeft: `4px solid ${item.attention_percentage >= 70 ? '#34c759' : item.attention_percentage >= 40 ? 'var(--p5-yellow)' : 'var(--p5-red)'}`, fontSize: '0.75rem', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#fff' }}>
+                            <span style={{ fontStyle: 'italic', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '75%' }}>"{item.text}"</span>
+                            <span style={{ fontWeight: 'bold', color: item.attention_percentage >= 70 ? '#34c759' : item.attention_percentage >= 40 ? 'var(--p5-yellow)' : 'var(--p5-red)' }}>
+                              {item.attention_percentage}% attention
+                            </span>
+                          </div>
+                          {item.triggers?.length > 0 && (
+                            <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginTop: '2px' }}>
+                              Triggers: {item.triggers.join(', ')}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', color: 'var(--text-dim)', padding: '1.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                  No digital twin simulations loaded. Evaluate a candidate resume first.
+                </div>
+              )}
+
+              {/* Row 3: Governance & Fairness Audit */}
+              <div className="section-header" style={{ borderBottom: '2px solid var(--p5-white)', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
+                <h3 style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.6rem', textTransform: 'uppercase' }}>Governance Plane: Fairness, Calibration & Robustness</h3>
+              </div>
+
+              {fairnessData ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2.5rem' }}>
+                  
+                  {/* Demographic Bias Audit */}
+                  <div className="glass-panel" style={{ border: '2px solid var(--p5-yellow)', padding: '2rem', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-14px', left: '20px', background: 'var(--p5-yellow)', color: '#000', padding: '4px 12px', fontWeight: 'bold', fontSize: '0.85rem', transform: 'rotate(-1deg)' }}>BIAS & PROXY AUDIT REPORT</div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--p5-white)' }}>EEOC Fairness Calibrator</h4>
+                        <p style={{ color: 'var(--text-dim)', fontSize: '0.75rem', margin: '2px 0 0 0' }}>Detects age, gender, and socio-economic proxies</p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: fairnessData.bias_audit?.fairness_index >= 80 ? '#34c759' : 'var(--p5-yellow)' }}>
+                          {Math.round(fairnessData.bias_audit?.fairness_index)}%
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Fairness Index</span>
+                      </div>
+                    </div>
+
+                    <h5 style={{ fontSize: '0.9rem', color: 'var(--p5-yellow)', marginBottom: '0.5rem' }}>Demographic Indicator Leakage Logs</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '1.5rem' }}>
+                      {fairnessData.bias_audit?.leakage_points?.length > 0 ? (
+                        fairnessData.bias_audit.leakage_points.map((leak, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderLeft: '3px solid var(--p5-red)', fontSize: '0.8rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                              <span>{leak.category}</span>
+                              <span style={{ color: 'var(--p5-red)' }}>{leak.severity}</span>
+                            </div>
+                            <div style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.75rem' }}>{leak.detail}</div>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ color: '#34c759', fontSize: '0.8rem', fontWeight: 'bold', background: 'rgba(52,199,89,0.05)', padding: '10px', border: '1px solid #34c759' }}>
+                          ✓ Blind screening compliant. No demographic or geographic proxies leaked.
+                        </div>
+                      )}
+                    </div>
+
+                    <h5 style={{ fontSize: '0.9rem', color: 'var(--p5-white)', borderTop: '1px solid #333', paddingTop: '1rem', marginBottom: '0.5rem' }}>Robustness & Perturbation Verification</h5>
+                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <span>Perturbation Stability Index:</span>
+                        <strong style={{ color: '#34c759' }}>{fairnessData.robustness_audit?.robustness_score}%</strong>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <span>System Verdict:</span>
+                        <strong style={{ color: 'var(--p5-yellow)' }}>{fairnessData.robustness_audit?.system_verdict}</strong>
+                      </div>
+                      {fairnessData.robustness_audit?.flags?.map((flag, idx) => (
+                        <div key={idx} style={{ color: 'var(--p5-red)', fontSize: '0.75rem', marginTop: '6px', borderTop: '1px dashed #444', paddingTop: '6px' }}>
+                          ⚠️ <strong>{flag.hack_type}:</strong> {flag.detail} (Confidence {flag.confidence_impact})
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Counterfactual "What-If" Analysis */}
+                  <div className="glass-panel" style={{ border: '2px solid var(--p5-white)', padding: '2rem', position: 'relative' }}>
+                    <div style={{ position: 'absolute', top: '-14px', left: '20px', background: 'var(--p5-white)', color: '#000', padding: '4px 12px', fontWeight: 'bold', fontSize: '0.85rem', transform: 'rotate(1deg)' }}>CAUSAL IMPROVEMENT SCENARIOS</div>
+                    
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--p5-white)', borderBottom: '1px solid #333', paddingBottom: '0.5rem', marginBottom: '1.25rem' }}>
+                      What-If Causal Impact Simulations
+                    </h4>
+                    
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+                      Simulates candidate score volatility by executing counterfactual adjustments to the resume profile:
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {fairnessData.counterfactual_calibration?.what_if_scenarios?.map((scen, idx) => (
+                        <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderLeft: '3px solid #3b82f6', fontSize: '0.8rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--p5-white)', marginBottom: '4px' }}>
+                            <span>{scen.action}</span>
+                            <span style={{ color: '#34c759' }}>{scen.impacted_score_change}</span>
+                          </div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>{scen.what_if}</div>
+                          <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginTop: '4px', fontStyle: 'italic' }}>
+                            Defensibility: {scen.causal_defensibility}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', color: 'var(--text-dim)', padding: '1.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                  No fairness or what-if reports loaded. Run an analysis scan to generate compliance reports.
+                </div>
+              )}
+
+            </div>
+          )}
         </div>
       )}
 

@@ -23,6 +23,12 @@ from agents.graph import run_analysis
 from agents.improver import improve_resume
 from core.telemetry import TelemetryLogger
 from core.guardrails import scan_prompt_injection
+import hashlib
+from core.digital_twin import CandidateDigitalTwin, RecruiterDigitalTwin
+from core.fairness import BiasAuditor, CounterfactualCalibrator, RobustnessEvaluator
+from core.model_router import ModelGatewayRouter
+from core.event_bus import EventBus
+from core.mcp_sandbox import MCPSandbox
 
 logger = logging.getLogger("psi_api")
 logging.basicConfig(level=logging.INFO)
@@ -592,6 +598,129 @@ def get_metrics_endpoint():
     from fastapi import Response
     from core.metrics import generate_latest, CONTENT_TYPE_LATEST
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/api/digital_twin")
+def get_digital_twin(run_id: str, jd_text: Optional[str] = None):
+    try:
+        conn = get_db_connection()
+        row = conn.execute("SELECT details FROM analysis_runs WHERE id = ?", (run_id,)).fetchone()
+        conn.close()
+        
+        if not row:
+            conn = get_db_connection()
+            row = conn.execute("SELECT details FROM analysis_runs ORDER BY timestamp DESC LIMIT 1").fetchone()
+            conn.close()
+            if not row:
+                raise HTTPException(status_code=404, detail="No analysis run found. Please analyze a resume first.")
+
+        analysis = json.loads(row["details"])
+        resume_parsed = analysis.get("resume_parsed", {})
+        
+        if not jd_text:
+            jd_text = analysis.get("jd_text", "Software Developer Developer Python JavaScript Git")
+            
+        candidate_twin = CandidateDigitalTwin.construct_twin(resume_parsed)
+        recruiter_twin = RecruiterDigitalTwin.simulate_screening(resume_parsed, jd_text)
+        
+        return {
+            "run_id": run_id,
+            "candidate_twin": candidate_twin,
+            "recruiter_twin": recruiter_twin
+        }
+    except Exception as e:
+        logger.exception("Failed to build digital twins")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/fairness_audit")
+def get_fairness_audit(run_id: str):
+    try:
+        conn = get_db_connection()
+        row = conn.execute("SELECT details FROM analysis_runs WHERE id = ?", (run_id,)).fetchone()
+        conn.close()
+        
+        if not row:
+            conn = get_db_connection()
+            row = conn.execute("SELECT details FROM analysis_runs ORDER BY timestamp DESC LIMIT 1").fetchone()
+            conn.close()
+            if not row:
+                raise HTTPException(status_code=404, detail="No analysis run found. Please analyze a resume first.")
+
+        analysis = json.loads(row["details"])
+        resume_text = analysis.get("resume_text", "")
+        if not resume_text:
+            bullets_list = []
+            for exp in analysis.get("resume_parsed", {}).get("experience", []):
+                bullets_list.extend(exp.get("bullets", []))
+            resume_text = "\n".join(bullets_list) or "John Doe Resume Python Developer"
+            
+        skills = analysis.get("resume_parsed", {}).get("skills", [])
+        score = float(analysis.get("match_score", 50.0))
+
+        audit = BiasAuditor.audit_demographics(resume_text)
+        calibration = CounterfactualCalibrator.what_if_analysis(score, skills, resume_text)
+        robustness = RobustnessEvaluator.audit_robustness(resume_text, score)
+
+        return {
+            "run_id": run_id,
+            "bias_audit": audit,
+            "counterfactual_calibration": calibration,
+            "robustness_audit": robustness
+        }
+    except Exception as e:
+        logger.exception("Failed to run fairness audit")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/clearance_metrics")
+def get_clearance_metrics():
+    try:
+        router = ModelGatewayRouter(tenant_tier="enterprise")
+        event_bus = EventBus()
+        mcp_client = MCPSandbox()
+        
+        route1 = router.route_request("graph_rag", 12000)
+        route2 = router.route_request("bias_audit", 2000)
+        route3 = router.route_request("improver", 500)
+        
+        event_bus.subscribe("parse_event", lambda p: logger.info("Parse complete"))
+        event_bus.publish("parse_event", {"resume_id": "test_id"})
+        event_bus.publish("score_event", {"score": 82.5})
+        
+        sig1 = hashlib.sha256("github/list_repos:default_enterprise".encode()).hexdigest()[:16]
+        mcp_client.execute_tool("github/list_repos", {"org": "google"}, sig1)
+        mcp_client.execute_tool("ats/update_candidate_status", {"candidate_id": "c1", "status": "; rm -rf /"}, "invalidsig")
+
+        return {
+            "model_routing": {
+                "tenant_tier": router.tenant_tier,
+                "current_session_cost_usd": router.spent_usd,
+                "budget_cap_usd": router.max_budget_usd,
+                "history": [
+                    {"task": "GraphRAG Node Retrieval", "model": route1["model_name"], "cost": route1["estimated_cost_usd"], "truncated": route1["context_truncated"]},
+                    {"task": "Bias Demographic Audit", "model": route2["model_name"], "cost": route2["estimated_cost_usd"], "truncated": route2["context_truncated"]},
+                    {"task": "STAR Bullet Improvement", "model": route3["model_name"], "cost": route3["estimated_cost_usd"], "truncated": route3["context_truncated"]}
+                ]
+            },
+            "event_bus": {
+                "events_processed": len(event_bus.get_audit_trail()),
+                "audit_trail": [
+                    {"event_id": ev["event_id"], "event_type": ev["event_type"], "status": ev["status"], "retries": ev["retry_count"]} 
+                    for ev in event_bus.get_audit_trail()
+                ]
+            },
+            "mcp_sandbox": {
+                "allowlisted_tools": list(MCPSandbox.ALLOWLIST_TOOLS),
+                "audit_trail": [
+                    {"tool": call["tool_name"], "status": call["status"], "reason": call["reason"], "timestamp": call["timestamp"]}
+                    for call in mcp_client.get_audit_trail()
+                ]
+            }
+        }
+    except Exception as e:
+        logger.exception("Failed to retrieve clearance metrics")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # --- Serve React App static files ---

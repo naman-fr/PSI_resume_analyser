@@ -54,6 +54,44 @@ except Exception as e:
     PIPELINE_ERROR = e
 
 
+def ensure_api_keys():
+    """Verify that at least one LLM API key is present; prompt the user to input them if missing."""
+    import os
+    from dotenv import set_key
+    
+    groq_key = os.environ.get("GROQ_API_KEY")
+    google_key = os.environ.get("GOOGLE_API_KEY")
+    
+    if not groq_key and not google_key:
+        console.print("\n[bold yellow]⚠️ No LLM API credentials detected![/bold yellow]")
+        console.print("To run cognitive agent analyses, you need an API key from Groq or Google Gemini.")
+        console.print(" - Get a Groq API Key: [cyan]https://console.groq.com/[/cyan]")
+        console.print(" - Get a Google API Key: [cyan]https://aistudio.google.com/[/cyan]\n")
+        
+        g_key = click.prompt("Enter your GROQ_API_KEY (optional, press Enter to skip)", default="", show_default=False).strip()
+        gem_key = click.prompt("Enter your GOOGLE_API_KEY (optional, press Enter to skip)", default="", show_default=False).strip()
+        
+        env_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), ".env")
+        
+        if g_key:
+            os.environ["GROQ_API_KEY"] = g_key
+            try:
+                set_key(env_path, "GROQ_API_KEY", g_key)
+                console.print("[green]✔ GROQ_API_KEY set and saved to .env[/green]")
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not save GROQ_API_KEY to .env: {e}[/yellow]")
+        if gem_key:
+            os.environ["GOOGLE_API_KEY"] = gem_key
+            try:
+                set_key(env_path, "GOOGLE_API_KEY", gem_key)
+                console.print("[green]✔ GOOGLE_API_KEY set and saved to .env[/green]")
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not save GOOGLE_API_KEY to .env: {e}[/yellow]")
+            
+        if not g_key and not gem_key:
+            console.print("[yellow]Warning: No keys entered. Running in Mock Simulation mode.[/yellow]\n")
+
+
 def read_text_or_pdf(file_path: str) -> str:
     """Read document text either from a PDF or plain text file."""
     if not os.path.exists(file_path):
@@ -84,6 +122,7 @@ def cli():
 @click.option("--save-report", type=click.Path(), help="Path to save the generated analysis report")
 def analyze(resume_file, jd, jd_file, premium, output, save_report):
     """Run full LangGraph multi-agent scan on a PDF/text resume against a JD."""
+    ensure_api_keys()
     if not PIPELINE_LOADED:
         console.print(Panel(f"[bold red]Error:[/] Core pipeline modules could not be imported.\nDetail: {PIPELINE_ERROR}", title="Pipeline Load Failure"))
         sys.exit(1)
@@ -212,6 +251,7 @@ def analyze(resume_file, jd, jd_file, premium, output, save_report):
 @click.option("--bullets", help="Comma-separated bullet points to improve directly")
 def improve(resume_text, resume_file, bullets):
     """Optimize resume bullet points using the STAR framework."""
+    ensure_api_keys()
     if not PIPELINE_LOADED:
         console.print(f"[bold red]Error:[/] Pipeline modules failed: {PIPELINE_ERROR}")
         sys.exit(1)
@@ -290,6 +330,7 @@ def improve(resume_text, resume_file, bullets):
 @click.option("--limit", default=10, help="Maximum job listings to retrieve")
 def jobs(resume_file, remote_only, location, limit):
     """Generate search queries and fetch matching jobs for a resume."""
+    ensure_api_keys()
     if not PIPELINE_LOADED:
         console.print(f"[bold red]Error:[/] Pipeline modules failed: {PIPELINE_ERROR}")
         sys.exit(1)
@@ -399,6 +440,7 @@ def stress_test(payload):
 @click.option("--jd-file", type=click.Path(exists=True), help="Path to text file containing job description")
 def batch(files_pattern, jd, jd_file):
     """Batch-analyze multiple resumes against a job description."""
+    ensure_api_keys()
     if not PIPELINE_LOADED:
         console.print(f"[bold red]Error:[/] Pipeline modules failed: {PIPELINE_ERROR}")
         sys.exit(1)
