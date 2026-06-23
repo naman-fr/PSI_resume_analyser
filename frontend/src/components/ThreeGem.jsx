@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import maskGlb from './3d_models/3d_mask.glb';
+import maskGlb from './3d_models/3d_mask.glb?url';
 
 export default function ThreeGem() {
   const mountRef = useRef(null);
@@ -29,12 +29,28 @@ export default function ThreeGem() {
       
       const box = new THREE.Box3().setFromObject(loadedModel);
       const center = box.getCenter(new THREE.Vector3());
-      loadedModel.position.sub(center);
+      
+      // Center the model correctly inside its wrapper
+      loadedModel.position.set(-center.x, -center.y, -center.z);
       
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       const scale = 2.6 / maxDim;
       loadedModel.scale.setScalar(scale);
+
+      // Apply the original red aesthetic material to ensure it renders properly
+      // GLTF models without environment maps often look pitch black if they have high metalness.
+      loadedModel.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshStandardMaterial({
+            color: 0x2a0008, 
+            emissive: 0x5a0010, 
+            metalness: 0.3, 
+            roughness: 0.35,
+            flatShading: true
+          });
+        }
+      });
 
       const wrapper = new THREE.Group();
       wrapper.add(loadedModel);
