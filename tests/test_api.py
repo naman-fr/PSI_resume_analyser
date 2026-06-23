@@ -58,3 +58,26 @@ def test_sample_jds_endpoint():
         assert "friendly_name" in data[0]
         assert "text" in data[0]
 
+def test_digital_twin_endpoint():
+    response = client.get("/api/digital_twin?run_id=latest")
+    assert response.status_code == 200
+    data = response.json()
+    assert "candidate_twin" in data
+    assert "recruiter_twin" in data
+
+def test_fairness_audit_endpoint():
+    response = client.get("/api/fairness_audit?run_id=latest")
+    assert response.status_code == 200
+    data = response.json()
+    assert "bias_audit" in data
+    assert "counterfactual_calibration" in data
+    assert "robustness_audit" in data
+
+def test_clearance_metrics_endpoint():
+    response = client.get("/api/clearance_metrics")
+    assert response.status_code == 200
+    data = response.json()
+    assert "model_routing" in data
+    assert "event_bus" in data
+    assert "mcp_sandbox" in data
+
