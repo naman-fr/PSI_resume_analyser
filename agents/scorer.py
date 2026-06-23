@@ -12,8 +12,6 @@ from typing import Any, Dict, List, Optional
 
 from agents import resume_parser
 from agents.state import ResumeJDState
-from config.prompts import SCORER_PROMPT
-from config.settings import settings
 from core.similarity import compute_keyword_overlap, compute_semantic_score
 
 logger = logging.getLogger(__name__)

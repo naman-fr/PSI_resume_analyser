@@ -4,7 +4,6 @@ import logging
 import time
 from typing import Dict, Any, List
 
-from core.similarity import compute_keyword_overlap
 
 logger = logging.getLogger(__name__)
 

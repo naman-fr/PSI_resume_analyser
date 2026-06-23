@@ -13,7 +13,6 @@ from typing import Any, Dict, Tuple
 from langchain_core.language_models.chat_models import BaseChatModel
 
 from agents.state import ResumeJDState
-from config.prompts import RESUME_PARSER_PROMPT
 
 logger = logging.getLogger(__name__)
 

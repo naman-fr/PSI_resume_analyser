@@ -2,7 +2,6 @@
 
 import json
 import logging
-from typing import Dict, List, Any
 
 from config.prompts import PROMPTS
 from agents.resume_parser import get_llm, _extract_json

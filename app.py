@@ -12,13 +12,12 @@ import logging
 import os
 import sys
 import subprocess
-import traceback
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 # Programmatic fallback installation of requirements on HuggingFace Spaces
 try:
-    import pdfplumber
+    import pdfplumber  # noqa: F401
 except ImportError:
     print("pdfplumber not found. Running programmatic installation of requirements.txt...", flush=True)
     try:
@@ -1332,14 +1331,14 @@ def get_improvements(
                 rationale = item.get("rationale", "")
                 kw_str = ", ".join(keywords) if keywords else ""
                 bullet_parts.append(
-                    f'<div class="improvement-item">'
+                    '<div class="improvement-item">'
                     + (f'  <p style="color:#94a3b8;font-size:0.82rem;margin-bottom:4px">Original:</p>'
                        f"  <p style=\"margin-bottom:8px\">{original}</p>" if original else "")
                     + f'  <p style="color:#34d399;font-size:0.82rem;margin-bottom:4px">✨ Optimized:</p>'
                     f"  <p><strong>{improved}</strong></p>"
                     + (f'  <p style="font-size:0.78rem;color:#fbbf24;margin-top:6px">Keywords added: {kw_str}</p>' if kw_str else "")
                     + (f'  <p style="font-size:0.78rem;color:#94a3b8;margin-top:4px;font-style:italic">💡 {rationale}</p>' if rationale else "")
-                    + f"</div>"
+                    + "</div>"
                 )
             else:
                 bullet_parts.append(f'<div class="improvement-item">• {item}</div>')
@@ -1620,7 +1619,7 @@ def parse_and_autofill_pdf(pdf_file: Any) -> Tuple[Any, ...]:
             *edu_outputs,
             certs_str,
             *proj_outputs,
-            None, f"✅ Successfully parsed and loaded details from PDF!"
+            None, "✅ Successfully parsed and loaded details from PDF!"
         )
         
     except Exception as e:
@@ -1707,7 +1706,7 @@ def build_resume_pdf(
             certifications=certifications or "", projects=projects,
         )
         if file_path:
-            return file_path, f"✅ Resume PDF generated successfully! Click the download link above."
+            return file_path, "✅ Resume PDF generated successfully! Click the download link above."
         else:
             return None, "⚠️ Failed to generate PDF. Please check your inputs."
     except Exception as exc:
@@ -1774,7 +1773,7 @@ def search_and_match_jobs(
         
         # Decide location
         location = location_filter.strip() if location_filter and location_filter.strip() else queries_dict.get("target_location", "Remote")
-    except Exception as exc:
+    except Exception:
         logger.exception("Search query generation failed")
         search_terms = ["Software Engineer"]
         location = "Remote"
@@ -1918,7 +1917,7 @@ def run_gan_audit(
         if disqualified:
             term_logs.append(f"[ALERT] Candidate auto-disqualified: {discriminator_res.get('disqualification_reason')}")
             
-        term_logs.append(f"[DISCRIMINATOR] Running Red Flag compliance checks...")
+        term_logs.append("[DISCRIMINATOR] Running Red Flag compliance checks...")
         for rf in red_flags:
             term_logs.append(f"  [FLAGGED] {rf['flag']} -> Penalty: {rf['penalty']} | Evidence: {rf['evidence']}")
             
@@ -2090,7 +2089,7 @@ def run_gan_audit(
                         f'  </table>'
                         if factor_html else ""
                     )
-                    + f'</div>'
+                    + '</div>'
                 )
     except Exception as exc:
         bias_html = f'<p style="color:#ef4444">Bias Audit failed: {exc}</p>'
@@ -2274,7 +2273,7 @@ def get_observability_metrics() -> Tuple[str, str, str, str, str, str, str]:
             </thead>
             <tbody>
     """
-    safety_html += f"""
+    safety_html += """
     <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
         <td style="padding: 10px; color: #94a3b8;">[CONFIG]</td>
         <td style="padding: 10px; color: #ffd93d; font-weight: bold;">PII REDACTOR</td>
@@ -2896,7 +2895,7 @@ def create_app() -> gr.Blocks:
                         )
 
                         # Mini-game container
-                        game_html = gr.HTML(
+                        gr.HTML(
                             value=get_game_html(),
                             elem_id="gan-game-wrapper"
                         )

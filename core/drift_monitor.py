@@ -4,7 +4,7 @@ import os
 import json
 import logging
 import math
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -130,11 +130,16 @@ class DriftMonitor:
         score_bins = {"0-20": 0, "21-40": 0, "41-60": 0, "61-80": 0, "81-100": 0}
         for run in recent_runs:
             s = run["composite_score"]
-            if s <= 20: score_bins["0-20"] += 1
-            elif s <= 40: score_bins["21-40"] += 1
-            elif s <= 60: score_bins["41-60"] += 1
-            elif s <= 80: score_bins["61-80"] += 1
-            else: score_bins["81-100"] += 1
+            if s <= 20:
+                score_bins["0-20"] += 1
+            elif s <= 40:
+                score_bins["21-40"] += 1
+            elif s <= 60:
+                score_bins["41-60"] += 1
+            elif s <= 80:
+                score_bins["61-80"] += 1
+            else:
+                score_bins["81-100"] += 1
         
         actual_score_pct = {k: v / num_recent for k, v in score_bins.items()}
         expected_score_pct = baseline["composite_score"]["bins"]

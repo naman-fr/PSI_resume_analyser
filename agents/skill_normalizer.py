@@ -7,12 +7,10 @@ forms using a taxonomy-first approach with LLM fallback.
 
 import json
 import logging
-import re
 from typing import Any, Dict, List
 
 from agents import resume_parser
 from agents.state import ResumeJDState
-from config.prompts import SKILL_NORMALIZER_PROMPT
 from core.skill_taxonomy import SkillTaxonomy
 
 logger = logging.getLogger(__name__)

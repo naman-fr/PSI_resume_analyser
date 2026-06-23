@@ -1,7 +1,5 @@
 """Tests for the Enterprise AI Suite (Guardrails, Telemetry, Memory, Evaluator)."""
 
-import os
-import pytest
 from core.guardrails import scan_prompt_injection, mask_pii
 from core.telemetry import TelemetryLogger
 from core.memory import MemoryManager

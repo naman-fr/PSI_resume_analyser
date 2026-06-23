@@ -6,7 +6,7 @@ Every agent node reads from and writes to this single TypedDict.  Fields use
 updates — LangGraph merges partial dicts automatically.
 """
 
-from typing import Any, Optional, TypedDict
+from typing import Optional, TypedDict
 
 
 class ResumeJDState(TypedDict, total=False):

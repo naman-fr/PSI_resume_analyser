@@ -10,11 +10,10 @@ Simulates a Generative Adversarial Network (GAN) setup:
 """
 
 import logging
-import math
 import re
 import statistics
-from typing import Any, Dict, List, Tuple
-from agents.resume_parser import get_llm, _extract_json
+from typing import Any, Dict
+from agents.resume_parser import get_llm
 from agents.state import ResumeJDState
 from agents.scorer import score_match
 
@@ -257,7 +256,6 @@ def run_demographic_bias_audit(
     the final match score, because skills, experience, and education are identical.
     """
     scores = []
-    component_breakdowns = []
     audit_log = []
     
     # Track per-factor scores for detailed bias analysis

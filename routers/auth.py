@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel, EmailStr
 from core.mongo_db import get_db
+import stripe
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -90,7 +91,6 @@ def login_user(user: UserLogin):
     access_token = create_access_token(data={"sub": db_user["user_id"]})
     return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": db_user["user_id"], "username": db_user["username"], "email": db_user["email"], "is_premium": db_user.get("is_premium", False)}}
 
-import stripe
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
 
@@ -121,7 +121,7 @@ def upgrade_premium(payment: PaymentPayload, user_id: str = Depends(get_current_
         else:
             # In a real scenario using Elements, we'd receive a PaymentMethod ID, not raw cards.
             # Here we mock the server-side integration structure:
-            intent = stripe.PaymentIntent.create(
+            stripe.PaymentIntent.create(
                 amount=4900, # $49.00
                 currency="usd",
                 payment_method_types=["card"],
@@ -131,7 +131,7 @@ def upgrade_premium(payment: PaymentPayload, user_id: str = Depends(get_current_
             # we just ensure the Stripe SDK initializes and runs without crashing.
     except stripe.error.StripeError as e:
         raise HTTPException(status_code=400, detail=f"Stripe Payment Error: {str(e)}")
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal Payment Processing Error")
         
     db.users.update_one({"user_id": user_id}, {"$set": {"is_premium": True}})

@@ -1,8 +1,7 @@
 """Tests for job matcher, score boosting, and Star Match categorization."""
 
-import pytest
 from core.job_search import JobListing
-from core.job_matcher import score_jobs, ScoredJob
+from core.job_matcher import score_jobs
 
 def test_score_jobs_boosting_and_star_match():
     # Mock jobs

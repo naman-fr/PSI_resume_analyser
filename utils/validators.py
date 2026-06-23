@@ -3,7 +3,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 # Maximum allowed PDF file size: 10 MB.
 MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024

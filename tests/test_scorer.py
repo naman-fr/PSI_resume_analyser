@@ -216,7 +216,7 @@ class TestOverallScoreCalculation:
     def test_mixed_scores(self):
         """Verify a specific mixed-score scenario."""
         # keyword=80, semantic=60, experience=70, education=90
-        expected = 0.40 * 80 + 0.25 * 60 + 0.25 * 70 + 0.10 * 90
+        0.40 * 80 + 0.25 * 60 + 0.25 * 70 + 0.10 * 90
         # = 32 + 15 + 17.5 + 9 = 73.5
         score = self._compute_overall(80, 60, 70, 90)
         assert math.isclose(score, 73.5)

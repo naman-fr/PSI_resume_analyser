@@ -4,14 +4,11 @@ Job-description extractor agent node.
 Extracts structured requirements from raw job-description text using an LLM.
 """
 
-import json
 import logging
-import re
 from typing import Any, Dict
 
 from agents import resume_parser
 from agents.state import ResumeJDState
-from config.prompts import JD_EXTRACTOR_PROMPT
 
 logger = logging.getLogger(__name__)
 

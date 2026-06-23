@@ -1,17 +1,14 @@
 import os
-import io
-import sys
 import uuid
 import time
 import shutil
 import logging
-import sqlite3
 import json
 import re
 from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
+from typing import Optional
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -20,10 +17,7 @@ from pydantic import BaseModel
 from config.settings import settings
 from core.pdf_parser import extract_text_from_pdf
 from core.job_search import search_jobs
-from core.job_matcher import score_jobs
-from core.job_query_generator import generate_search_queries
 from core.db import get_db_connection, set_cache, get_cache, init_db
-from core.mongo_db import get_db
 from routers import auth
 from agents.graph import run_analysis
 from agents.improver import improve_resume

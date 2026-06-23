@@ -8,8 +8,7 @@ data. Uses fpdf2 for PDF generation with a clean, modern ATS-friendly layout.
 import logging
 import os
 import tempfile
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from fpdf import FPDF
 
@@ -380,6 +379,6 @@ def generate_resume_pdf(
         logger.info("Resume PDF generated: %s", output_path)
         return output_path
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Failed to generate resume PDF.")
         return None

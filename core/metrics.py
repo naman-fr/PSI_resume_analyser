@@ -1,8 +1,6 @@
 """Prometheus Instrumentation and Telemetry Metrics for PSI Resume Analyser."""
 
 import logging
-import time
-from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +76,8 @@ else:
     PSI_ACTIVE_USERS = DummyMetric()
     PSI_PREMIUM_CONVERSIONS = DummyMetric()
     PSI_DRIFT_SCORE = DummyMetric()
-    generate_latest = lambda: b"# prometheus_client not installed, metrics disabled"
+    def generate_latest():
+        return b"# prometheus_client not installed, metrics disabled"
     CONTENT_TYPE_LATEST = "text/plain; version=0.0.4; charset=utf-8"
 
 

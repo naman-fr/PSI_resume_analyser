@@ -3,7 +3,7 @@
 import logging
 import json
 import time
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def evaluate_consistency_index(resume_text: str, link_verification: dict, parsed
     partially_verified = []
     unsupported = []
     
-    trust_score = link_verification.get("trust_score", 50)
+    link_verification.get("trust_score", 50)
     urls = link_verification.get("checked_urls", {})
     
     # Simple logic to simulate claim verification
@@ -59,7 +59,6 @@ def evaluate_consistency_index(resume_text: str, link_verification: dict, parsed
         claims.append(f"Worked at: {parsed_data['experience'][0].get('company', 'Unknown')}")
         
     has_github = False
-    has_linkedin = False
     
     for url, data in urls.items():
         if data.get("type") == "github" and data.get("valid"):
@@ -70,7 +69,6 @@ def evaluate_consistency_index(resume_text: str, link_verification: dict, parsed
             else:
                 partially_verified.append(f"⚠ GitHub profile ({url}) exists but lacks public repository evidence.")
         elif data.get("type") == "linkedin" and data.get("valid"):
-            has_linkedin = True
             partially_verified.append(f"⚠ LinkedIn profile ({url}) is active but automated scraping is restricted.")
         elif data.get("valid"):
             verified.append(f"✓ Portfolio ({url}) is live and reachable.")

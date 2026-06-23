@@ -8,10 +8,10 @@ import os
 import sys
 import glob
 import json
-import time
+import logging
 import click
-from datetime import datetime
-from typing import List, Optional, Dict, Any
+
+logger = logging.getLogger("psi_cli")
 
 # Ensure current directory is in Python path
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -24,7 +24,7 @@ try:
     from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
     from rich.markdown import Markdown
     from rich import box
-    from rich.syntax import Syntax
+    from rich.syntax import Syntax  # noqa: F401
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -40,7 +40,6 @@ console = Console()
 
 # Core pipeline imports
 try:
-    from config.settings import settings
     from core.pdf_parser import extract_text_from_pdf
     from core.job_search import search_jobs
     from core.job_matcher import score_jobs
@@ -50,7 +49,6 @@ try:
     from core.telemetry import TelemetryLogger
     from core.guardrails import scan_prompt_injection
     from core.drift_monitor import DriftMonitor
-    from config.prompt_registry import PromptRegistry
     PIPELINE_LOADED = True
 except Exception as e:
     PIPELINE_LOADED = False

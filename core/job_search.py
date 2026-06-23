@@ -351,10 +351,8 @@ def search_jobs(
         logger.info("Searching job boards for query: '%s'", q)
         
         # 1. JSearch (RapidAPI) - Preferred if API Key configured
-        has_jsearch = False
         api_key = os.getenv("RAPIDAPI_KEY", "")
         if api_key and "your_rapidapi" not in api_key:
-            has_jsearch = True
             try:
                 jsearch_jobs = _search_jsearch(q, location=location, remote_only=remote_only)
                 all_jobs.extend(jsearch_jobs)
