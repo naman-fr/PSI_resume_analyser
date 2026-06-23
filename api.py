@@ -4,7 +4,6 @@ import time
 import shutil
 import logging
 import json
-import re
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -52,6 +51,8 @@ allow_origins = [
     "https://psi-resume-analyser-cnvdunk2d-namans-projects-aff4c7c8.vercel.app"
 ]
 allow_origins.extend(_allowed_origins)
+# Remove '*' to prevent Starlette AssertionError with allow_credentials=True
+allow_origins = [o for o in allow_origins if o != "*"]
 
 app.add_middleware(
     CORSMiddleware,
