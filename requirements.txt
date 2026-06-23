@@ -37,3 +37,9 @@ passlib==1.7.4
 bcrypt==4.1.2
 PyJWT==2.8.0
 stripe>=8.0.0
+
+# CLI & MLOps
+click>=8.0.0
+rich>=13.0.0
+chromadb>=0.4.0
+prometheus-client>=0.17.0

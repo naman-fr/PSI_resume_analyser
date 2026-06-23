@@ -296,9 +296,53 @@ async def analyze_endpoint(
             except Exception as e:
                 logger.error(f"Failed to save to MongoDB memory: {e}")
         
+        # Record Drift and Telemetry Metrics
+        try:
+            from core.drift_monitor import DriftMonitor
+            from core.metrics import record_analysis_metrics
+            
+            skills_analysis = analysis_result.get("skills_analysis", {})
+            if isinstance(skills_analysis, dict):
+                skill_count = len(skills_analysis.get("matched_skills", [])) + len(skills_analysis.get("missing_skills", []))
+            else:
+                skill_count = 0
+            
+            score = float(analysis_result.get("match_score", 0.0))
+            
+            # Record run for statistical drift
+            DriftMonitor.record_run(
+                resume_text=resume_text,
+                jd_text=jd_text,
+                skill_count=skill_count,
+                composite_score=score
+            )
+            
+            # Record Prometheus metrics
+            duration = time.time() - start_time
+            record_analysis_metrics(
+                status="success",
+                duration=duration,
+                tokens_in=0,
+                tokens_out=0,
+                is_premium=premium_mode
+            )
+        except Exception as m_err:
+            logger.warning(f"Failed to record run metrics in API: {m_err}")
+        
         return analysis_result
         
     except Exception as ex:
+        # Record failed analysis run metrics
+        try:
+            from core.metrics import record_analysis_metrics
+            duration = time.time() - start_time
+            record_analysis_metrics(
+                status="error",
+                duration=duration,
+                is_premium=premium_mode
+            )
+        except Exception:
+            pass
         logger.exception("API analysis failed")
         raise HTTPException(status_code=500, detail=str(ex))
     finally:
@@ -479,6 +523,13 @@ def stress_test_endpoint(req: StressTestRequest):
     except Exception as e:
         logger.exception("Stress test failed")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/metrics")
+def get_metrics_endpoint():
+    from fastapi import Response
+    from core.metrics import generate_latest, CONTENT_TYPE_LATEST
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 # --- Serve React App static files ---
