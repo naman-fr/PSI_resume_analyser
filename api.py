@@ -43,31 +43,20 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 
 # Enable CORS – read allowed origins from environment variable
 # Default to "*" for local development; set ALLOWED_ORIGINS in production
-_allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS", "*")
+_allowed_origins_raw = os.environ.get("ALLOWED_ORIGINS", "")
 _allowed_origins = [o.strip() for o in _allowed_origins_raw.split(",") if o.strip()]
 
-allow_origins = []
-allow_origin_regex = None
-
-regex_patterns = []
-for origin in _allowed_origins:
-    if origin == "*":
-        allow_origins = ["*"]
-        break
-    elif "*" in origin:
-        # Convert wildcard domain to regex pattern
-        pattern = re.escape(origin).replace(r"\*", r"[^/]*")
-        regex_patterns.append(f"^{pattern}$")
-    else:
-        allow_origins.append(origin)
-
-if regex_patterns:
-    allow_origin_regex = "|".join(regex_patterns)
+allow_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://psi-resume-analyser-cnvdunk2d-namans-projects-aff4c7c8.vercel.app"
+]
+allow_origins.extend(_allowed_origins)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
-    allow_origin_regex=allow_origin_regex,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
