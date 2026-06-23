@@ -5,6 +5,7 @@ import P5Button from './P5Button';
 import { useAuth } from '../AuthContext';
 
 import backgroundLogin from './Scenes/background_login.gif';
+import loadingGif from './Scenes/loading_gif.gif';
 
 export default function AuthScreen() {
   const { login } = useAuth();
@@ -122,7 +123,7 @@ export default function AuthScreen() {
                 <P5Button type="submit" disabled={loading} style={{ width: '100%' }}>
                   {loading ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                      <img src="https://media.tenor.com/FwB8a_7D9hQAAAAi/persona-5-take-your-time.gif" alt="loading" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
+                      <img src={loadingGif} alt="loading" style={{ height: '30px', filter: 'brightness(0) invert(1)' }} />
                       AUTHENTICATING...
                     </div>
                   ) : (isRegister ? 'INITIALIZE CONNECTION' : 'INFILTRATE')}
