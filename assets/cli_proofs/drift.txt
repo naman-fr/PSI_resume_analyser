@@ -1,0 +1,8 @@
+
+
++-------------------- Statistical Data Drift Audit Report --------------------+
+| Overall System Status: Insufficient Data                                    |
+| Population Stability Index (PSI): 0.0                                       |
+| Analyses in Window: 0                                                       |
++------------------- Baseline comparison vs recent 50 runs -------------------+
+Need at least 5 runs to calculate drift. Current run count: 0

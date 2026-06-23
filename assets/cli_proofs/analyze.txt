@@ -1,0 +1,34 @@
+
+
+
++------------------------ Analysis Report for cli.py -------------------------+
+| Candidate Name: N/A                                                         |
+| Email: N/A                                                                  |
+| Score: 53.3%                                                                |
+| Keyword Overlap: 0.0%                                                       |
+| Semantic Alignment: 43.5%                                                   |
++----------------------- PHANTOM COGNITIVE ATS ENGINE ------------------------+
++-------------------------- Strengths & Alignments ---------------------------+
+|   - Green Flag: Skill-JD Mirroring (Excellent integration of skills within  |
+| project descriptions (100.0% validation rate).)                             |
++-----------------------------------------------------------------------------+
++---------------------------- Gap Analysis & Gaps ----------------------------+
+| Identified Gaps:                                                            |
+|   - Red Flag: Vague Career Achievement Bullets (Low occurrence of metrics,  |
+| context, or results in experience descriptions (0.0% quality).)             |
++-----------------------------------------------------------------------------+
++------------- ATS-Optimized Bullet Suggestions (STAR Framework) -------------+
+| - Spearheaded Python FastAPI backend API development, scaling throughput by |
+| 40% and reducing server response latency by 200ms.                          |
+|   - Architected high-performance PostgreSQL database schemas, optimizing    |
+| complex queries to improve search speeds by 35%.                            |
+|   - Orchestrated Docker containerization for 12+ microservices, unifying    |
+| development environments and cutting deployment times by 50%.               |
++-----------------------------------------------------------------------------+
+
+
+--- STDERR ---
+Hugging Face Inference API failed: <urlopen error [Errno 11001] getaddrinfo failed>. Falling back.
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 103/103 [00:00<00:00, 9365.94it/s]

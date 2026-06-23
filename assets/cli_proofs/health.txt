@@ -1,0 +1,38 @@
+
+PSI Resume Analyser: Diagnostic System Health Checks
+
+               API Credentials Status                
++---------------------------------------------------+
+| Credential Name     |           Status            |
+|---------------------+-----------------------------|
+| GROQ_API_KEY        | MISSING (FALLBACKS ENABLED) |
+| GOOGLE_API_KEY      | MISSING (FALLBACKS ENABLED) |
+| HF_TOKEN            | MISSING (FALLBACKS ENABLED) |
+| HUGGINGFACE_API_KEY | MISSING (FALLBACKS ENABLED) |
++---------------------------------------------------+
+           Library Dependencies Health            
++------------------------------------------------+
+| Library Name                          | Status |
+|---------------------------------------+--------|
+| Click (CLI Builder)                   |   OK   |
+| Rich (Terminal UI)                    |   OK   |
+| ChromaDB (Vector Store cache)         |   OK   |
+| Prometheus Client (Instrumentation)   |   OK   |
+| FastAPI (REST Endpoints)              |   OK   |
+| LangGraph (Agent Graph Router)        |   OK   |
+| PDFPlumber (Resume parsing extractor) |   OK   |
+| Email Validator (Auth schema)         |   OK   |
++------------------------------------------------+
+                        Databases Connection Status                         
++--------------------------------------------------------------------------+
+| Database Server                     |         Connection Status          |
+|-------------------------------------+------------------------------------|
+| SQLite (Local Cache & Telemetry DB) |             CONNECTED              |
+| MongoDB User Memory Store           | SKIPPED (URI NOT SET / LOCAL MODE) |
++--------------------------------------------------------------------------+
+Diagnostics Completed.
+
+
+
+--- STDERR ---
+MONGODB_URI not found in environment variables. Auth and memory will be disabled.

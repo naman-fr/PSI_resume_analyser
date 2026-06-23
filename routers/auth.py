@@ -88,8 +88,13 @@ def login_user(user: UserLogin):
     if not db_user or not verify_password(user.password, db_user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
+    is_premium = db_user.get("is_premium", False)
+    admin_mail = os.environ.get("ADMIN_MAIL")
+    if admin_mail and db_user["email"].lower() == admin_mail.lower():
+        is_premium = True
+        
     access_token = create_access_token(data={"sub": db_user["user_id"]})
-    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": db_user["user_id"], "username": db_user["username"], "email": db_user["email"], "is_premium": db_user.get("is_premium", False)}}
+    return {"access_token": access_token, "token_type": "bearer", "user": {"user_id": db_user["user_id"], "username": db_user["username"], "email": db_user["email"], "is_premium": is_premium}}
 
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_placeholder")
@@ -150,6 +155,9 @@ def read_users_me(user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
         
     user_doc["is_premium"] = user_doc.get("is_premium", False)
+    admin_mail = os.environ.get("ADMIN_MAIL")
+    if admin_mail and user_doc.get("email", "").lower() == admin_mail.lower():
+        user_doc["is_premium"] = True
     return user_doc
 
 class ChangePasswordPayload(BaseModel):
@@ -170,3 +178,23 @@ def change_password(payload: ChangePasswordPayload, user_id: str = Depends(get_c
     db.users.update_one({"user_id": user_id}, {"$set": {"hashed_password": new_hash}})
     
     return {"status": "success", "message": "Password changed successfully"}
+
+
+class AdminBypassPayload(BaseModel):
+    email: EmailStr
+
+@router.post("/admin_bypass")
+def admin_bypass(payload: AdminBypassPayload):
+    email = payload.email
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+        
+    admin_mail = os.environ.get("ADMIN_MAIL")
+    if not admin_mail or email.lower() != admin_mail.lower():
+        raise HTTPException(status_code=401, detail="Unauthorized: Not the admin email")
+        
+    db = get_db()
+    if db is not None:
+        db.users.update_one({"email": email}, {"$set": {"is_premium": True}})
+        
+    return {"status": "success", "is_premium": True}

@@ -79,6 +79,9 @@ export default function App() {
   const [improveLoading, setImproveLoading] = useState(false);
   const [improvedBullets, setImprovedBullets] = useState(null);
 
+  const [showJokerModal, setShowJokerModal] = useState(false);
+  const [showCliGuide, setShowCliGuide] = useState(false);
+
   // Job Search State
   const [jobQuery, setJobQuery] = useState('Software Engineer');
   const [jobLocation, setJobLocation] = useState('Remote');
@@ -255,6 +258,35 @@ export default function App() {
       console.error('Bullet improvement failed:', err);
     } finally {
       setImproveLoading(false);
+    }
+  };
+
+  const handleAdminBypass = async () => {
+    const emailPrompt = prompt("Enter Administrator Email to authorize:");
+    if (!emailPrompt) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/api/auth/admin_bypass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailPrompt })
+      });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        alert("Admin Access Granted! VIP Clearance Activated.");
+        setPremiumMode(true);
+        setShowCheckout(false);
+      } else {
+        alert(data.detail || "Verification failed. Check ADMIN_MAIL environment variable.");
+      }
+    } catch (err) {
+      alert("Error contacting auth server.");
+    }
+  };
+
+  const handleMorganaClick = () => {
+    if (activeTab === 'home') {
+      setShowJokerModal(true);
     }
   };
 
@@ -1688,12 +1720,28 @@ export default function App() {
                   marginTop: '1rem', 
                   background: 'var(--p5-red)', color: 'var(--p5-white)', border: '2px solid #000', 
                   padding: '1rem', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer',
-                  transform: 'rotate(2deg)', transition: 'all 0.2s'
+                  transform: 'rotate(2deg)', transition: 'all 0.2s', width: '100%'
                 }}
               >
                 {checkoutLoading ? 'AUTHORIZING...' : 'UPGRADE CLEARANCE'}
               </button>
             </form>
+            <div style={{ marginTop: '1.5rem', borderTop: '2px dashed var(--p5-red)', paddingTop: '1.5rem', textAlign: 'center' }}>
+              <p style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-mono)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                ADMINISTRATOR PROTOCOL
+              </p>
+              <button
+                type="button"
+                onClick={handleAdminBypass}
+                style={{
+                  background: 'var(--p5-yellow)', color: '#000', border: '2px solid #000',
+                  padding: '0.6rem 1rem', fontFamily: 'var(--ff-display)', fontSize: '0.95rem', cursor: 'pointer',
+                  width: '100%', transform: 'rotate(-1deg)', transition: 'all 0.2s'
+                }}
+              >
+                LOGIN AS ADMIN & BYPASS
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1712,9 +1760,18 @@ export default function App() {
       </footer>
 
       {/* ── MORGANA HELPER ────────────────────────────────────────── */}
-      <div className="p5-morgana-helper" style={{ zIndex: 9999 }}>
+      <div 
+        className="p5-morgana-helper" 
+        onClick={handleMorganaClick}
+        style={{ zIndex: 9999, cursor: activeTab === 'home' ? 'pointer' : 'default' }}
+      >
         <div className="p5-morgana-bubble">
           {getMorganaQuote()}
+          {activeTab === 'home' && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--p5-yellow)', marginTop: '4px', textDecoration: 'underline' }}>
+              [CLICK TO REVEAL ACCESS CHANNELS]
+            </div>
+          )}
         </div>
         <div className="p5-morgana-avatar" style={{ transform: 'scale(1.2) rotate(5deg)' }}>
           {/* Detailed Pixel Art Morgana SVG */}
@@ -1737,6 +1794,127 @@ export default function App() {
           </svg>
         </div>
       </div>
+
+      {/* ── JOKER HEADQUARTERS MODAL ────────────────────────────────────── */}
+      {showJokerModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.9)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 100001
+        }}>
+          <div style={{
+            background: '#080808',
+            border: '4px solid var(--p5-yellow)',
+            padding: '2.5rem',
+            width: '90%', maxWidth: '600px',
+            transform: 'rotate(1deg)',
+            boxShadow: '20px 20px 0 #000',
+            position: 'relative',
+            maxHeight: '85vh',
+            overflowY: 'auto'
+          }}>
+            <button 
+              onClick={() => { setShowJokerModal(false); setShowCliGuide(false); }}
+              style={{ position: 'absolute', top: '-15px', right: '-15px', background: 'var(--p5-red)', border: '2px solid #000', color: '#fff', fontWeight: 'bold', width: '35px', height: '35px', cursor: 'pointer' }}
+            >
+              X
+            </button>
+            <h2 style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-display)', fontSize: '2.2rem', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '2px' }}>
+              Phantom Headquarters Access
+            </h2>
+            <p style={{ color: '#ccc', fontFamily: 'var(--ff-mono)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.5' }}>
+              Listen up, Joker! The Cognitive Intelligence Suite is deployed across multiple secure dimensions. Here are the entry coordinates:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderLeft: '4px solid var(--p5-red)', padding: '1rem' }}>
+                <strong style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', display: 'block', marginBottom: '0.2rem' }}>
+                  1. WEB INTERFACE PORTAL
+                </strong>
+                <a href={window.location.origin} target="_blank" rel="noreferrer" style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-mono)', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                  {window.location.origin}
+                </a>
+              </div>
+
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderLeft: '4px solid var(--p5-red)', padding: '1rem' }}>
+                <strong style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', display: 'block', marginBottom: '0.2rem' }}>
+                  2. HUGGING FACE SPACE
+                </strong>
+                <a href="https://huggingface.co/spaces/namangt/PSI-Resume-Analyser" target="_blank" rel="noreferrer" style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-mono)', fontSize: '0.9rem', wordBreak: 'break-all' }}>
+                  https://huggingface.co/spaces/namangt/PSI-Resume-Analyser
+                </a>
+              </div>
+
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderLeft: '4px solid var(--p5-yellow)', padding: '1rem' }}>
+                <strong style={{ color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', display: 'block', marginBottom: '0.2rem' }}>
+                  3. LOCAL COMMAND CLI CLIENT
+                </strong>
+                <p style={{ color: '#bbb', fontSize: '0.85rem', margin: '0.2rem 0 0.8rem 0', fontFamily: 'var(--ff-body)' }}>
+                  Run audits, check telemetry, and analyze resumes directly inside your command terminal.
+                </p>
+                <button
+                  onClick={() => setShowCliGuide(true)}
+                  style={{
+                    background: 'var(--p5-red)', color: '#fff', border: '2px solid #000',
+                    padding: '0.5rem 1rem', fontFamily: 'var(--ff-display)', fontSize: '0.85rem', cursor: 'pointer'
+                  }}
+                >
+                  HOW TO DEPLOY CLI (NON-TECHNICAL GUIDE) 🔓
+                </button>
+              </div>
+            </div>
+
+            {showCliGuide && (
+              <div style={{
+                background: '#000',
+                border: '2px dashed var(--p5-yellow)',
+                padding: '1.5rem',
+                marginTop: '1rem',
+                fontFamily: 'var(--ff-mono)',
+                fontSize: '0.85rem',
+                color: '#fff',
+                textAlign: 'left'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', borderBottom: '1px solid var(--p5-red)', paddingBottom: '0.5rem' }}>
+                  <span style={{ color: 'var(--p5-red)', fontWeight: 'bold' }}>&gt; CLI INFILTRATION MANUAL</span>
+                  <button onClick={() => setShowCliGuide(false)} style={{ background: 'none', border: 'none', color: 'var(--p5-yellow)', cursor: 'pointer', fontWeight: 'bold' }}>[HIDE]</button>
+                </div>
+                <ol style={{ paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', margin: 0, lineHeight: '1.4' }}>
+                  <li>
+                    <strong style={{ color: 'var(--p5-yellow)' }}>Open Terminal:</strong>
+                    <br />
+                    On Windows, press <kbd>Win + R</kbd>, type <code style={{color: 'var(--p5-red)'}}>cmd</code> and press Enter. On Mac/Linux, open the <code style={{color: 'var(--p5-red)'}}>Terminal</code> app.
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--p5-yellow)' }}>Prepare Project Directory:</strong>
+                    <br />
+                    Navigate to the cloned project folder using <code style={{color: 'var(--p5-red)'}}>cd path/to/folder</code>.
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--p5-yellow)' }}>Activate Environment:</strong>
+                    <br />
+                    Run <code style={{color: 'var(--p5-red)'}}>.venv\Scripts\activate</code> (Windows) or <code style={{color: 'var(--p5-red)'}}>source .venv/bin/activate</code> (Mac/Linux).
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--p5-yellow)' }}>Check Health & Setup:</strong>
+                    <br />
+                    Verify your setup by running:
+                    <pre style={{ background: '#111', padding: '0.4rem', border: '1px solid #333', marginTop: '0.2rem', overflowX: 'auto' }}>python cli.py health</pre>
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--p5-yellow)' }}>Perform Analysis Heist:</strong>
+                    <br />
+                    Scan any resume by running:
+                    <pre style={{ background: '#111', padding: '0.4rem', border: '1px solid #333', marginTop: '0.2rem', overflowX: 'auto' }}>python cli.py analyze [resume_path] --jd-file [jd_path]</pre>
+                  </li>
+                </ol>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
