@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import maskGlb from './3d_models/3d_mask.glb';
 
 export default function ThreeGem() {
   const mountRef = useRef(null);
@@ -18,17 +20,28 @@ export default function ThreeGem() {
     camera.position.set(0, 0, 4.4);
 
     const group = new THREE.Group();
-    const geo = new THREE.IcosahedronGeometry(1.3, 0);
-    
-    const solid = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-      color: 0x2a0008, emissive: 0x5a0010, flatShading: true, metalness: 0.3, roughness: 0.35
-    }));
-    
-    const wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff0a2c, wireframe: true }));
-    wire.scale.set(1.02, 1.02, 1.02);
-    
-    group.add(solid, wire);
     scene.add(group);
+
+    const loader = new GLTFLoader();
+    let loadedModel = null;
+    loader.load(maskGlb, (gltf) => {
+      loadedModel = gltf.scene;
+      
+      const box = new THREE.Box3().setFromObject(loadedModel);
+      const center = box.getCenter(new THREE.Vector3());
+      loadedModel.position.sub(center);
+      
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 2.6 / maxDim;
+      loadedModel.scale.setScalar(scale);
+
+      const wrapper = new THREE.Group();
+      wrapper.add(loadedModel);
+      group.add(wrapper);
+    }, undefined, (error) => {
+      console.error("Error loading GLTF model:", error);
+    });
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     const p1 = new THREE.PointLight(0xff0a2c, 2.2, 12); 
@@ -99,9 +112,6 @@ export default function ThreeGem() {
           }
       }
       renderer.domElement.removeEventListener('mousedown', onMouseDown);
-      geo.dispose();
-      solid.material.dispose();
-      wire.material.dispose();
       renderer.dispose();
     };
   }, []);
