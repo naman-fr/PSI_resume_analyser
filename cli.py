@@ -163,23 +163,26 @@ def analyze(resume_file, jd, jd_file, premium, output, save_report):
 
             # Strengths Panel
             strengths = result.get("strengths", [])
-            strengths_md = "\n".join(f"* {s}" for s in strengths) if strengths else "* None identified."
-            console.print(Panel(Markdown(strengths_md), title="[bold green]Strengths & Alignments[/]", border_style="green"))
+            strengths_text = "\n".join(f"  - {s}" for s in strengths) if strengths else "  - None identified."
+            console.print(Panel(strengths_text, title="[bold green]Strengths & Alignments[/]", border_style="green"))
 
             # Gaps & Missing Skills Panel
             gaps = result.get("gaps", [])
             missing_skills = result.get("skill_match", {}).get("missing", []) if isinstance(result.get("skill_match"), dict) else []
             
-            gaps_text = "[bold red]Identified Gaps:[/]\n" + ("\n".join(f"* {g}" for g in gaps) if gaps else "* No major gaps identified.")
+            gaps_text = "[bold red]Identified Gaps:[/]\n" + ("\n".join(f"  - {g}" for g in gaps) if gaps else "  - No major gaps identified.")
             if missing_skills:
-                gaps_text += "\n\n[bold yellow]Missing Skills / Keywords:[/]\n" + ", ".join(missing_skills)
+                gaps_text += "\n\n[bold yellow]Missing Skills / Keywords:[/]\n  " + ", ".join(missing_skills)
             console.print(Panel(gaps_text, title="[bold red]Gap Analysis & Gaps[/]", border_style="red"))
 
             # Bullet suggestions
             bullets = result.get("ats_optimized_bullets", [])
             if bullets:
-                bullets_md = "\n".join(f"* {b}" for b in bullets[:5])
-                console.print(Panel(Markdown(bullets_md), title="[bold blue]ATS-Optimized Bullet Suggestions (STAR Framework)[/]", border_style="blue"))
+                bullets_text = ""
+                for b in bullets[:5]:
+                    improved_bullet = b.get("improved", "") if isinstance(b, dict) else b
+                    bullets_text += f"  - {improved_bullet}\n"
+                console.print(Panel(bullets_text.strip(), title="[bold blue]ATS-Optimized Bullet Suggestions (STAR Framework)[/]", border_style="blue"))
 
             # Premium Report if available
             if premium and "premium_report" in result:
@@ -260,7 +263,8 @@ def improve(resume_text, resume_file, bullets):
         table.add_column("ATS Optimized (STAR)", style="bold green", width=55)
 
         for orig, opt in zip(existing_bullets, optimized_bullets):
-            table.add_row(orig, opt)
+            improved_bullet = opt.get("improved", "") if isinstance(opt, dict) else opt
+            table.add_row(orig, improved_bullet)
         
         console.print(table)
 
