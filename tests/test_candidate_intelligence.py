@@ -4,8 +4,6 @@ Tests the Multimodal Parser, GraphRAG database, Candidate/Recruiter Twins,
 Bias Audits, Model Routers, Event Bus, and MCP Sandbox client.
 """
 
-import pytest
-import os
 from core.multimodal_parser import MultimodalParser
 from core.graph_rag import GraphRAG
 from core.digital_twin import CandidateDigitalTwin, RecruiterDigitalTwin
