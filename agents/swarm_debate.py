@@ -30,6 +30,15 @@ def run_swarm_debate(state: ResumeJDState) -> Dict[str, Any]:
         from agents import resume_parser
         llm, provider = resume_parser.get_llm()
         
+        try:
+            from agents.mcp_client import get_tiered_tools
+            tech_lead_tools = get_tiered_tools("tech_lead")
+            llm_with_tools = llm.bind_tools(tech_lead_tools)
+        except Exception as e:
+            logger.warning(f"Could not bind MCP tools: {e}")
+            llm_with_tools = llm
+            tech_lead_tools = []
+        
         candidate_summary = json.dumps(resume_parsed, indent=2)
         jd_summary = json.dumps(jd_extracted, indent=2)
         

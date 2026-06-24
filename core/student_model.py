@@ -6,7 +6,7 @@ It uses scikit-learn for fast, cheap inference on resume scoring.
 import sqlite3
 import json
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np

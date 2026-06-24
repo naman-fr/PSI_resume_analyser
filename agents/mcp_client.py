@@ -3,10 +3,8 @@ Model Context Protocol (MCP) Client Layer
 This module acts as the mesh router to interface with our separate MCP servers.
 It allows the LangGraph agents to request tools dynamically from the mesh.
 """
-import sys
-import os
 import logging
-from typing import List, Dict, Any
+from typing import List, Any
 from langchain_core.tools import tool
 
 logger = logging.getLogger(__name__)

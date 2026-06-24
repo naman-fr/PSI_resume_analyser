@@ -3,7 +3,6 @@ MLflow Observability and Evaluation Registry
 Tracks prompts, agent decisions, and model versions.
 """
 import mlflow
-import os
 import logging
 from typing import Dict, Any
 
