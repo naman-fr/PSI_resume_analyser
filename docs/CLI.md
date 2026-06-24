@@ -1,45 +1,38 @@
-# 💻 Terminal Client & Automation (CLI)
+# 💻 Terminal Client & Automation (CLI): Technical Overview
 
-The platform ships with an advanced, robust Command Line Interface (`cli.py`) built using the `click` and `rich` libraries. It is designed for CI/CD pipelines, offline batch processing, and systems administration.
+The CLI suite (`cli.py`) serves as the offline MLOps control center, bypassing the web tier for heavy batch processing and administrative functions.
 
-## Key Features
+## 1. Core Architecture (`cli.py`)
+Built utilizing the `click` library for argument parsing and `rich` for TUI (Terminal User Interface) rendering, the CLI natively interfaces directly with the `core/` and `agents/` Python modules without launching the `uvicorn` ASGI server.
 
-1. **Interactive API Credentials Infiltration**: 
-   If `GROQ_API_KEY` or `GOOGLE_API_KEY` are missing, the CLI gracefully intercepts the execution, prompts the developer, tests the keys, and permanently saves them to the `.env` file automatically.
-2. **Beautiful Terminal UI**: 
-   Leverages the `rich` library to draw Progress Bars, Spinners, Tables, and Markdown directly in the terminal buffer.
-
-## Command Reference
-
-### `health`
-Diagnoses the environment.
-- Checks Python/pip dependencies.
-- Pings the SQLite telemetry database.
-- Verifies LangChain provider authentications.
-```bash
-python cli.py health
+### 1.1 Secrets Infiltration Protocol
+To ensure high availability even when deployed in naked environments, the CLI implements an active interception protocol:
+```python
+def check_api_keys():
+    from dotenv import load_dotenv, set_key
+    load_dotenv()
+    if not os.environ.get("GROQ_API_KEY") and not os.environ.get("GOOGLE_API_KEY"):
+        print("[red]API Keys Missing![/red]")
+        key = input("Enter GROQ_API_KEY: ")
+        set_key(".env", "GROQ_API_KEY", key)
+        os.environ["GROQ_API_KEY"] = key
 ```
 
-### `analyze`
-Performs a deep-dive cognitive audit of a single resume against a JD.
-```bash
-python cli.py analyze data/resume.pdf --jd-file data/jd.txt --premium
-```
+## 2. Command Implementations
 
-### `batch`
-Triggers the multi-threaded ingestion engine to scan entire directories of resumes concurrently.
-```bash
-python cli.py batch "data/resumes/*.pdf" --jd-file data/jd.txt --export-csv results.csv
+### 2.1 MLOps Drift Audit (`python cli.py telemetry --drift`)
+This subcommand queries the SQLite `analysis_logs` table using `sqlite3`. It calculates the Kullback-Leibler divergence between the historical score distribution and the current window using `numpy`:
+```python
+def calculate_psi(expected, actual, buckets=10):
+    # Calculates Population Stability Index mathematically
+    import numpy as np
+    # ... calculates bin frequencies and PSI formula ...
+    return np.sum((actual_pct - expected_pct) * np.log(actual_pct / expected_pct))
 ```
+The CLI then renders a `rich.Table` highlighting the exact statistical drift metric to the administrator.
 
-### `telemetry`
-Opens the MLOps diagnostics panel. Views average latency, token counts, and calculates the total API spend across all historical runs.
-```bash
-python cli.py telemetry
-```
+### 2.2 Multithreaded Batch Ingestion (`python cli.py batch "*.pdf"`)
+Uses `glob` to resolve wildcard paths and utilizes Python's `concurrent.futures.ThreadPoolExecutor` to process multiple resumes concurrently through the LangGraph swarm. Results are aggressively flattened into a CSV using `csv.writer`, capturing token usage per file for auditing.
 
-### `telemetry --drift`
-Executes the Population Stability Index (PSI) drift audit to calculate the Kullback-Leibler (KL) divergence of candidate scores over time, warning administrators if the LLM's scoring calibration is drifting.
-```bash
-python cli.py telemetry --drift
-```
+### 2.3 Local Evaluation (`python cli.py analyze`)
+Directly invokes `agents.graph.run_analysis()` offline. It captures the entire `ResumeJDState` return dict and pipes the `match_score` and `debate_log` directly to `rich.console.Console` using `Panel` and `Markdown` components for a visually rich local read-out.
