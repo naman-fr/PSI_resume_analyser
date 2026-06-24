@@ -106,7 +106,7 @@ def evaluate_hiring_readiness_and_simulation_llm(parsed_data: dict, match_score:
         llm, provider = get_llm()
         
         system_prompt = """You are a Principal AI Tech Recruiter and Engineering Manager evaluating a candidate's resume data.
-Your goal is to deeply analyze their experience and output a JSON response containing two objects: "readiness" and "simulation".
+Your goal is to deeply analyze their experience and output a JSON response containing four objects: "readiness", "simulation", "project_translation", and "job_fit".
 
 For "readiness":
 - overall_readiness: (0-100) estimated chance to convert to a phone screen.
@@ -122,10 +122,18 @@ For "simulation":
 - manager_score: (0-100) how a Hiring Manager would score it (focuses on business impact).
 - gap_analysis: 1-2 sentence explanation of the score differences.
 
+For "project_translation":
+- translations: list of objects containing "project_name" (str), "inferred_skills" (list of strings), and "business_value" (1 sentence explaining the impact). Limit to top 2 projects.
+
+For "job_fit":
+- explanation: A 1-2 paragraph plain English explanation of why the candidate does or does not fit the target role, suitable for a hiring manager to read quickly.
+
 Return ONLY valid JSON. Do not use markdown wrappers if possible.
 {
   "readiness": { ... },
-  "simulation": { ... }
+  "simulation": { ... },
+  "project_translation": { ... },
+  "job_fit": { ... }
 }
 """
         user_prompt = f"ATS Match Score: {match_score}\n\nCandidate Data:\n{json.dumps(parsed_data, default=str)[:3000]}"
@@ -139,12 +147,14 @@ Return ONLY valid JSON. Do not use markdown wrappers if possible.
         
         readiness = data.get("readiness", {})
         simulation = data.get("simulation", {})
+        project_translation = data.get("project_translation", {"translations": []})
+        job_fit = data.get("job_fit", {"explanation": "Job fit analysis unavailable."})
         
         # Fallback to ensure basic structure
         if "overall_readiness" not in readiness:
             raise ValueError("Invalid readiness structure")
             
-        return readiness, simulation
+        return readiness, simulation, project_translation, job_fit
         
     except Exception as e:
         logger.warning(f"Generative AI Premium Fallback triggered due to error: {e}")
@@ -164,7 +174,7 @@ Return ONLY valid JSON. Do not use markdown wrappers if possible.
             "manager_score": int(match_score * 0.88),
             "gap_analysis": "AI simulation unavailable. Showing heuristic fallback."
         }
-        return readiness, simulation
+        return readiness, simulation, {"translations": []}, {"explanation": "Fallback heuristic used."}
 
 
 def run_premium_intelligence_suite(resume_text: str, parsed_data: dict, final_state: dict) -> dict:
@@ -181,7 +191,7 @@ def run_premium_intelligence_suite(resume_text: str, parsed_data: dict, final_st
     consistency = evaluate_consistency_index(resume_text, links_verif, parsed_data)
     
     # LLM Generative AI Call
-    readiness, simulation = evaluate_hiring_readiness_and_simulation_llm(parsed_data, match_score)
+    readiness, simulation, project_translation, job_fit = evaluate_hiring_readiness_and_simulation_llm(parsed_data, match_score)
     
     # Compile Premium Payload
     premium_report = {
@@ -189,6 +199,8 @@ def run_premium_intelligence_suite(resume_text: str, parsed_data: dict, final_st
         "consistency": consistency,
         "readiness": readiness,
         "simulation": simulation,
+        "project_translation": project_translation,
+        "job_fit": job_fit,
         "timestamp": time.time()
     }
     

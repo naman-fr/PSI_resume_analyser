@@ -1041,6 +1041,71 @@ export default function App() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Feature 5: Candidate Prep Copilot (Why Not Shortlisted) */}
+                    <div className="glass-panel" style={{ border: '2px solid #3b82f6', background: 'rgba(59,130,246,0.05)', position: 'relative', gridColumn: '1 / -1', marginTop: '2rem' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#3b82f6', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(2deg)' }}>MODULE 05</div>
+                      <h3 style={{ color: '#3b82f6', fontSize: '1.2rem', fontWeight: 800, marginBottom: '1rem' }}>Preparation Copilot & Rejection Analysis</h3>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                        <div>
+                          <h4 style={{ color: 'var(--p5-red)', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Why Not Shortlisted (Missing Factors)</h4>
+                          <ul style={{ listStyleType: 'none', padding: 0, margin: 0, fontSize: '0.85rem' }}>
+                            {analysisResult.premium_report?.readiness?.missing_factors?.map((mf, idx) => (
+                              <li key={idx} style={{ marginBottom: '6px', background: 'rgba(230,0,18,0.1)', padding: '8px', borderLeft: '3px solid var(--p5-red)' }}>
+                                {mf}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 style={{ color: '#34c759', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Career Trajectory Roadmap</h4>
+                          <div style={{ background: 'rgba(52,199,89,0.1)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #34c759', fontSize: '0.85rem', color: 'var(--p5-white)' }}>
+                            {analysisResult.premium_report?.readiness?.roadmap}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Feature 6: Job-Fit Explanation & Project-to-Skill Translator */}
+                    <div className="glass-panel" style={{ border: '2px solid #a855f7', background: 'rgba(168,85,247,0.05)', position: 'relative', gridColumn: '1 / -1', marginTop: '2rem' }}>
+                      <div style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#a855f7', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.7rem', transform: 'rotate(-2deg)' }}>MODULE 06</div>
+                      <h3 style={{ color: '#a855f7', fontSize: '1.2rem', fontWeight: 800, marginBottom: '1rem' }}>Recruiter Copilot: JD Intelligence & Translation</h3>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div>
+                          <h4 style={{ color: 'var(--p5-white)', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Job-Fit Explanation (Plain English)</h4>
+                          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '4px', borderLeft: '3px solid #a855f7', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            {analysisResult.premium_report?.job_fit?.explanation}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 style={{ color: 'var(--p5-white)', fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Project-to-Skill Translator</h4>
+                          {analysisResult.premium_report?.project_translation?.translations?.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                              {analysisResult.premium_report.project_translation.translations.map((proj, idx) => (
+                                <div key={idx} style={{ background: 'rgba(0,0,0,0.3)', padding: '10px', border: '1px solid #333', borderRadius: '4px' }}>
+                                  <div style={{ fontWeight: 'bold', color: 'var(--p5-yellow)', marginBottom: '4px' }}>{proj.project_name}</div>
+                                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontStyle: 'italic', marginBottom: '6px' }}>{proj.business_value}</div>
+                                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                    {proj.inferred_skills?.map((s, i) => (
+                                      <span key={i} style={{ background: 'rgba(168,85,247,0.2)', color: '#d8b4fe', padding: '2px 6px', borderRadius: '2px', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>No projects translated.</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
                   </div>
                 </div>
               )}
