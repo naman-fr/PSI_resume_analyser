@@ -23,6 +23,8 @@ from agents.graph import run_analysis
 from agents.improver import improve_resume
 from core.telemetry import TelemetryLogger
 from core.guardrails import scan_prompt_injection
+from core.mlflow_tracker import mlflow_tracker
+from core.student_model import psi_student
 import hashlib
 from core.digital_twin import CandidateDigitalTwin, RecruiterDigitalTwin
 from core.fairness import BiasAuditor, CounterfactualCalibrator, RobustnessEvaluator
@@ -147,6 +149,20 @@ def health_check():
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 
+@app.post("/api/admin/distill")
+async def trigger_student_distillation(user_id: Optional[str] = Depends(auth.get_current_user)):
+    """Triggers the Teacher-Student Distillation pipeline to train the local PSI Student model."""
+    try:
+        success = psi_student.train_student()
+        if success:
+            return {"message": "PSI Student Model successfully distilled from LLM teacher outputs."}
+        else:
+            raise HTTPException(status_code=400, detail="Insufficient training data for distillation.")
+    except Exception as e:
+        logger.error(f"Distillation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to run distillation: {str(e)}")
+
+
 @app.post("/api/analyze")
 async def analyze_endpoint(
     file: UploadFile = File(...),
@@ -210,6 +226,9 @@ async def analyze_endpoint(
         
         if "error" in analysis_result and analysis_result["error"]:
             raise HTTPException(status_code=500, detail=analysis_result["error"])
+            
+        # Log to MLflow Observability Registry
+        mlflow_tracker.log_analysis_run(temp_file_id, analysis_result)
             
         # Write analysis run details to SQLite database
         run_id = temp_file_id

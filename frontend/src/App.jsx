@@ -202,10 +202,25 @@ export default function App() {
       setPremiumMode(true);
       setShowCheckout(false);
       alert("VIP CLEARANCE UNLOCKED: " + data.message);
+      setBatchResult(data);
     } catch (err) {
-      alert("PAYMENT ERROR: " + err.message);
+      setBatchError(err.message);
     } finally {
-      setCheckoutLoading(false);
+      setBatchLoading(false);
+    }
+  };
+
+  const handleDistill = async () => {
+    try {
+      const response = await fetch(`${API_URL}/admin/distill`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Distillation failed');
+      alert(data.message);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -1799,6 +1814,21 @@ export default function App() {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* 4. Learning Plane (Distillation) */}
+                <div className="glass-panel" style={{ border: '2px solid #a855f7', padding: '1.5rem', position: 'relative' }}>
+                  <div style={{ position: 'absolute', top: '-12px', right: '15px', background: '#a855f7', color: '#fff', padding: '2px 8px', fontWeight: 'bold', fontSize: '0.75rem', transform: 'skewX(-6deg)' }}>LEARNING PLANE</div>
+                  <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--p5-white)', fontSize: '1.4rem', borderBottom: '1px solid #333', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>Teacher-Student Distillation</h3>
+                  <div style={{ margin: '1rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Train the local <span style={{ color: 'var(--p5-white)', fontWeight: 'bold' }}>PSI Student Model</span> on the LLM Teacher's evaluation outputs for fast, low-cost inference.
+                  </div>
+                  
+                  <button 
+                    onClick={handleDistill}
+                    style={{ background: '#a855f7', color: '#fff', border: 'none', padding: '10px', width: '100%', fontWeight: 'bold', borderRadius: '4px', cursor: 'pointer', fontFamily: 'var(--ff-mono)', marginTop: '10px' }}>
+                    [ INITIATE DISTILLATION SEQUENCE ]
+                  </button>
                 </div>
 
               </div>
