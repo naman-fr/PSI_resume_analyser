@@ -16,6 +16,7 @@ from agents.improver import improve_resume
 from agents.jd_extractor import extract_jd
 from agents.resume_parser import parse_resume
 from agents.scorer import score_match
+from agents.swarm_debate import run_swarm_debate
 from agents.skill_normalizer import normalize_skills
 from agents.state import ResumeJDState
 
@@ -194,6 +195,7 @@ def create_analysis_graph() -> Any:
     workflow.add_node("normalize_skills", normalize_skills)
     workflow.add_node("critic", critic_validate)
     workflow.add_node("score_match", score_match)
+    workflow.add_node("swarm_debate", run_swarm_debate)
     workflow.add_node("improve_resume", improve_resume)
 
     # ── Wire edges ───────────────────────────────────────────────────────
@@ -224,7 +226,8 @@ def create_analysis_graph() -> Any:
         }
     )
 
-    workflow.add_edge("score_match", "improve_resume")
+    workflow.add_edge("score_match", "swarm_debate")
+    workflow.add_edge("swarm_debate", "improve_resume")
     workflow.add_edge("improve_resume", END)
 
     graph = workflow.compile()

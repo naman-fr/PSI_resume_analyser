@@ -58,6 +58,11 @@ class ResumeJDState(TypedDict, total=False):
     evaluation_logs: dict           # Benchmark results (hallucination rate, conformity)
     loop_count: int                 # Self-reflection loop index counter
 
+    # ── Multi-Agent Swarm ────────────────────────────────────────────────
+    debate_log: list                # Transcript of the recruiter vs tech lead debate
+    swarm_consensus: str            # Final consensus written by the Judge Agent
+    mcp_tools_used: list            # Which MCP tools were triggered during the debate
+
     # ── Meta ─────────────────────────────────────────────────────────────
     error: Optional[str]      # Error message (``None`` when everything is OK)
     provider_used: str        # LLM provider that was actually used (e.g. "gemini")

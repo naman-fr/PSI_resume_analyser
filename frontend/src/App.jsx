@@ -1125,6 +1125,32 @@ export default function App() {
                 </div>
               )}
 
+              {/* Module 07: Multi-Agent Swarm Debate */}
+              {analysisResult.debate_log && analysisResult.debate_log.length > 0 && (
+                <div className="glass-panel" style={{ marginTop: '2rem', marginBottom: '2rem', borderTop: '4px solid #8b5cf6' }}>
+                  <h3 style={{ color: '#c4b5fd', marginBottom: '1.5rem', fontFamily: 'var(--font-title)' }}>
+                    <Users style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} /> Multi-Agent Swarm Debate (Recruiter vs Tech Lead)
+                  </h3>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {analysisResult.debate_log.map((log, idx) => (
+                      <div key={idx} style={{
+                        padding: '1rem', 
+                        borderRadius: '6px', 
+                        background: log.agent === 'Recruiter' ? 'rgba(52, 199, 89, 0.1)' : 
+                                    log.agent === 'Tech Lead' ? 'rgba(255, 69, 58, 0.1)' : 'rgba(139, 92, 246, 0.1)',
+                        borderLeft: `4px solid ${log.agent === 'Recruiter' ? '#34c759' : log.agent === 'Tech Lead' ? '#ff453a' : '#8b5cf6'}`
+                      }}>
+                        <div style={{ fontWeight: 'bold', color: log.agent === 'Recruiter' ? '#a7f3d0' : log.agent === 'Tech Lead' ? '#fca5a5' : '#e9d5ff', marginBottom: '0.5rem' }}>
+                          {log.agent}
+                        </div>
+                        <p style={{ color: 'var(--p5-white)', fontSize: '0.9rem', lineHeight: '1.5', whiteSpace: 'pre-line' }}>{log.stance}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Flags lists (SWOT Red flags & Green flags) */}
               <div className="split-layout">
                 <div>
