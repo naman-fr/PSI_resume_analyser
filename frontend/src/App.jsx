@@ -214,7 +214,7 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/admin/distill`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Distillation failed');
