@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🧠 PSI: Enterprise AI Control Plane & Intelligence Platform</h1>
+  <h1>🧠 Enterprise Candidate Intelligence Platform & MLOps Control Plane</h1>
   <p><i>A Staff/Principal-Level Distributed Cognitive Orchestration Engine</i></p>
 
   [![Vercel Deployment](https://img.shields.io/badge/Status-LIVE_ON_VERCEL-black?style=for-the-badge&logo=vercel&logoColor=white)](https://psi-resume-analyser.vercel.app)
@@ -13,88 +13,149 @@
 
 ---
 
-> **PSI** has evolved from a simple resume scorer into a distributed cognitive auditing engine. The platform is structured across four operational planes, utilizing **LangGraph agent swarms**, an **MCP tool mesh**, an offline **Teacher-Student distillation pipeline**, and strict **MLflow Observability**.
+> This platform is an industrial-grade, multi-agent **Candidate Intelligence Engine**. It transcends simple prompt-chaining by implementing a decoupled, 4-tier operational architecture utilizing **LangGraph agent swarms**, a secure **MCP Tool Mesh**, an offline **Teacher-Student distillation pipeline**, and strict **MLflow Observability governance**.
 
-## 🏗️ Systems Architecture: The 4 Enterprise Planes
+## 📚 Technical Documentation Hub
 
-The platform is engineered around a decoupled, 4-tier plane architecture that isolates ingestion, reasoning, governance, and learning:
+For deep dives into specific architectural components, explore our detailed documentation modules:
 
-### 1. 📥 Ingestion Plane
-* **Multimodal Document Intelligence**: Ingests digitally native PDFs, image resumes, and scanned documents via a hybrid layout-aware parser coupled with an LLM verifier.
-* **EEOC Blind Screening**: Implements a PII masking engine that cryptographically redacts names, contact details, social links, and geographic/demographic indicators prior to evaluation.
-* **White-on-White Text Gaming Detection**: Guards against candidates attempting to inject invisible keywords to artificially inflate ATS rankings.
-
-### 2. 🧠 Reasoning Plane
-* **LangGraph Multi-Agent Swarm**: Rather than using a rigid pipeline, PSI orchestrates specialized agents that actively debate a candidate's viability:
-  * 👔 **Recruiter Agent**: Evaluates cultural fit, tenure stability, and red flags.
-  * 💻 **Tech Lead Agent**: Bound to the MCP Tool Mesh. If it spots a GitHub URL, it autonomously scrapes real-world repository stats to evaluate actual architectural depth before judging the candidate.
-  * ⚖️ **Judge Agent**: Synthesizes adversarial arguments into a final consensus and generates the composite score.
-* **GraphRAG Skill Ontology**: Expands keyword mapping into a property graph stored in SQLite to estimate adjacent skill fit (e.g., `Python` → `FastAPI` → `API Backend` → `Docker` → `MLOps`).
-
-### 3. 🛡️ Governance Plane (MCP Mesh)
-* **Model Context Protocol (MCP)**: The platform uses an advanced MCP substrate to grant safe, rate-limited access to external enterprise tools.
-* **Secured Tool Mesh**: Agents can securely invoke `mcp-github` and `mcp-calendar` servers. Permissions are strictly tiered—for example, only the Tech Lead agent holds clearance to execute the GitHub repository scraper.
-
-### 4. 📈 Learning Plane & MLOps
-* **Teacher-Student Distilled Intelligence**: A proprietary `StudentModel` (Scikit-Learn `RandomForestRegressor`) continuously learns from the massive, expensive outputs of the "Teacher" LLM. The student scans the historical SQLite telemetry logs to distill cognitive decisions into a fast, cheap inference engine.
-* **MLflow Observability & Evaluation**: Every candidate analyzed triggers a detailed MLOps run trace. We log inputs, token usage, latency, prompt versions, and prediction metrics directly into `core/mlflow_tracker.py` for continuous Population Stability Index (PSI) drift auditing.
+*   🤖 **[Advanced AI, ML, & GenAI Architectures](docs/AI_ML_GENAI.md)**: Deep dive into the Agent Swarm, Counterfactual Fairness, and Teacher-Student Distillation.
+*   📊 **[MLOps & Governance](docs/MLOPS.md)**: Explains the MLflow telemetry, Cost Budgets, and PSI Drift Monitoring.
+*   🏗️ **[High Level Design (HLD)](docs/HLD.md)**: Network diagrams, server infrastructure, and deployment architecture.
+*   🔬 **[Low Level Design (LLD)](docs/LLD.md)**: Internal LangGraph state transitions, TypedDict schemas, and codebase routing.
+*   💻 **[CLI Automation & Scripts](docs/CLI.md)**: Details on the offline batch scanner, health checks, and terminal metrics.
+*   🚀 **[HuggingFace / Gradio Fallback](docs/HUGGINGFACE.md)**: Documentation on the zero-config Gradio UI fallback.
 
 ---
 
-## 🎨 Enterprise Dashboard (UI Control Plane)
+## 🗺️ Master Architecture Diagram
 
-The React-based frontend serves as the human-in-the-loop Command Center.
+The platform operates across four decoupled planes: Ingestion, Reasoning, Governance, and Learning.
 
-- **Clearance Hub VIP Access**: Protected administrator zones gated via JWT and Stripe integrations.
-- **Learning Plane Panel**: A 1-click **[ INITIATE DISTILLATION SEQUENCE ]** button allowing administrators to manually trigger the Teacher-Student fine-tuning pipeline.
-- **Swarm Debate Transcript Viewer**: A beautiful, color-coded live transcript module that lets administrators read exactly how the Recruiter, Tech Lead, and Judge agents argued over a candidate.
+```mermaid
+flowchart TD
+    %% Styling
+    classDef ingestion fill:#1a1a1a,stroke:#e11d48,stroke-width:2px,color:#fff
+    classDef reasoning fill:#e11d48,stroke:#fff,stroke-width:2px,color:#fff
+    classDef governance fill:#8b5cf6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef learning fill:#0ea5e9,stroke:#fff,stroke-width:2px,color:#fff
+    classDef ui fill:#10b981,stroke:#fff,stroke-width:2px,color:#fff
+
+    %% 0. UI Control Plane
+    subgraph UI_Control_Plane [React UI Control Plane]
+        U1[Admin Clearance Hub]:::ui
+        U2[Live Swarm Debate Transcript]:::ui
+        U3[Manual Distillation Trigger]:::ui
+    end
+
+    %% 1. Ingestion Plane
+    subgraph Ingestion_Plane [1. Ingestion Plane]
+        A[PDF/DOCX Upload]:::ingestion --> B[Multimodal Layout-Aware Parser]:::ingestion
+        B --> C[EEOC Cryptographic PII Redaction]:::ingestion
+        C --> D[White-on-White ATS Gaming Detector]:::ingestion
+    end
+
+    %% 2. Reasoning Plane
+    subgraph Reasoning_Plane [2. Reasoning Plane: LangGraph Swarm]
+        D -->|Anonymized Context| E{LangGraph Router}:::reasoning
+        E --> F[Recruiter Agent: Culture & Tenure]:::reasoning
+        E --> G[Tech Lead Agent: Architecture Depth]:::reasoning
+        
+        G -.->|Invokes| H[(GraphRAG Skill Ontology SQLite)]:::reasoning
+        F --> I[Judge Agent: Synthesizer]:::reasoning
+        G --> I
+    end
+
+    %% 3. Governance Plane
+    subgraph Governance_Plane [3. Governance Plane: MCP & Audit]
+        G -->|Requests Tool| J[MCP Secure Tool Mesh]:::governance
+        J -->|Fetches Live Data| K[GitHub Repo Scraper]:::governance
+        J -->|Fetches Live Data| L[Calendar API]:::governance
+        
+        I --> M[Counterfactual Fairness Calibrator]:::governance
+    end
+
+    %% 4. Learning Plane
+    subgraph Learning_Plane [4. Learning Plane: MLOps]
+        M --> N[MLflow Registry & Telemetry]:::learning
+        N --> O[PSI Concept Drift Monitor]:::learning
+        N --> P[(Historical Analytics SQLite)]:::learning
+        
+        P -.->|Batched Offline Data| Q[Scikit-Learn RandomForest]:::learning
+        Q -->|Trains| R[Student Local Model]:::learning
+        R -->|Zero-Cost Inference| E
+    end
+
+    %% Wiring across planes
+    U1 -.->|Visualizes| N
+    U2 -.->|Listens via WebSocket| I
+    U3 -.->|Fires| Q
+```
 
 ---
 
-## 💻 CLI Terminal Client & Offline Capabilities
+## 🧬 Industrial AI & ML Techniques Implemented
 
-The terminal client (`cli.py`) serves as a diagnostic tool for offline analysis, telemetry auditing, and local batch scans.
+### 1. LangGraph Multi-Agent Swarms
+Traditional LLM wrappers use static chains. This platform implements a **dynamic, cyclical Swarm** using LangGraph. The cognitive load is separated:
+*   **Recruiter Agent**: Argues for candidate viability based on tenure and soft metrics.
+*   **Tech Lead Agent**: Counter-argues strictly on architectural depth.
+*   **Judge Agent**: Ingests the adversarial debate to form an unbiased consensus.
 
-### Commands
+### 2. Teacher-Student Model Distillation (Offline Learning)
+Running massive LLMs (the "Teacher") for every candidate is economically unviable at scale. 
+We built an offline pipeline that extracts historically scored resumes from the SQLite telemetry database, vectorizes them using `TfidfVectorizer`, and trains a lightweight Scikit-Learn `RandomForestRegressor` (the "Student"). The Student model then performs zero-cost, local inference on future candidates.
 
-| Subcommand | Description |
-|---|---|
-| **`health`** | Diagnose library dependencies, SQLite/MongoDB connectivity, and API keys. |
-| **`analyze`** | Scan a candidate resume PDF against a target JD. |
-| **`improve`** | Rewrite bullet points into quantified STAR metrics. |
-| **`jobs`** | Generate search queries and fetch matching job listings. |
-| **`batch`** | Batch analyze directories of resumes simultaneously. |
-| **`telemetry`** | View processing runs, average latency, and accumulated dollar costs. |
-| **`telemetry --drift`** | Perform Population Stability Index (PSI) drift audits. |
+### 3. Model Context Protocol (MCP) Tool Mesh
+Rather than giving the LLM unrestricted internet access, we implement an **Anthropic MCP Tool Mesh**. Tools like GitHub Repo Scraping and Calendar scheduling are strictly tiered. For instance, only the `Tech Lead Agent` has the cryptographic clearance to invoke the GitHub scraper during its debate turn.
+
+### 4. GraphRAG Skill Ontology
+Vector embeddings struggle with hierarchical knowledge. We implemented a property graph in SQLite. Instead of flat keyword matching, the system calculates "trajectory fit" across an adjacency matrix (e.g., knowing that knowing `PyTorch` intrinsically maps to `Python` and `Deep Learning`).
+
+### 5. Counterfactual Prompting & Bias Calibration
+To eliminate bias, the system runs counterfactual "What-If" scenarios during scoring. By synthetically injecting/masking variables (gender, graduation year, buzzwords), the system audits its own outputs to ensure strict EEOC meritocratic compliance.
+
+### 6. MLOps Observability & PSI Drift Monitoring
+Integrated directly with **MLflow**, the platform logs parameters (Temperature, Provider), execution metrics (Latency, Token Usage), and artifacts (State Dictionaries) for every scan. A background chron-job calculates the **Population Stability Index (PSI)** to warn administrators if the LLM's scoring curve diverges from the historical baseline (Data Drift).
 
 ---
 
-## ⚙️ Deployment & Quickstart
+## ⚙️ Local Development Quickstart
 
 ### 🐳 Docker Compose (Multi-Container Stack)
-Spin up the FastAPI server, React web interface, and local MongoDB database:
+Spin up the FastAPI server, React web interface, and local MongoDB database in one command:
 ```bash
-# Deploy containers in background
+# Deploys containers in background
 docker-compose up -d
 
 # Watch backend logs
 docker-compose logs -f app
 ```
 
-### 🛠️ Manual Installation
-1. **Backend Gateway Setup**:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn api:app --reload --port 7860
-```
-2. **Frontend Client Setup**:
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### 🛠️ Manual Installation (Virtual Environment)
+
+1.  **Backend Gateway Setup**:
+    ```bash
+    # Create and activate virtual environment
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+    # Install dependencies
+    pip install -r requirements.txt
+
+    # Start backend API
+    uvicorn api:app --reload --port 7860
+    ```
+
+2.  **Frontend Client Setup**:
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
+    ```
+
+3.  **Administrator VIP Bypass Protocol**:
+    Set the `ADMIN_MAIL` environment variable. On the VIP checkout page, click **LOGIN AS ADMIN & BYPASS** and enter your administrator email to instantly unlock the premium Enterprise Control Plane.
 
 ---
-*Built as a Principal AI Engineer demonstration platform.*
+*Architected and engineered as a comprehensive Staff/Principal AI Engineering portfolio standard.*
