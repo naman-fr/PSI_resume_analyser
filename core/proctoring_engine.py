@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 try:
     import cv2
     import mediapipe as mp
-    mp_face_mesh = mp.solutions.face_mesh
+    import mediapipe.python.solutions.face_mesh as mp_face_mesh
+    
     face_mesh = mp_face_mesh.FaceMesh(
         max_num_faces=2,  # Important for detecting multiple people
         refine_landmarks=True,
