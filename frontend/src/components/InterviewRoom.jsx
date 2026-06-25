@@ -5,6 +5,8 @@ import InterviewReport from './InterviewReport';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com/api';
 
+import './InterviewRoom.css';
+
 export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [hasConsent, setHasConsent] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
@@ -117,29 +119,29 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
 
   if (!hasConsent) {
     return (
-      <div className="fixed inset-0 w-screen h-screen z-50 bg-[#080808] flex items-center justify-center p-4 overflow-hidden" style={{ backgroundImage: 'radial-gradient(#e60012 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
-        <div className="relative z-10 bg-black border-4 border-white p-8 md:p-12 max-w-2xl text-center transform skew-x-[-2deg] shadow-[12px_12px_0px_#e60012] animate-[slashReveal_0.6s_ease-out_both]">
-          <div className="w-20 h-20 bg-[#e60012] text-white border-4 border-white flex items-center justify-center mx-auto mb-6 text-3xl transform skew-x-[10deg] shadow-[4px_4px_0px_#fff200]">
+      <div className="ir-overlay">
+        <div className="ir-overlay-bg"></div>
+        <div className="ir-gateway-box">
+          <div className="ir-icon-box">
             <i className="fas fa-shield-alt"></i>
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-6 uppercase leading-tight" style={{ textShadow: '2px 2px 0px #e60012' }}>Security Clearance Gateway</h2>
-          <div className="bg-white text-black p-6 border-4 border-black transform skew-x-[1deg] text-left mb-8 shadow-[4px_4px_0px_rgba(255,255,255,0.2)]">
-            <p className="font-bold mb-4 uppercase text-[#e60012]">WARNING: Cognitive Proctoring Initiated</p>
-            <ul className="list-none space-y-3 font-bold text-sm">
-              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Camera & Microphone access is mandatory.</li>
-              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Advanced WebRTC Vision verifies identity and gaze tracking.</li>
-              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Multiple Person detection is STRICTLY ENFORCED.</li>
-              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Tab switching and focus loss will log immediate infractions.</li>
+          <h2 className="ir-gateway-title">Security Clearance Gateway</h2>
+          <div className="ir-gateway-warning">
+            <p>WARNING: Cognitive Proctoring Initiated</p>
+            <ul>
+              <li><span></span> Camera & Microphone access is mandatory.</li>
+              <li><span></span> Advanced WebRTC Vision verifies identity and gaze tracking.</li>
+              <li><span></span> Multiple Person detection is STRICTLY ENFORCED.</li>
+              <li><span></span> Tab switching and focus loss will log immediate infractions.</li>
             </ul>
           </div>
           <button 
             onClick={requestPermissions}
-            className="w-full py-5 bg-[#e60012] text-white hover:bg-[#fff200] hover:text-black border-4 border-white transform skew-x-[-5deg] transition-all font-black text-xl uppercase shadow-[6px_6px_0px_#000]"
+            className="ir-btn-primary"
           >
             I CONSENT - INITIALIZE PROCTORING
           </button>
-          <button onClick={onExit} className="mt-6 text-white/50 hover:text-white font-black uppercase text-sm tracking-widest underline decoration-2 decoration-transparent hover:decoration-white transition-all">
+          <button onClick={onExit} className="ir-btn-abort">
             ABORT MISSION
           </button>
         </div>
@@ -156,79 +158,71 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const displayQuestion = lastAiMessage ? lastAiMessage.content : (isLoading ? "SYNTHESIZING NEXT INQUIRY..." : "INITIALIZING COGNITIVE ENGINE...");
 
   return (
-    <div className="fixed inset-0 w-screen h-screen z-50 bg-[#080808] text-white p-4 md:p-6 lg:p-8 flex flex-col md:flex-row gap-8 overflow-hidden" style={{
-      backgroundImage: 'radial-gradient(#e60012 1px, transparent 1px)',
-      backgroundSize: '24px 24px'
-    }}>
-      <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+    <div className="ir-container">
+      <div className="ir-overlay-bg"></div>
 
       {/* Left Panel: Proctoring & Context (50%) */}
-      <div className="flex-1 flex flex-col gap-8 shrink-0 z-10 animate-[slashReveal_0.6s_ease-out_both]">
+      <div className="ir-left-panel">
         
         {/* Camera Feed - P5 TV Screen Style */}
-        <div className="bg-[#121212] border-4 border-white p-2 transform skew-x-[-2deg] shadow-[8px_8px_0px_#000] relative group flex-1 flex flex-col">
-          <div className="flex-1 overflow-hidden border-2 border-black relative bg-black min-h-[300px]">
+        <div className="ir-video-wrapper">
+          <div className="ir-video-inner">
             <video 
               ref={videoRef} 
               autoPlay 
               muted 
               playsInline 
-              className="w-full h-full object-cover transform scale-x-[-1] transition-transform duration-700 group-hover:scale-105"
+              className="ir-video-element"
             />
             
             {/* Top Overlay */}
-            <div className="absolute top-0 inset-x-0 p-3 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start pointer-events-none">
-              <div className="bg-[#e60012] text-white px-3 py-1 font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <div className="ir-video-overlay-top">
+              <div className="ir-live-badge">
+                <span className="ir-live-badge-dot"></span>
                 LIVE FEED
               </div>
-              <div className="text-xs font-black text-white/80 bg-black px-2 py-1 transform skew-x-[10deg] border border-white/20">
+              <div className="ir-id-badge">
                 ID: {sessionId?.substring(0,6) || "INIT"}
               </div>
             </div>
             
             {/* Proctoring Alerts Overlay */}
             {combinedAlerts.length > 0 && (
-              <div className="absolute inset-x-4 bottom-4 z-50">
-                <div className="bg-[#fff200] border-4 border-black text-black p-3 font-black text-sm uppercase shadow-[4px_4px_0px_#e60012] transform skew-x-[-5deg] animate-pulse">
-                  <div className="flex items-center gap-2 mb-1 text-[#e60012]">
-                    <span className="w-3 h-3 bg-[#e60012] rounded-full"></span>
-                    SECURITY ALERT
-                  </div>
-                  <div>{combinedAlerts.join(" | ")}</div>
+              <div className="ir-alert-box">
+                <div className="ir-alert-title">
+                  <span className="ir-alert-dot"></span>
+                  SECURITY ALERT
                 </div>
+                <div>{combinedAlerts.join(" | ")}</div>
               </div>
             )}
-
-            {/* Vision Scanner Grid overlay */}
-            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
           </div>
         </div>
 
         {/* Interview Meta dashboard - P5 Style */}
-        <div className="bg-[#e60012] border-4 border-white p-6 transform skew-x-[2deg] shadow-[8px_8px_0px_#000] flex flex-row gap-6 items-center justify-between relative overflow-hidden shrink-0">
-          <div className="absolute inset-0 opacity-20 pointer-events-none bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)]"></div>
+        <div className="ir-telemetry">
+          <div className="ir-telemetry-bg"></div>
           
-          <div className="relative z-10 flex-1 flex gap-6 items-center">
-            <h3 className="bg-black text-white inline-block px-4 py-2 font-black uppercase text-sm transform skew-x-[-10deg] border-2 border-white shadow-[4px_4px_0px_#000]">
+          <div className="ir-telemetry-content">
+            <h3 className="ir-telemetry-title">
               Telemetry
             </h3>
             
-            <div className="flex-1 bg-white text-black border-4 border-black p-3 transform skew-x-[-2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
-              <div className="text-xs font-black uppercase tracking-widest text-[#e60012] mb-1">Current Vector</div>
-              <div className="font-bold text-md leading-tight uppercase truncate">
+            <div className="ir-vector-box">
+              <div className="ir-vector-label">Current Vector</div>
+              <div className="ir-vector-value">
                 {currentTopic || "Awaiting Node..."}
               </div>
             </div>
             
-            <div className="flex-1 bg-black border-4 border-white p-3 transform skew-x-[2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
-              <div className="flex justify-between items-end mb-1">
-                <div className="text-[10px] font-black uppercase tracking-widest text-white">Cognitive Load</div>
-                <div className="text-sm font-black text-[#fff200]">Lvl {difficulty}/10</div>
+            <div className="ir-load-box">
+              <div className="ir-load-header">
+                <div className="ir-load-label">Cognitive Load</div>
+                <div className="ir-load-val">Lvl {difficulty}/10</div>
               </div>
-              <div className="w-full bg-[#121212] border-2 border-[#fff200] h-3 p-0.5">
+              <div className="ir-load-bar-bg">
                 <div 
-                  className="h-full bg-[#fff200] transition-all duration-1000 ease-out" 
+                  className="ir-load-bar-fill" 
                   style={{ width: `${(difficulty / 10) * 100}%` }}
                 ></div>
               </div>
@@ -237,7 +231,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
           
           <button 
             onClick={handleEnd}
-            className="px-6 py-4 bg-black text-white hover:bg-[#fff200] hover:text-black hover:border-black border-4 border-white transform skew-x-[-5deg] transition-all font-black text-sm uppercase shadow-[4px_4px_0px_rgba(0,0,0,0.5)] relative z-10 whitespace-nowrap"
+            className="ir-btn-term"
           >
             Terminate
           </button>
@@ -245,52 +239,47 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
       </div>
 
       {/* Right Panel: Chat Interface - P5 Dialogue Box Style (50%) */}
-      <div className="flex-1 bg-[#121212] border-4 border-white shadow-[12px_12px_0px_#000] flex flex-col z-10 transform skew-x-[-1deg] relative overflow-hidden animate-[slashReveal_0.8s_ease-out_both]">
+      <div className="ir-right-panel">
         
         {/* Massive Current Question Display */}
-        <div className="bg-[#e60012] border-b-4 border-black p-8 relative min-h-[35%] flex flex-col justify-center">
-          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_2px,transparent_2px)] bg-[size:20px_20px]"></div>
+        <div className="ir-chat-header">
+          <div className="ir-chat-header-bg"></div>
           
-          <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 font-black text-xs uppercase border-2 border-white transform skew-x-[-10deg] shadow-[2px_2px_0px_#fff200]">
+          <div className="ir-chat-header-label">
             CURRENT INQUIRY
           </div>
 
-          <div className="relative z-10 mt-6">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white uppercase leading-tight" style={{ textShadow: '4px 4px 0px #000' }}>
-              {displayQuestion}
-            </h1>
+          <div className="ir-chat-question">
+            <h1>{displayQuestion}</h1>
             
             {isLoading && (
-               <div className="mt-6 flex gap-2">
-                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse"></div>
-                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse" style={{ animationDelay: "0.2s" }}></div>
-                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+               <div className="ir-loading-dots">
+                 <div className="ir-dot"></div>
+                 <div className="ir-dot" style={{ animationDelay: "0.2s" }}></div>
+                 <div className="ir-dot" style={{ animationDelay: "0.4s" }}></div>
                </div>
             )}
           </div>
         </div>
 
         {/* Small Scrollable Transcript Log */}
-        <div className="flex-1 bg-white border-b-4 border-black overflow-y-auto p-4 flex flex-col gap-3 relative">
-          <div className="absolute top-2 right-4 text-black opacity-30 font-black text-6xl italic transform skew-x-[-20deg] pointer-events-none">
-            LOG
-          </div>
+        <div className="ir-log-container">
+          <div className="ir-log-watermark">LOG</div>
           {messages.map((msg, idx) => (
-            <div key={idx} className={`p-3 border-2 border-black ${msg.role === 'human' ? 'bg-black text-white ml-12' : 'bg-[#f0f0f0] text-black mr-12'} shadow-[2px_2px_0px_#000] transform ${msg.role === 'human' ? 'skew-x-[1deg]' : 'skew-x-[-1deg]'}`}>
-              <div className="text-[10px] font-black uppercase text-[#e60012] mb-1">
+            <div key={idx} className={`ir-msg ${msg.role === 'human' ? 'ir-msg-human' : 'ir-msg-ai'}`}>
+              <div className="ir-msg-label">
                 {msg.role === 'human' ? 'CANDIDATE' : 'AI SUPERVISOR'}
               </div>
-              <div className="font-bold text-sm leading-snug">{msg.content}</div>
+              <div className="ir-msg-content">{msg.content}</div>
             </div>
           ))}
-          {/* Scroll anchor */}
           <div style={{ float:"left", clear: "both" }}></div>
         </div>
 
         {/* Chat Input */}
-        <form onSubmit={handleSendMessage} className="p-6 bg-black border-t-4 border-white">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
+        <form onSubmit={handleSendMessage} className="ir-chat-form">
+          <div className="ir-chat-form-row">
+            <div className="ir-chat-input-wrapper">
               <textarea 
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
@@ -303,19 +292,19 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
                 placeholder={isComplete ? "SESSION TERMINATED." : "ENTER RESPONSE..."}
                 disabled={isComplete || isLoading}
                 rows={1}
-                className="w-full bg-white text-black border-4 border-black p-4 font-bold text-lg focus:outline-none focus:border-[#e60012] transition-colors disabled:opacity-50 resize-none min-h-[70px] max-h-[150px] shadow-[4px_4px_0px_rgba(255,255,255,0.2)] focus:shadow-[4px_4px_0px_#e60012] transform skew-x-[-1deg]"
+                className="ir-chat-textarea"
               />
             </div>
             <button 
               type="submit"
               disabled={isComplete || isLoading || !inputMessage.trim()}
-              className="h-[70px] px-8 bg-[#e60012] text-white hover:bg-[#fff200] hover:text-black disabled:bg-[#333] disabled:text-[#666] border-4 border-white font-black text-xl uppercase shadow-[6px_6px_0px_#000] transform skew-x-[-5deg] transition-all disabled:shadow-none shrink-0"
+              className="ir-btn-submit"
             >
               Submit
             </button>
           </div>
-          <div className="mt-3 text-right">
-             <span className="text-xs text-[#fff200] font-black tracking-widest uppercase bg-white/10 px-2 py-0.5 transform skew-x-[10deg] inline-block">PSI Cognitive Processing Engine v2.0</span>
+          <div className="ir-chat-footer">
+             <span>PSI Cognitive Processing Engine v2.0</span>
           </div>
         </form>
       </div>

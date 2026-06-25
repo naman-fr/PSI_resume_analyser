@@ -1,0 +1,331 @@
+/* InterviewRoom.css - Vanilla CSS implementation of P5 Interview Room */
+
+.ir-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  background-color: #080808;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+  background-image: radial-gradient(#e60012 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.ir-overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.ir-gateway-box {
+  position: relative;
+  z-index: 10;
+  background: #000;
+  border: 4px solid #fff;
+  padding: 3rem;
+  max-width: 42rem;
+  text-align: center;
+  transform: skewX(-2deg);
+  box-shadow: 12px 12px 0px #e60012;
+  animation: slashReveal 0.6s ease-out both;
+}
+
+.ir-icon-box {
+  width: 5rem;
+  height: 5rem;
+  background: #e60012;
+  color: #fff;
+  border: 4px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 2rem;
+  transform: skewX(10deg);
+  box-shadow: 4px 4px 0px #fff200;
+}
+
+.ir-gateway-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-shadow: 2px 2px 0px #e60012;
+}
+
+.ir-gateway-warning {
+  background: #fff;
+  color: #000;
+  padding: 1.5rem;
+  border: 4px solid #000;
+  transform: skewX(1deg);
+  text-align: left;
+  margin-bottom: 2rem;
+  box-shadow: 4px 4px 0px rgba(255, 255, 255, 0.2);
+}
+
+.ir-gateway-warning p {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  color: #e60012;
+}
+
+.ir-gateway-warning ul {
+  list-style: none;
+  font-weight: bold;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ir-gateway-warning li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ir-gateway-warning li span {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #000;
+  transform: skewX(-10deg);
+}
+
+.ir-btn-primary {
+  width: 100%;
+  padding: 1.25rem;
+  background: #e60012;
+  color: #fff;
+  border: 4px solid #fff;
+  transform: skewX(-5deg);
+  transition: all 0.3s;
+  font-weight: 900;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  box-shadow: 6px 6px 0px #000;
+  cursor: pointer;
+}
+
+.ir-btn-primary:hover {
+  background: #fff200;
+  color: #000;
+}
+
+.ir-btn-abort {
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: transparent;
+  transition: all 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ir-btn-abort:hover {
+  color: #fff;
+  text-decoration-color: #fff;
+}
+
+/* Main Container Layout */
+.ir-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  background: #080808;
+  color: #fff;
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+  overflow: hidden;
+  background-image: radial-gradient(#e60012 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+@media (max-width: 768px) {
+  .ir-container { flex-direction: column; padding: 1rem; }
+}
+
+/* Left Panel */
+.ir-left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  z-index: 10;
+  animation: slashReveal 0.6s ease-out both;
+}
+
+.ir-video-wrapper {
+  background: #121212;
+  border: 4px solid #fff;
+  padding: 0.5rem;
+  transform: skewX(-2deg);
+  box-shadow: 8px 8px 0px #000;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ir-video-inner {
+  flex: 1;
+  overflow: hidden;
+  border: 2px solid #000;
+  position: relative;
+  background: #000;
+  min-height: 300px;
+}
+
+.ir-video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  transition: transform 0.7s;
+}
+.ir-video-wrapper:hover .ir-video-element {
+  transform: scaleX(-1) scale(1.05);
+}
+
+.ir-video-overlay-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 0.75rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.ir-live-badge {
+  background: #e60012;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  font-weight: 900;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0px #000;
+  transform: skewX(-10deg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ir-live-badge-dot {
+  width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #fff; animation: pulseNeon 1s infinite;
+}
+
+.ir-id-badge {
+  font-size: 0.75rem; font-weight: 900; color: rgba(255,255,255,0.8); background: #000; padding: 0.25rem 0.5rem; transform: skewX(10deg); border: 1px solid rgba(255,255,255,0.2);
+}
+
+.ir-alert-box {
+  position: absolute; bottom: 1rem; left: 1rem; right: 1rem; z-index: 50;
+  background: #fff200; border: 4px solid #000; color: #000; padding: 0.75rem; font-weight: 900; font-size: 0.875rem; text-transform: uppercase; box-shadow: 4px 4px 0px #e60012; transform: skewX(-5deg); animation: pulseNeon 1s infinite;
+}
+.ir-alert-title { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; color: #e60012; }
+.ir-alert-dot { width: 0.75rem; height: 0.75rem; background: #e60012; border-radius: 50%; }
+
+.ir-telemetry {
+  background: #e60012; border: 4px solid #fff; padding: 1.5rem; transform: skewX(2deg); box-shadow: 8px 8px 0px #000; display: flex; gap: 1.5rem; align-items: center; justify-content: space-between; position: relative; overflow: hidden;
+}
+.ir-telemetry-bg {
+  position: absolute; inset: 0; opacity: 0.2; pointer-events: none; background: repeating-linear-gradient(-45deg, transparent, transparent 10px, #000 10px, #000 20px);
+}
+.ir-telemetry-content { position: relative; z-index: 10; display: flex; flex: 1; gap: 1.5rem; align-items: center; }
+
+.ir-telemetry-title {
+  background: #000; color: #fff; padding: 0.5rem 1rem; font-weight: 900; text-transform: uppercase; font-size: 0.875rem; transform: skewX(-10deg); border: 2px solid #fff; box-shadow: 4px 4px 0px #000; margin: 0;
+}
+
+.ir-vector-box {
+  flex: 1; background: #fff; color: #000; border: 4px solid #000; padding: 0.75rem; transform: skewX(-2deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+}
+.ir-vector-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #e60012; margin-bottom: 0.25rem; }
+.ir-vector-value { font-weight: bold; font-size: 1rem; line-height: 1.2; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ir-load-box {
+  flex: 1; background: #000; border: 4px solid #fff; padding: 0.75rem; transform: skewX(2deg); box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+}
+.ir-load-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.25rem; }
+.ir-load-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; }
+.ir-load-val { font-size: 0.875rem; font-weight: 900; color: #fff200; }
+.ir-load-bar-bg { width: 100%; background: #121212; border: 2px solid #fff200; height: 0.75rem; padding: 2px; }
+.ir-load-bar-fill { height: 100%; background: #fff200; transition: width 1s ease-out; }
+
+.ir-btn-term {
+  padding: 1rem 1.5rem; background: #000; color: #fff; border: 4px solid #fff; transform: skewX(-5deg); font-weight: 900; font-size: 0.875rem; text-transform: uppercase; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); cursor: pointer; z-index: 10; white-space: nowrap; transition: all 0.3s;
+}
+.ir-btn-term:hover { background: #fff200; color: #000; border-color: #000; }
+
+/* Right Panel */
+.ir-right-panel {
+  flex: 1; background: #121212; border: 4px solid #fff; shadow-box: 12px 12px 0px #000; display: flex; flex-direction: column; z-index: 10; transform: skewX(-1deg); position: relative; overflow: hidden; animation: slashReveal 0.8s ease-out both; box-shadow: 12px 12px 0px #000;
+}
+
+.ir-chat-header {
+  background: #e60012; border-bottom: 4px solid #000; padding: 2rem; position: relative; min-height: 35%; display: flex; flex-direction: column; justify-content: center;
+}
+.ir-chat-header-bg {
+  position: absolute; inset: 0; opacity: 0.1; pointer-events: none; background-image: radial-gradient(#fff 2px, transparent 2px); background-size: 20px 20px;
+}
+.ir-chat-header-label {
+  position: absolute; top: 1rem; left: 1rem; background: #000; color: #fff; padding: 0.25rem 0.75rem; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; border: 2px solid #fff; transform: skewX(-10deg); box-shadow: 2px 2px 0px #fff200;
+}
+.ir-chat-question {
+  position: relative; z-index: 10; margin-top: 1.5rem; font-size: 2.5rem; font-weight: 900; color: #fff; text-transform: uppercase; line-height: 1.2; text-shadow: 4px 4px 0px #000;
+}
+@media (min-width: 1024px) { .ir-chat-question { font-size: 3rem; } }
+
+.ir-loading-dots { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.ir-dot { width: 0.75rem; height: 0.75rem; background: #fff200; border: 2px solid #000; box-shadow: 2px 2px 0px #000; transform: skewX(-10deg); animation: pulseNeon 1s infinite; }
+
+.ir-log-container {
+  flex: 1; background: #fff; border-bottom: 4px solid #000; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; position: relative;
+}
+.ir-log-watermark {
+  position: absolute; top: 0.5rem; right: 1rem; color: #000; opacity: 0.3; font-weight: 900; font-size: 3.75rem; font-style: italic; transform: skewX(-20deg); pointer-events: none;
+}
+
+.ir-msg { padding: 0.75rem; border: 2px solid #000; box-shadow: 2px 2px 0px #000; }
+.ir-msg-human { background: #000; color: #fff; margin-left: 3rem; transform: skewX(1deg); }
+.ir-msg-ai { background: #f0f0f0; color: #000; margin-right: 3rem; transform: skewX(-1deg); }
+.ir-msg-label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #e60012; margin-bottom: 0.25rem; }
+.ir-msg-content { font-weight: bold; font-size: 0.875rem; line-height: 1.4; }
+
+.ir-chat-form { padding: 1.5rem; background: #000; border-top: 4px solid #fff; }
+.ir-chat-form-row { display: flex; align-items: flex-end; gap: 1rem; }
+.ir-chat-input-wrapper { flex: 1; }
+.ir-chat-textarea {
+  width: 100%; background: #fff; color: #000; border: 4px solid #000; padding: 1rem; font-weight: bold; font-size: 1.125rem; resize: none; min-height: 70px; max-height: 150px; box-shadow: 4px 4px 0px rgba(255,255,255,0.2); transform: skewX(-1deg); transition: all 0.3s;
+}
+.ir-chat-textarea:focus { outline: none; border-color: #e60012; box-shadow: 4px 4px 0px #e60012; }
+.ir-chat-textarea:disabled { opacity: 0.5; }
+
+.ir-btn-submit {
+  height: 70px; padding: 0 2rem; background: #e60012; color: #fff; border: 4px solid #fff; font-weight: 900; font-size: 1.25rem; text-transform: uppercase; box-shadow: 6px 6px 0px #000; transform: skewX(-5deg); transition: all 0.3s; cursor: pointer; flex-shrink: 0;
+}
+.ir-btn-submit:hover:not(:disabled) { background: #fff200; color: #000; }
+.ir-btn-submit:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+.ir-chat-footer { margin-top: 0.75rem; text-align: right; }
+.ir-chat-footer span { font-size: 0.75rem; color: #fff200; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(255,255,255,0.1); padding: 0.125rem 0.5rem; transform: skewX(10deg); display: inline-block; }

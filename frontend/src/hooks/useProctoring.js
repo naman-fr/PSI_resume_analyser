@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 // Central API URL
-const API_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com';
+const CLEAN_BASE = BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+const API_URL = CLEAN_BASE + '/api';
 
 export function useProctoring(sessionId) {
   const warningsCount = useRef(0);

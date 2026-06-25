@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-const WS_URL = (import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com/api')
-  .replace('http', 'ws')
-  .replace('/api', '/ws/interview/stream');
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com';
+const CLEAN_BASE = BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+const WS_URL = CLEAN_BASE.replace(/^http/, 'ws') + '/api/ws/interview/stream';
 
 export function useVisionStream(sessionId, videoRef, isActive) {
   const [visionAlerts, setVisionAlerts] = useState([]);
