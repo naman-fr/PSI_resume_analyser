@@ -3,12 +3,16 @@ import { useProctoring } from '../hooks/useProctoring';
 import { useVisionStream } from '../hooks/useVisionStream';
 import InterviewReport from './InterviewReport';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com';
+const CLEAN_BASE = BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+const API_URL = CLEAN_BASE + '/api';
 
 import './InterviewRoom.css';
 
 export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [hasConsent, setHasConsent] = useState(false);
+  const [focusSelected, setFocusSelected] = useState(false);
+  const [interviewFocus, setInterviewFocus] = useState("balanced");
   const [cameraStream, setCameraStream] = useState(null);
   
   // Interview State
@@ -43,20 +47,29 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setCameraStream(stream);
       setHasConsent(true);
-      initInterview();
     } catch (err) {
       alert("Camera and Microphone permissions are required to proceed with the cognitive interview.");
     }
   };
 
-  const initInterview = async () => {
+  const handleFocusSelect = (focus) => {
+    setInterviewFocus(focus);
+    setFocusSelected(true);
+    initInterview(focus);
+  };
+
+  const initInterview = async (focusStr) => {
     setIsLoading(true);
     setSessionId(Math.random().toString(36).substring(7)); // Mock session ID
     try {
       const res = await fetch(`${API_URL}/interview/init`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume_text: resumeText || "Sample Resume", jd_text: jdText || "Sample JD" })
+        body: JSON.stringify({ 
+          resume_text: resumeText || "Sample Resume", 
+          jd_text: jdText || "Sample JD",
+          focus: focusStr || "balanced"
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -144,6 +157,34 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
           <button onClick={onExit} className="ir-btn-abort">
             ABORT MISSION
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasConsent && !focusSelected) {
+    return (
+      <div className="ir-overlay">
+        <div className="ir-overlay-bg"></div>
+        <div className="ir-gateway-box" style={{ maxWidth: '800px' }}>
+          <h2 className="ir-gateway-title" style={{ fontSize: '2rem' }}>Configure Cognitive Vector</h2>
+          <div className="ir-gateway-warning" style={{ textAlign: 'center' }}>
+            <p style={{ marginBottom: '1.5rem', color: '#000' }}>How would you like the AI Supervisor to conduct this interview?</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+              <button onClick={() => handleFocusSelect('resume')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #e60012' }}>
+                <div style={{ color: '#e60012', marginBottom: '0.5rem' }}>RESUME FOCUSED</div>
+                <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Drill deep into your past experience, projects, and architecture decisions.</div>
+              </button>
+              <button onClick={() => handleFocusSelect('jd')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #fff200' }}>
+                <div style={{ color: '#fff200', marginBottom: '0.5rem' }}>REQUIREMENTS FOCUSED</div>
+                <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Strictly assess your fitness against the core requirements of the Job Description.</div>
+              </button>
+              <button onClick={() => handleFocusSelect('balanced')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#e60012', border: '2px solid #fff' }}>
+                <div style={{ color: '#fff', marginBottom: '0.5rem' }}>BALANCED (RECOMMENDED)</div>
+                <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Connect your past experiences to the specific needs of the new role.</div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );

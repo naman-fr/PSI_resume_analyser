@@ -18,16 +18,26 @@ def build_interview_planner(state: InterviewState) -> Dict[str, Any]:
     
     resume_text = state.get("resume_text", "")
     jd_text = state.get("jd_text", "")
+    focus = state.get("interview_focus", "balanced")
     
     if not resume_text or not jd_text:
         return {"error": "Missing resume or JD context."}
         
+    focus_instruction = ""
+    if focus == "resume":
+        focus_instruction = "FOCUS STRICTLY ON THE CANDIDATE's RESUME EXPERIENCE. Ignore the JD. Ask about their past projects, architectures, and decisions."
+    elif focus == "jd":
+        focus_instruction = "FOCUS STRICTLY ON THE JOB DESCRIPTION. Ignore their past experience. Grill them on the specific technical requirements listed in the JD."
+    else:
+        focus_instruction = "BALANCED APPROACH. Connect their past resume experience to the specific requirements of the JD."
+
     try:
         from agents import resume_parser
         llm, _ = resume_parser.get_llm()
         
         prompt = f"""You are the Principal Interview Architect.
 Based on the candidate's resume and the job description, build a 5-step conceptual 'Interview Tree'.
+INSTRUCTION: {focus_instruction}
 Also, formulate the VERY FIRST deeply technical or analytical question to kick off the interview based on their most prominent experience related to the JD. Do not say "Hello" or "Walk me through your resume." Ask a direct, complex question immediately.
 
 Return ONLY a valid JSON object matching this schema exactly:
@@ -153,11 +163,15 @@ Recent Conversation:
 {chat_history}
 
 First, silently evaluate their answer for correctness, depth, and reasoning.
-Then, generate the NEXT question to ask the candidate based directly on what they just said. 
-DO NOT ask multiple questions at once. Ask ONE deep, focused follow-up question. 
+Then, generate the NEXT response to the candidate.
+CRITICAL REQUIREMENT: Your response MUST begin with an explicit, harsh, Persona 5 style grade wrapped in brackets like this: [GRADE: X/10] (where X is 1-10). Provide 1 short sentence justifying the grade.
+Then, ask ONE deep, focused follow-up question based directly on what they just said. 
+DO NOT ask multiple questions at once.
 If they answered well, dig deeper into their explanation (e.g., "Why did you choose X over Y?" or "How does that scale?").
-If their answer was poor or shallow, challenge their assumptions.
-Keep it concise, conversational, and highly technical. DO NOT output your internal evaluation, only output the spoken question.
+If their answer was poor or shallow, challenge their assumptions aggressively.
+Keep it concise, conversational, and highly technical.
+Example Output:
+[GRADE: 4/10] You completely ignored race conditions in your explanation. How exactly would your proposed database schema handle concurrent write transactions at scale?
 """
         response = llm.invoke([SystemMessage(content=prompt)])
         new_q = response.content

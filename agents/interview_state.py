@@ -7,6 +7,7 @@ class InterviewState(TypedDict, total=False):
     session_id: str
     resume_text: str
     jd_text: str
+    interview_focus: str
     
     # ── Pre-computation ──
     knowledge_graph: Dict[str, Any]      # Candidate's concepts (Projects, Skills)

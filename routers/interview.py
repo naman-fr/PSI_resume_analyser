@@ -13,6 +13,7 @@ router = APIRouter(prefix="/api/interview", tags=["Interview"])
 class InitRequest(BaseModel):
     resume_text: str
     jd_text: str
+    focus: Optional[str] = "balanced"
 
 class ChatRequest(BaseModel):
     messages: List[Dict[str, str]]
@@ -33,6 +34,7 @@ async def init_interview(req: InitRequest):
         initial_state: InterviewState = {
             "resume_text": req.resume_text,
             "jd_text": req.jd_text,
+            "interview_focus": req.focus,
             "messages": [],
             "evaluations": []
         }
