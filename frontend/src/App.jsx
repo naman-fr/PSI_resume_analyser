@@ -8,6 +8,7 @@ import {
 
 import P5Button from './components/P5Button';
 import AuthScreen from './components/AuthScreen';
+import InterviewRoom from './components/InterviewRoom';
 import { useAuth } from './AuthContext';
 import loadingGif from './components/Scenes/loading_gif.gif';
 
@@ -51,6 +52,7 @@ export default function App() {
     }
   }, [currentUser]);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showInterview, setShowInterview] = useState(false);
   
   // Checkout Form State
   const [checkoutName, setCheckoutName] = useState('');
@@ -437,6 +439,16 @@ export default function App() {
 
   if (!currentUser) {
     return <AuthScreen />;
+  }
+
+  if (showInterview) {
+    return (
+      <InterviewRoom 
+        resumeText={resumeFile ? resumeFile.name : ""}
+        jdText={jdText}
+        onExit={() => setShowInterview(false)} 
+      />
+    );
   }
 
   return (
@@ -973,10 +985,18 @@ export default function App() {
               {/* Premium Verification results */}
               {premiumMode && analysisResult.premium_report && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem', marginBottom: '2rem' }}>
-                  <h2 style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-display)', fontSize: '1.8rem', borderBottom: '2px solid var(--p5-red)', paddingBottom: '0.5rem', textTransform: 'uppercase' }}>
-                    <ShieldAlert style={{ display: 'inline', verticalAlign: 'middle', marginRight: '10px' }}/> 
-                    Ultimate Intelligence Suite
-                  </h2>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--p5-red)', paddingBottom: '0.5rem' }}>
+                    <h2 style={{ color: 'var(--p5-yellow)', fontFamily: 'var(--ff-display)', fontSize: '1.8rem', textTransform: 'uppercase', margin: 0 }}>
+                      <ShieldAlert style={{ display: 'inline', verticalAlign: 'middle', marginRight: '10px' }}/> 
+                      Ultimate Intelligence Suite
+                    </h2>
+                    <button 
+                      onClick={() => setShowInterview(true)}
+                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold shadow-[0_0_15px_rgba(79,70,229,0.5)] transition-all flex items-center gap-2"
+                    >
+                      <Cpu className="w-5 h-5" /> Launch AI Interview Proctoring
+                    </button>
+                  </div>
 
                   <div className="split-layout">
                     {/* Feature 1: ATS Integrity */}
