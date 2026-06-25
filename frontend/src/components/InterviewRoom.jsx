@@ -43,13 +43,46 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     }
   }, [cameraStream, focusSelected]);
 
+  const [isFullscreenError, setIsFullscreenError] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && hasConsent && !isComplete) {
+        setIsFullscreenError(true);
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, [hasConsent, isComplete]);
+
   const requestPermissions = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setCameraStream(stream);
+      
+      try {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (fsErr) {
+        console.warn("Fullscreen request failed", fsErr);
+      }
+      
       setHasConsent(true);
+      setIsFullscreenError(false);
     } catch (err) {
       alert("Camera and Microphone permissions are required to proceed with the cognitive interview.");
+    }
+  };
+
+  const handleReturnToFullscreen = async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreenError(false);
+      }
+    } catch (err) {
+      console.warn("Could not return to fullscreen", err);
     }
   };
 
@@ -214,6 +247,34 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
 
   if (finalReport) {
     return <InterviewReport report={finalReport} transcript={messages} onClose={onExit} />;
+  }
+
+  if (isFullscreenError) {
+    return (
+      <div className="ir-overlay">
+        <div className="ir-overlay-bg"></div>
+        <div className="ir-gateway-box" style={{ borderColor: '#e60012', boxShadow: '12px 12px 0px #fff' }}>
+          <div className="ir-icon-box" style={{ background: '#fff', color: '#e60012', borderColor: '#e60012' }}>
+            <i className="fas fa-exclamation-triangle"></i>
+          </div>
+          <h2 className="ir-gateway-title" style={{ color: '#e60012', textShadow: '2px 2px 0px #fff' }}>SECURITY VIOLATION</h2>
+          <div className="ir-gateway-warning">
+            <p>FULL SCREEN EXITED</p>
+            <ul>
+              <li><span></span> The interview MUST be conducted in full screen mode.</li>
+              <li><span></span> Split-screening or window minimizing is strictly prohibited.</li>
+              <li><span></span> Return to full screen immediately or your session will be terminated.</li>
+            </ul>
+          </div>
+          <button onClick={handleReturnToFullscreen} className="ir-btn-primary">
+            RETURN TO FULL SCREEN
+          </button>
+          <button onClick={handleEnd} className="ir-btn-abort" style={{ color: '#e60012', borderColor: '#e60012' }}>
+            TERMINATE INTERVIEW
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Extract last AI message for the massive prominent question display

@@ -285,7 +285,8 @@ def create_interview_graph():
     def check_complete(state: InterviewState):
         if state.get("is_complete"):
             return "committee"
-        return "socratic"
+        # Return END to pause execution and wait for human reply in the next HTTP request
+        return END
         
     workflow.add_conditional_edges(START, route_start)
     workflow.add_edge("planner", END) # Planner just initializes the state, we return to the user.

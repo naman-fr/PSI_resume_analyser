@@ -24,6 +24,7 @@ except Exception as e:
 class VisionProctor:
     def __init__(self):
         self.enabled = HAS_CV
+        self.missing_eyes_counter = 0
 
     def process_frame(self, base64_img: str) -> dict:
         """
@@ -58,14 +59,15 @@ class VisionProctor:
             faces = face_cascade.detectMultiScale(
                 gray,
                 scaleFactor=1.1,
-                minNeighbors=5,
-                minSize=(30, 30)
+                minNeighbors=6,  # Increased for stricter face matching
+                minSize=(40, 40)
             )
             
             alerts = []
             
             if len(faces) == 0:
                 alerts.append("CANDIDATE_NOT_DETECTED")
+                self.missing_eyes_counter = 0
             else:
                 if len(faces) > 1:
                     alerts.append(f"MULTIPLE_PEOPLE_DETECTED ({len(faces)})")
@@ -75,10 +77,21 @@ class VisionProctor:
                 x, y, w, h = faces_sorted[0]
                 roi_gray = gray[y:y+h, x:x+w]
                 
-                eyes = eye_cascade.detectMultiScale(roi_gray, scaleFactor=1.1, minNeighbors=10, minSize=(15, 15))
+                # Detect eyes with stricter scale factor and larger min size
+                eyes = eye_cascade.detectMultiScale(
+                    roi_gray, 
+                    scaleFactor=1.15, 
+                    minNeighbors=12, 
+                    minSize=(20, 20)
+                )
                 
                 if len(eyes) == 0:
-                    alerts.append("EYES_NOT_ON_SCREEN / LOOKING_AWAY")
+                    self.missing_eyes_counter += 1
+                    # Require 3 consecutive frames (1.5 seconds at 2fps) to trigger alert
+                    if self.missing_eyes_counter >= 3:
+                        alerts.append("EYES_NOT_ON_SCREEN / LOOKING_AWAY")
+                else:
+                    self.missing_eyes_counter = 0
                     
                 # Very basic "Screen in background" proxy via brightness
                 if np.mean(gray) > 200:
