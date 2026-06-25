@@ -24,6 +24,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [evaluations, setEvaluations] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
   const [finalReport, setFinalReport] = useState(null);
+  const [localResumeText, setLocalResumeText] = useState(resumeText === "Resume Not Provided" ? "" : resumeText || "");
   
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -167,8 +168,6 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
       </div>
     );
   }
-
-  const [localResumeText, setLocalResumeText] = useState(resumeText === "Resume Not Provided" ? "" : resumeText || "");
 
   if (hasConsent && !focusSelected) {
     return (
