@@ -784,6 +784,39 @@ export default function App() {
               </div>
             </ScrollSection>
 
+            {/* Scroll Section 9: Cognitive Interview Intelligence Suite */}
+            <ScrollSection direction="left">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem', background: '#e60012', color: '#fff', border: '4px solid #fff', fontWeight: 900, boxShadow: '4px 4px 0px #000' }}>OPERATION 09</span>
+                <h2 className="scroll-title" style={{ color: '#fff', textShadow: '-6px 6px 0px #e60012' }}>Cognitive<br/>Interview</h2>
+                <p className="scroll-subtitle">
+                  AI Proctoring & Cognitive Interview Intelligence Platform (Premium Enterprise). Real-time WebRTC proctoring, LangGraph Socratic Swarm, and true side-by-side evaluation.
+                </p>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => {
+                    if (premiumMode) {
+                      setShowInterview(true);
+                    } else {
+                      setShowCheckout(true);
+                    }
+                  }} 
+                  style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)', background: '#000', color: '#fff', border: '4px solid #fff', boxShadow: '6px 6px 0px #e60012', fontWeight: 900 }}
+                >
+                  {premiumMode ? 'INITIATE INTERVIEW →' : 'UNLOCK CLEARANCE 🔓'}
+                </button>
+              </div>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+                <div className="geometry-hud" style={{ border: '4px solid #e60012' }}>
+                  <div className="hud-graph" style={{ borderBottom: '2px solid #fff' }}>
+                    <div className="hud-bar" style={{ background: '#e60012', height: '60%' }}></div>
+                    <div className="hud-bar" style={{ background: '#fff200', height: '90%' }}></div>
+                    <div className="hud-bar" style={{ background: '#fff', height: '40%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </ScrollSection>
+
           </div>
 
         </div>
@@ -990,12 +1023,6 @@ export default function App() {
                       <ShieldAlert style={{ display: 'inline', verticalAlign: 'middle', marginRight: '10px' }}/> 
                       Ultimate Intelligence Suite
                     </h2>
-                    <button 
-                      onClick={() => setShowInterview(true)}
-                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-bold shadow-[0_0_15px_rgba(79,70,229,0.5)] transition-all flex items-center gap-2"
-                    >
-                      <Cpu className="w-5 h-5" /> Launch AI Interview Proctoring
-                    </button>
                   </div>
 
                   <div className="split-layout">

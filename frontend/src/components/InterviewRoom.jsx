@@ -147,6 +147,10 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     return <InterviewReport report={finalReport} transcript={messages} onClose={onExit} />;
   }
 
+  // Extract last AI message for the massive prominent question display
+  const lastAiMessage = [...messages].reverse().find(m => m.role === 'ai');
+  const displayQuestion = lastAiMessage ? lastAiMessage.content : (isLoading ? "SYNTHESIZING NEXT INQUIRY..." : "INITIALIZING COGNITIVE ENGINE...");
+
   return (
     <div className="min-h-screen bg-[#080808] text-white p-4 md:p-6 lg:p-8 flex flex-col md:flex-row gap-8 relative overflow-hidden" style={{
       backgroundImage: 'radial-gradient(#e60012 1px, transparent 1px)',
@@ -154,12 +158,12 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     }}>
       <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
 
-      {/* Left Panel: Proctoring & Context */}
-      <div className="w-full md:w-[400px] lg:w-[440px] flex flex-col gap-8 shrink-0 z-10 animate-[slashReveal_0.6s_ease-out_both]">
+      {/* Left Panel: Proctoring & Context (50%) */}
+      <div className="flex-1 flex flex-col gap-8 shrink-0 z-10 animate-[slashReveal_0.6s_ease-out_both]">
         
         {/* Camera Feed - P5 TV Screen Style */}
-        <div className="bg-[#121212] border-4 border-white p-2 transform skew-x-[-2deg] shadow-[8px_8px_0px_#000] relative group">
-          <div className="overflow-hidden border-2 border-black relative bg-black aspect-[4/3]">
+        <div className="bg-[#121212] border-4 border-white p-2 transform skew-x-[-2deg] shadow-[8px_8px_0px_#000] relative group flex-1 flex flex-col">
+          <div className="flex-1 overflow-hidden border-2 border-black relative bg-black min-h-[300px]">
             <video 
               ref={videoRef} 
               autoPlay 
@@ -198,91 +202,85 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         </div>
 
         {/* Interview Meta dashboard - P5 Style */}
-        <div className="bg-[#e60012] border-4 border-white p-6 transform skew-x-[2deg] shadow-[8px_8px_0px_#000] flex flex-col justify-between relative overflow-hidden">
+        <div className="bg-[#e60012] border-4 border-white p-6 transform skew-x-[2deg] shadow-[8px_8px_0px_#000] flex flex-row gap-6 items-center justify-between relative overflow-hidden shrink-0">
           <div className="absolute inset-0 opacity-20 pointer-events-none bg-[repeating-linear-gradient(-45deg,transparent,transparent_10px,#000_10px,#000_20px)]"></div>
           
-          <div className="relative z-10">
-            <h3 className="bg-black text-white inline-block px-4 py-1 font-black uppercase text-sm mb-6 transform skew-x-[-10deg] border-2 border-white shadow-[4px_4px_0px_#000]">
+          <div className="relative z-10 flex-1 flex gap-6 items-center">
+            <h3 className="bg-black text-white inline-block px-4 py-2 font-black uppercase text-sm transform skew-x-[-10deg] border-2 border-white shadow-[4px_4px_0px_#000]">
               Telemetry
             </h3>
             
-            <div className="space-y-6">
-              <div className="bg-white text-black border-4 border-black p-4 transform skew-x-[-2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
-                <div className="text-xs font-black uppercase tracking-widest text-[#e60012] mb-1">Current Vector</div>
-                <div className="font-bold text-lg leading-tight uppercase">
-                  {currentTopic || "Awaiting Node..."}
-                </div>
+            <div className="flex-1 bg-white text-black border-4 border-black p-3 transform skew-x-[-2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
+              <div className="text-xs font-black uppercase tracking-widest text-[#e60012] mb-1">Current Vector</div>
+              <div className="font-bold text-md leading-tight uppercase truncate">
+                {currentTopic || "Awaiting Node..."}
               </div>
-              
-              <div className="bg-black border-4 border-white p-4 transform skew-x-[2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
-                <div className="flex justify-between items-end mb-2">
-                  <div className="text-xs font-black uppercase tracking-widest text-white">Cognitive Load</div>
-                  <div className="text-lg font-black text-[#fff200]">Lvl {difficulty}/10</div>
-                </div>
-                <div className="w-full bg-[#121212] border-2 border-[#fff200] h-4 p-0.5">
-                  <div 
-                    className="h-full bg-[#fff200] transition-all duration-1000 ease-out" 
-                    style={{ width: `${(difficulty / 10) * 100}%` }}
-                  ></div>
-                </div>
+            </div>
+            
+            <div className="flex-1 bg-black border-4 border-white p-3 transform skew-x-[2deg] shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
+              <div className="flex justify-between items-end mb-1">
+                <div className="text-[10px] font-black uppercase tracking-widest text-white">Cognitive Load</div>
+                <div className="text-sm font-black text-[#fff200]">Lvl {difficulty}/10</div>
+              </div>
+              <div className="w-full bg-[#121212] border-2 border-[#fff200] h-3 p-0.5">
+                <div 
+                  className="h-full bg-[#fff200] transition-all duration-1000 ease-out" 
+                  style={{ width: `${(difficulty / 10) * 100}%` }}
+                ></div>
               </div>
             </div>
           </div>
           
           <button 
             onClick={handleEnd}
-            className="w-full mt-8 py-4 bg-black text-white hover:bg-[#fff200] hover:text-black hover:border-black border-4 border-white transform skew-x-[-5deg] transition-all font-black text-lg uppercase shadow-[4px_4px_0px_rgba(0,0,0,0.5)] relative z-10"
+            className="px-6 py-4 bg-black text-white hover:bg-[#fff200] hover:text-black hover:border-black border-4 border-white transform skew-x-[-5deg] transition-all font-black text-sm uppercase shadow-[4px_4px_0px_rgba(0,0,0,0.5)] relative z-10 whitespace-nowrap"
           >
-            Terminate Session
+            Terminate
           </button>
         </div>
       </div>
 
-      {/* Right Panel: Chat Interface - P5 Dialogue Box Style */}
+      {/* Right Panel: Chat Interface - P5 Dialogue Box Style (50%) */}
       <div className="flex-1 bg-[#121212] border-4 border-white shadow-[12px_12px_0px_#000] flex flex-col z-10 transform skew-x-[-1deg] relative overflow-hidden animate-[slashReveal_0.8s_ease-out_both]">
         
-        {/* Chat Header */}
-        <div className="bg-black border-b-4 border-[#e60012] p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#e60012] border-4 border-white transform skew-x-[-15deg] shadow-[4px_4px_0px_#fff200] flex items-center justify-center">
-              <span className="font-black text-2xl text-white transform skew-x-[15deg]">AI</span>
-            </div>
-            <div>
-              <h2 className="font-black text-3xl text-white uppercase tracking-tighter" style={{ textShadow: '2px 2px 0px #e60012' }}>Socratic Supervisor</h2>
-              <div className="inline-block bg-[#fff200] text-black px-2 py-0.5 font-black text-xs uppercase transform skew-x-[10deg] mt-1">
-                Link Active
-              </div>
-            </div>
+        {/* Massive Current Question Display */}
+        <div className="bg-[#e60012] border-b-4 border-black p-8 relative min-h-[35%] flex flex-col justify-center">
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_2px,transparent_2px)] bg-[size:20px_20px]"></div>
+          
+          <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 font-black text-xs uppercase border-2 border-white transform skew-x-[-10deg] shadow-[2px_2px_0px_#fff200]">
+            CURRENT INQUIRY
+          </div>
+
+          <div className="relative z-10 mt-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white uppercase leading-tight" style={{ textShadow: '4px 4px 0px #000' }}>
+              {displayQuestion}
+            </h1>
+            
+            {isLoading && (
+               <div className="mt-6 flex gap-2">
+                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse"></div>
+                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse" style={{ animationDelay: "0.2s" }}></div>
+                 <div className="w-3 h-3 bg-[#fff200] border-2 border-black shadow-[2px_2px_0px_#000] transform skew-x-[-10deg] animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+               </div>
+            )}
           </div>
         </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 scroll-smooth bg-[radial-gradient(#ffffff22_1px,transparent_1px)]" style={{ backgroundSize: '16px 16px' }}>
-          
+        {/* Small Scrollable Transcript Log */}
+        <div className="flex-1 bg-white border-b-4 border-black overflow-y-auto p-4 flex flex-col gap-3 relative">
+          <div className="absolute top-2 right-4 text-black opacity-30 font-black text-6xl italic transform skew-x-[-20deg] pointer-events-none">
+            LOG
+          </div>
           {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'human' ? 'justify-end' : 'justify-start'} animate-[fadeSkewUp_0.4s_ease-out_both]`} style={{ animationDelay: `${idx * 0.1}s` }}>
-              <div className={`max-w-[85%] md:max-w-[75%] p-5 text-lg font-bold shadow-[6px_6px_0px_#000] border-4 border-black leading-snug ${
-                msg.role === 'human' 
-                  ? 'bg-white text-black transform skew-x-[2deg]' 
-                  : 'bg-[#e60012] text-white transform skew-x-[-2deg]'
-              }`}>
-                {msg.content}
+            <div key={idx} className={`p-3 border-2 border-black ${msg.role === 'human' ? 'bg-black text-white ml-12' : 'bg-[#f0f0f0] text-black mr-12'} shadow-[2px_2px_0px_#000] transform ${msg.role === 'human' ? 'skew-x-[1deg]' : 'skew-x-[-1deg]'}`}>
+              <div className="text-[10px] font-black uppercase text-[#e60012] mb-1">
+                {msg.role === 'human' ? 'CANDIDATE' : 'AI SUPERVISOR'}
               </div>
+              <div className="font-bold text-sm leading-snug">{msg.content}</div>
             </div>
           ))}
-          
-          {isLoading && (
-            <div className="flex justify-start animate-[fadeSkewUp_0.2s_ease-out_both]">
-              <div className="bg-black border-4 border-white text-white p-4 font-black shadow-[6px_6px_0px_#e60012] transform skew-x-[-5deg] flex items-center gap-3">
-                <span className="text-xl">SYNTHESIZING</span>
-                <div className="flex gap-1.5 mt-1">
-                  <span className="w-2 h-2 bg-[#fff200] rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-[#fff200] rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></span>
-                  <span className="w-2 h-2 bg-[#fff200] rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></span>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Scroll anchor */}
+          <div style={{ float:"left", clear: "both" }}></div>
         </div>
 
         {/* Chat Input */}
@@ -301,19 +299,19 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
                 placeholder={isComplete ? "SESSION TERMINATED." : "ENTER RESPONSE..."}
                 disabled={isComplete || isLoading}
                 rows={1}
-                className="w-full bg-white text-black border-4 border-black p-4 font-bold focus:outline-none focus:border-[#e60012] transition-colors disabled:opacity-50 resize-none min-h-[60px] max-h-[150px] shadow-[4px_4px_0px_rgba(255,255,255,0.2)] focus:shadow-[4px_4px_0px_#e60012] transform skew-x-[-1deg]"
+                className="w-full bg-white text-black border-4 border-black p-4 font-bold text-lg focus:outline-none focus:border-[#e60012] transition-colors disabled:opacity-50 resize-none min-h-[70px] max-h-[150px] shadow-[4px_4px_0px_rgba(255,255,255,0.2)] focus:shadow-[4px_4px_0px_#e60012] transform skew-x-[-1deg]"
               />
             </div>
             <button 
               type="submit"
               disabled={isComplete || isLoading || !inputMessage.trim()}
-              className="h-[60px] px-8 bg-[#e60012] text-white hover:bg-[#fff200] hover:text-black disabled:bg-[#333] disabled:text-[#666] border-4 border-white font-black text-xl uppercase shadow-[6px_6px_0px_#000] transform skew-x-[-5deg] transition-all disabled:shadow-none shrink-0"
+              className="h-[70px] px-8 bg-[#e60012] text-white hover:bg-[#fff200] hover:text-black disabled:bg-[#333] disabled:text-[#666] border-4 border-white font-black text-xl uppercase shadow-[6px_6px_0px_#000] transform skew-x-[-5deg] transition-all disabled:shadow-none shrink-0"
             >
-              Send
+              Submit
             </button>
           </div>
           <div className="mt-3 text-right">
-             <span className="text-xs text-white/50 font-black tracking-widest uppercase bg-white/10 px-2 py-0.5 transform skew-x-[10deg] inline-block">PSI Engine v2.0</span>
+             <span className="text-xs text-[#fff200] font-black tracking-widest uppercase bg-white/10 px-2 py-0.5 transform skew-x-[10deg] inline-block">PSI Cognitive Processing Engine v2.0</span>
           </div>
         </form>
       </div>
