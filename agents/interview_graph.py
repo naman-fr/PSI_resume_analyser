@@ -28,8 +28,13 @@ def build_interview_planner(state: InterviewState) -> Dict[str, Any]:
         
         prompt = f"""You are the Principal Interview Architect.
 Based on the candidate's resume and the job description, build a 5-step conceptual 'Interview Tree'.
-Return ONLY a valid JSON list of strings, representing the concepts to cover sequentially.
-Example: ["Authentication", "JWT scaling", "Redis implementation", "Docker", "System Architecture"]
+Also, formulate the VERY FIRST deeply technical or analytical question to kick off the interview based on their most prominent experience related to the JD. Do not say "Hello" or "Walk me through your resume." Ask a direct, complex question immediately.
+
+Return ONLY a valid JSON object matching this schema exactly:
+{{
+  "tree": ["Concept 1", "Concept 2", "Concept 3", "Concept 4", "Concept 5"],
+  "first_question": "Your highly specific, direct technical question here..."
+}}
 
 Resume: {resume_text[:2000]}
 JD: {jd_text[:2000]}
@@ -37,22 +42,25 @@ JD: {jd_text[:2000]}
         response = llm.invoke([SystemMessage(content=prompt)])
         raw_content = response.content
         
-        tree = ["Introduction", "Core Experience", "Technical Deep Dive", "System Design", "Behavioral (STAR)"]
+        tree = ["Core Architecture", "Scalability", "System Design", "Failure Recovery", "Behavioral"]
+        first_q = "Let's dive right in. Could you explain the most complex technical architectural decision you made in your recent role, and why?"
+        
         try:
             if "```json" in raw_content:
-                extracted = raw_content.split("```json")[1].split("```")[0].strip()
-                tree = json.loads(extracted)
-            elif "[" in raw_content:
-                extracted = raw_content[raw_content.find("["):raw_content.rfind("]")+1]
-                tree = json.loads(extracted)
+                raw_content = raw_content.split("```json")[1].split("```")[0].strip()
+            data = json.loads(raw_content)
+            if "tree" in data and isinstance(data["tree"], list):
+                tree = data["tree"]
+            if "first_question" in data:
+                first_q = data["first_question"]
         except Exception as parse_e:
             logger.warning(f"Failed to parse interview tree: {parse_e}. Using default.")
             
         return {
             "interview_tree": tree,
-            "current_topic": tree[0] if tree else "Introduction",
-            "difficulty_level": 3,  # Start at Medium-Easy
-            "messages": [{"role": "ai", "content": f"Hello! I am your AI Interviewer. To start, let's talk about your background. I see your resume. Can you briefly walk me through {tree[0] if tree else 'your experience'}?"}]
+            "current_topic": tree[0] if tree else "Core Architecture",
+            "difficulty_level": 5,  # Start at Medium
+            "messages": [{"role": "ai", "content": first_q}]
         }
         
     except Exception as exc:
@@ -144,10 +152,12 @@ Current Target Difficulty (1-10): {difficulty}
 Recent Conversation:
 {chat_history}
 
-Generate the NEXT question to ask the candidate. 
+First, silently evaluate their answer for correctness, depth, and reasoning.
+Then, generate the NEXT question to ask the candidate based directly on what they just said. 
 DO NOT ask multiple questions at once. Ask ONE deep, focused follow-up question. 
 If they answered well, dig deeper into their explanation (e.g., "Why did you choose X over Y?" or "How does that scale?").
-Keep it concise and conversational.
+If their answer was poor or shallow, challenge their assumptions.
+Keep it concise, conversational, and highly technical. DO NOT output your internal evaluation, only output the spoken question.
 """
         response = llm.invoke([SystemMessage(content=prompt)])
         new_q = response.content

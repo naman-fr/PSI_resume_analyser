@@ -49,21 +49,33 @@ class VisionProctor:
             alerts = []
             
             if not results.multi_face_landmarks:
-                alerts.append("NO_FACE_DETECTED")
+                alerts.append("CANDIDATE_NOT_DETECTED")
             else:
                 num_faces = len(results.multi_face_landmarks)
                 if num_faces > 1:
-                    alerts.append("MULTIPLE_PEOPLE_DETECTED")
+                    alerts.append(f"MULTIPLE_PEOPLE_DETECTED ({num_faces})")
                 
-                # Simple Gaze / Head Pose estimation (Mocked logic for speed)
-                # In a full deployment, we'd calculate PnP from 3D landmarks
                 face_landmarks = results.multi_face_landmarks[0]
                 
-                # Simplified check: Is the nose point way off center?
+                # Head Pose / Gaze Tracking
                 nose_tip = face_landmarks.landmark[1]
-                if nose_tip.x < 0.2 or nose_tip.x > 0.8:
+                left_eye_inner = face_landmarks.landmark[133]
+                right_eye_inner = face_landmarks.landmark[362]
+                
+                # Check if head is turned drastically
+                if nose_tip.x < 0.35 or nose_tip.x > 0.65:
                     alerts.append("HEAD_TURNED_AWAY")
                     
+                # Basic Iris/Gaze tracking proxy (are eyes looking away?)
+                eye_center_x = (left_eye_inner.x + right_eye_inner.x) / 2.0
+                if abs(nose_tip.x - eye_center_x) > 0.1:
+                    alerts.append("SUSPICIOUS_GAZE_DETECTED")
+
+                # Very basic "Screen in background" proxy via brightness
+                gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
+                if np.mean(gray) > 200:
+                    alerts.append("HIGH_BACKGROUND_GLARE_SCREEN_DETECTED")
+
             return {
                 "status": "success",
                 "face_count": len(results.multi_face_landmarks) if results.multi_face_landmarks else 0,

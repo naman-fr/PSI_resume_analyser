@@ -25,8 +25,10 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const videoRef = useRef(null);
   
   // Attach proctoring once consent is given and session starts
-  useProctoring(hasConsent ? sessionId : null);
+  const { localAlerts } = useProctoring(hasConsent ? sessionId : null);
   const { visionAlerts } = useVisionStream(sessionId, videoRef, hasConsent && !isComplete);
+
+  const combinedAlerts = [...(visionAlerts || []), ...(localAlerts || [])];
 
   useEffect(() => {
     if (cameraStream && videoRef.current) {
@@ -115,28 +117,30 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
 
   if (!hasConsent) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#111] p-8 rounded-2xl border border-white/10 max-w-xl text-center">
-          <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+      <div className="fixed inset-0 w-screen h-screen z-50 bg-[#080808] flex items-center justify-center p-4 overflow-hidden" style={{ backgroundImage: 'radial-gradient(#e60012 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+        <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+        <div className="relative z-10 bg-black border-4 border-white p-8 md:p-12 max-w-2xl text-center transform skew-x-[-2deg] shadow-[12px_12px_0px_#e60012] animate-[slashReveal_0.6s_ease-out_both]">
+          <div className="w-20 h-20 bg-[#e60012] text-white border-4 border-white flex items-center justify-center mx-auto mb-6 text-3xl transform skew-x-[10deg] shadow-[4px_4px_0px_#fff200]">
             <i className="fas fa-shield-alt"></i>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-4">Compliance & Proctoring Gateway</h2>
-          <p className="text-gray-400 mb-6 text-left">
-            You are about to enter the PSI Cognitive Interview Suite. To ensure a fair and secure environment:
-            <ul className="list-disc ml-6 mt-4 space-y-2 text-sm text-gray-300">
-              <li>We require access to your Camera and Microphone.</li>
-              <li>Your identity and gaze will be verified continuously (Phase 2 Vision).</li>
-              <li>Navigating away from this tab will trigger an automated proctoring alert.</li>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-6 uppercase leading-tight" style={{ textShadow: '2px 2px 0px #e60012' }}>Security Clearance Gateway</h2>
+          <div className="bg-white text-black p-6 border-4 border-black transform skew-x-[1deg] text-left mb-8 shadow-[4px_4px_0px_rgba(255,255,255,0.2)]">
+            <p className="font-bold mb-4 uppercase text-[#e60012]">WARNING: Cognitive Proctoring Initiated</p>
+            <ul className="list-none space-y-3 font-bold text-sm">
+              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Camera & Microphone access is mandatory.</li>
+              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Advanced WebRTC Vision verifies identity and gaze tracking.</li>
+              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Multiple Person detection is STRICTLY ENFORCED.</li>
+              <li className="flex items-center gap-3"><span className="w-2 h-2 bg-black transform skew-x-[-10deg]"></span> Tab switching and focus loss will log immediate infractions.</li>
             </ul>
-          </p>
+          </div>
           <button 
             onClick={requestPermissions}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-medium transition-all"
+            className="w-full py-5 bg-[#e60012] text-white hover:bg-[#fff200] hover:text-black border-4 border-white transform skew-x-[-5deg] transition-all font-black text-xl uppercase shadow-[6px_6px_0px_#000]"
           >
-            I Consent - Enable Camera & Mic
+            I CONSENT - INITIALIZE PROCTORING
           </button>
-          <button onClick={onExit} className="mt-4 text-gray-500 hover:text-white transition-colors text-sm">
-            Cancel and Return
+          <button onClick={onExit} className="mt-6 text-white/50 hover:text-white font-black uppercase text-sm tracking-widest underline decoration-2 decoration-transparent hover:decoration-white transition-all">
+            ABORT MISSION
           </button>
         </div>
       </div>
@@ -152,7 +156,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const displayQuestion = lastAiMessage ? lastAiMessage.content : (isLoading ? "SYNTHESIZING NEXT INQUIRY..." : "INITIALIZING COGNITIVE ENGINE...");
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white p-4 md:p-6 lg:p-8 flex flex-col md:flex-row gap-8 relative overflow-hidden" style={{
+    <div className="fixed inset-0 w-screen h-screen z-50 bg-[#080808] text-white p-4 md:p-6 lg:p-8 flex flex-col md:flex-row gap-8 overflow-hidden" style={{
       backgroundImage: 'radial-gradient(#e60012 1px, transparent 1px)',
       backgroundSize: '24px 24px'
     }}>
@@ -184,14 +188,14 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
             </div>
             
             {/* Proctoring Alerts Overlay */}
-            {visionAlerts.length > 0 && (
-              <div className="absolute inset-x-4 bottom-4">
+            {combinedAlerts.length > 0 && (
+              <div className="absolute inset-x-4 bottom-4 z-50">
                 <div className="bg-[#fff200] border-4 border-black text-black p-3 font-black text-sm uppercase shadow-[4px_4px_0px_#e60012] transform skew-x-[-5deg] animate-pulse">
                   <div className="flex items-center gap-2 mb-1 text-[#e60012]">
                     <span className="w-3 h-3 bg-[#e60012] rounded-full"></span>
                     SECURITY ALERT
                   </div>
-                  <div>{visionAlerts.join(" | ")}</div>
+                  <div>{combinedAlerts.join(" | ")}</div>
                 </div>
               </div>
             )}
