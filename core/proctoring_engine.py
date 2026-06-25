@@ -7,15 +7,16 @@ logger = logging.getLogger(__name__)
 # To avoid crashing environments that don't have these installed yet
 try:
     import cv2
-    import mediapipe.python.solutions.face_mesh as mp_face_mesh
+    import os
     
-    face_mesh = mp_face_mesh.FaceMesh(
-        max_num_faces=2,  # Important for detecting multiple people
-        refine_landmarks=True,
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5
-    )
-    HAS_CV = True
+    # Use lightweight Haar cascades instead of MediaPipe to save memory on Render Free Tier
+    cascPathface = os.path.dirname(cv2.__file__) + "/data/haarcascade_frontalface_default.xml"
+    cascPatheyes = os.path.dirname(cv2.__file__) + "/data/haarcascade_eye.xml"
+    
+    face_cascade = cv2.CascadeClassifier(cascPathface)
+    eye_cascade = cv2.CascadeClassifier(cascPatheyes)
+    
+    HAS_CV = not face_cascade.empty()
 except Exception as e:
     HAS_CV = False
     logger.warning(f"Computer Vision disabled. Proctoring Engine will run in mock mode. Reason: {e}")
@@ -52,43 +53,40 @@ class VisionProctor:
             if img is None:
                 return {"error": "Invalid image"}
 
-            # Process with MediaPipe
-            rgb_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            results = face_mesh.process(rgb_image)
+            # Process with OpenCV Haar Cascades
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30)
+            )
             
             alerts = []
             
-            if not results.multi_face_landmarks:
+            if len(faces) == 0:
                 alerts.append("CANDIDATE_NOT_DETECTED")
             else:
-                num_faces = len(results.multi_face_landmarks)
-                if num_faces > 1:
-                    alerts.append(f"MULTIPLE_PEOPLE_DETECTED ({num_faces})")
+                if len(faces) > 1:
+                    alerts.append(f"MULTIPLE_PEOPLE_DETECTED ({len(faces)})")
                 
-                face_landmarks = results.multi_face_landmarks[0]
+                # Assume the largest face is the candidate
+                faces_sorted = sorted(faces, key=lambda f: f[2]*f[3], reverse=True)
+                x, y, w, h = faces_sorted[0]
+                roi_gray = gray[y:y+h, x:x+w]
                 
-                # Head Pose / Gaze Tracking
-                nose_tip = face_landmarks.landmark[1]
-                left_eye_inner = face_landmarks.landmark[133]
-                right_eye_inner = face_landmarks.landmark[362]
+                eyes = eye_cascade.detectMultiScale(roi_gray, scaleFactor=1.1, minNeighbors=10, minSize=(15, 15))
                 
-                # Check if head is turned drastically
-                if nose_tip.x < 0.35 or nose_tip.x > 0.65:
-                    alerts.append("HEAD_TURNED_AWAY")
+                if len(eyes) == 0:
+                    alerts.append("EYES_NOT_ON_SCREEN / LOOKING_AWAY")
                     
-                # Basic Iris/Gaze tracking proxy (are eyes looking away?)
-                eye_center_x = (left_eye_inner.x + right_eye_inner.x) / 2.0
-                if abs(nose_tip.x - eye_center_x) > 0.1:
-                    alerts.append("SUSPICIOUS_GAZE_DETECTED")
-
                 # Very basic "Screen in background" proxy via brightness
-                gray = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2GRAY)
                 if np.mean(gray) > 200:
                     alerts.append("HIGH_BACKGROUND_GLARE_SCREEN_DETECTED")
 
             return {
                 "status": "success",
-                "face_count": len(results.multi_face_landmarks) if results.multi_face_landmarks else 0,
+                "face_count": len(faces),
                 "alerts": alerts
             }
             
