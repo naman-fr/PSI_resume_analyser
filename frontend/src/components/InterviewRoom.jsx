@@ -52,13 +52,13 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     }
   };
 
-  const handleFocusSelect = (focus) => {
+  const handleFocusSelect = (focus, overrideResume) => {
     setInterviewFocus(focus);
     setFocusSelected(true);
-    initInterview(focus);
+    initInterview(focus, overrideResume);
   };
 
-  const initInterview = async (focusStr) => {
+  const initInterview = async (focusStr, overrideResume, overrideJd) => {
     setIsLoading(true);
     setSessionId(Math.random().toString(36).substring(7)); // Mock session ID
     try {
@@ -66,21 +66,24 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          resume_text: resumeText || "Sample Resume", 
-          jd_text: jdText || "Sample JD",
+          resume_text: overrideResume || resumeText || "Resume Not Provided", 
+          jd_text: overrideJd || jdText || "Sample JD",
           focus: focusStr || "balanced"
         })
       });
+      if (!res.ok) throw new Error("Server error " + res.status);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.messages && data.messages.length > 0) {
         setMessages(data.messages);
         setInterviewTree(data.interview_tree);
         setCurrentTopic(data.current_topic);
         setDifficulty(data.difficulty_level);
+      } else {
+        throw new Error(data.error || "Failed to generate interview questions. The AI may be rate-limited.");
       }
     } catch (e) {
       console.error(e);
-      setMessages([{ role: "ai", content: "System error initializing interview. Please try again later." }]);
+      setMessages([{ role: "ai", content: `System Error: ${e.message}. Please restart the session.` }]);
     }
     setIsLoading(false);
   };
@@ -106,8 +109,9 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
           evaluations: evaluations
         })
       });
+      if (!res.ok) throw new Error("Server error " + res.status);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.messages && data.messages.length > 0) {
         setMessages(data.messages);
         setDifficulty(data.difficulty_level);
         setEvaluations(data.evaluations);
@@ -115,10 +119,12 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         if (data.final_report) {
           setFinalReport(data.final_report);
         }
+      } else {
+        throw new Error(data.error || "AI failed to respond. The API might be rate-limited.");
       }
     } catch (e) {
       console.error(e);
-      setMessages([...newMessages, { role: "ai", content: "Connection error. Please repeat." }]);
+      setMessages([...newMessages, { role: "ai", content: `Connection error: ${e.message}. Please repeat.` }]);
     }
     setIsLoading(false);
   };
@@ -162,24 +168,41 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     );
   }
 
+  const [localResumeText, setLocalResumeText] = useState(resumeText === "Resume Not Provided" ? "" : resumeText || "");
+
   if (hasConsent && !focusSelected) {
     return (
       <div className="ir-overlay">
         <div className="ir-overlay-bg"></div>
-        <div className="ir-gateway-box" style={{ maxWidth: '800px' }}>
+        <div className="ir-gateway-box" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
           <h2 className="ir-gateway-title" style={{ fontSize: '2rem' }}>Configure Cognitive Vector</h2>
+          
+          {/* Missing Resume Paste Box */}
+          {(!resumeText || resumeText === "Resume Not Provided" || resumeText === "Sample Resume") && (
+            <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+              <div style={{ color: '#e60012', fontWeight: 'bold', marginBottom: '0.5rem' }}>NO RESUME DETECTED</div>
+              <p style={{ color: '#000', fontSize: '0.9rem', marginBottom: '0.5rem' }}>The AI Supervisor requires context to grill you properly. Please paste your Resume or LinkedIn text below:</p>
+              <textarea 
+                value={localResumeText}
+                onChange={(e) => setLocalResumeText(e.target.value)}
+                placeholder="Paste resume text here..."
+                style={{ width: '100%', height: '100px', background: '#121212', color: '#fff', border: '1px solid #333', padding: '0.5rem', fontFamily: 'monospace' }}
+              />
+            </div>
+          )}
+
           <div className="ir-gateway-warning" style={{ textAlign: 'center' }}>
             <p style={{ marginBottom: '1.5rem', color: '#000' }}>How would you like the AI Supervisor to conduct this interview?</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-              <button onClick={() => handleFocusSelect('resume')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #e60012' }}>
+              <button onClick={() => handleFocusSelect('resume', localResumeText)} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #e60012' }}>
                 <div style={{ color: '#e60012', marginBottom: '0.5rem' }}>RESUME FOCUSED</div>
                 <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Drill deep into your past experience, projects, and architecture decisions.</div>
               </button>
-              <button onClick={() => handleFocusSelect('jd')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #fff200' }}>
+              <button onClick={() => handleFocusSelect('jd', localResumeText)} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #fff200' }}>
                 <div style={{ color: '#fff200', marginBottom: '0.5rem' }}>REQUIREMENTS FOCUSED</div>
                 <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Strictly assess your fitness against the core requirements of the Job Description.</div>
               </button>
-              <button onClick={() => handleFocusSelect('balanced')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#e60012', border: '2px solid #fff' }}>
+              <button onClick={() => handleFocusSelect('balanced', localResumeText)} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#e60012', border: '2px solid #fff' }}>
                 <div style={{ color: '#fff', marginBottom: '0.5rem' }}>BALANCED (RECOMMENDED)</div>
                 <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Connect your past experiences to the specific needs of the new role.</div>
               </button>
