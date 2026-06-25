@@ -16,9 +16,9 @@ try:
         min_tracking_confidence=0.5
     )
     HAS_CV = True
-except ImportError:
+except Exception as e:
     HAS_CV = False
-    logger.warning("OpenCV or MediaPipe not installed. Proctoring Engine will run in mock mode.")
+    logger.warning(f"Computer Vision disabled. Proctoring Engine will run in mock mode. Reason: {e}")
 
 class VisionProctor:
     def __init__(self):
