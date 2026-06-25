@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 # To avoid crashing environments that don't have these installed yet
 try:
     import cv2
-    import mediapipe as mp
     import mediapipe.python.solutions.face_mesh as mp_face_mesh
     
     face_mesh = mp_face_mesh.FaceMesh(
