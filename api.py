@@ -151,6 +151,12 @@ def get_sample_jds():
 def health_check():
     return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
 
+@app.head("/")
+def head_root():
+    from fastapi import Response
+    return Response(status_code=200)
+
+
 
 @app.post("/api/admin/distill")
 async def trigger_student_distillation(user_id: Optional[str] = Depends(auth.get_current_user)):
