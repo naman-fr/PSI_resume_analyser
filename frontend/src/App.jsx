@@ -444,7 +444,7 @@ export default function App() {
   if (showInterview) {
     return (
       <InterviewRoom 
-        resumeText={resumeFile ? resumeFile.name : ""}
+        resumeText={analysisResult?.resume_text || "Resume Not Provided"}
         jdText={jdText}
         onExit={() => setShowInterview(false)} 
       />

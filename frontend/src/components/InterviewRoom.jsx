@@ -40,7 +40,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     if (cameraStream && videoRef.current) {
       videoRef.current.srcObject = cameraStream;
     }
-  }, [cameraStream]);
+  }, [cameraStream, focusSelected]);
 
   const requestPermissions = async () => {
     try {
