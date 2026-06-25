@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useProctoring } from '../hooks/useProctoring';
+import { useVisionStream } from '../hooks/useVisionStream';
+import InterviewReport from './InterviewReport';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com/api';
 
@@ -15,6 +17,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [difficulty, setDifficulty] = useState(5);
   const [evaluations, setEvaluations] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [finalReport, setFinalReport] = useState(null);
   
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +26,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   
   // Attach proctoring once consent is given and session starts
   useProctoring(hasConsent ? sessionId : null);
+  const { visionAlerts } = useVisionStream(sessionId, videoRef, hasConsent && !isComplete);
 
   useEffect(() => {
     if (cameraStream && videoRef.current) {
@@ -91,6 +95,9 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         setDifficulty(data.difficulty_level);
         setEvaluations(data.evaluations);
         setIsComplete(data.is_complete);
+        if (data.final_report) {
+          setFinalReport(data.final_report);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -136,6 +143,10 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     );
   }
 
+  if (finalReport) {
+    return <InterviewReport report={finalReport} transcript={messages} onClose={onExit} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col md:flex-row p-4 gap-4">
       
@@ -154,6 +165,12 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             REC
           </div>
+          
+          {visionAlerts.length > 0 && (
+            <div className="absolute bottom-2 left-2 right-2 bg-red-900/80 border border-red-500 text-red-100 p-2 rounded text-xs font-bold shadow-lg animate-pulse">
+              ⚠️ PROCTORING ALERT: {visionAlerts.join(", ")}
+            </div>
+          )}
         </div>
 
         {/* Interview Meta */}

@@ -160,6 +160,89 @@ Keep it concise and conversational.
         logger.error(f"Generate question failed: {e}")
         return {"messages": messages + [{"role": "ai", "content": "I encountered a technical issue. Could you expand more on your last point?"}]}
 
+def hiring_committee(state: InterviewState) -> Dict[str, Any]:
+    """Phase 6: Hiring Committee Debate. 5 Agents review the transcript."""
+    logger.info("Spawning Hiring Committee Swarm...")
+    try:
+        from agents import resume_parser
+        llm, _ = resume_parser.get_llm()
+        
+        transcript = "\n".join([f"{m['role']}: {m['content']}" for m in state.get("messages", [])])
+        
+        prompt = f"""You are a multi-agent Hiring Committee consisting of an HR Manager, a Tech Lead, and a Behavioral Expert.
+Review the following interview transcript and debate the candidate's performance.
+
+Transcript:
+{transcript}
+
+Output a short JSON debate transcript:
+{{
+  "debate": [
+    {{"agent": "HR Manager", "opinion": "..."}},
+    {{"agent": "Tech Lead", "opinion": "..."}},
+    {{"agent": "Behavioral Expert", "opinion": "..."}}
+  ]
+}}
+"""
+        response = llm.invoke([SystemMessage(content=prompt)])
+        raw = response.content
+        
+        debate = []
+        try:
+            if "```json" in raw:
+                raw = raw.split("```json")[1].split("```")[0].strip()
+            debate_data = json.loads(raw)
+            debate = debate_data.get("debate", [])
+        except:
+            debate = [{"agent": "System", "opinion": "Could not parse debate json."}]
+            
+        # We store the debate log in final_report for now
+        return {"final_report": {"debate": debate}}
+    except Exception as e:
+        logger.error(f"Hiring committee failed: {e}")
+        return {"final_report": {"debate": []}}
+
+def judge_agent(state: InterviewState) -> Dict[str, Any]:
+    """Phase 6: Judge Agent makes final hiring decision."""
+    logger.info("Judge Agent evaluating final score...")
+    try:
+        from agents import resume_parser
+        llm, _ = resume_parser.get_llm()
+        
+        debate = state.get("final_report", {}).get("debate", [])
+        debate_str = json.dumps(debate)
+        
+        prompt = f"""You are the Final Judge Agent.
+Based on the committee debate:
+{debate_str}
+
+Output a final JSON report:
+{{
+  "hiring_probability": 0-100,
+  "strengths": ["...", "..."],
+  "weaknesses": ["...", "..."],
+  "recommendation": "HIRE" or "NO HIRE" or "STRONG HIRE"
+}}
+"""
+        response = llm.invoke([SystemMessage(content=prompt)])
+        raw = response.content
+        
+        report = {"hiring_probability": 50, "strengths": [], "weaknesses": [], "recommendation": "UNKNOWN"}
+        try:
+            if "```json" in raw:
+                raw = raw.split("```json")[1].split("```")[0].strip()
+            parsed = json.loads(raw)
+            report = parsed
+        except:
+            pass
+            
+        final_report = state.get("final_report", {})
+        final_report.update(report)
+        return {"final_report": final_report}
+    except Exception as e:
+        logger.error(f"Judge agent failed: {e}")
+        return {}
+
 def create_interview_graph():
     """Build and compile the interview supervisor."""
     workflow = StateGraph(InterviewState)
@@ -167,6 +250,8 @@ def create_interview_graph():
     workflow.add_node("planner", build_interview_planner)
     workflow.add_node("evaluator", evaluate_answer)
     workflow.add_node("socratic", generate_next_question)
+    workflow.add_node("committee", hiring_committee)
+    workflow.add_node("judge", judge_agent)
     
     # Conditional routing logic for when to run what
     def route_start(state: InterviewState):
@@ -176,7 +261,7 @@ def create_interview_graph():
         
     def check_complete(state: InterviewState):
         if state.get("is_complete"):
-            return END
+            return "committee"
         return "socratic"
         
     workflow.add_conditional_edges(START, route_start)
@@ -184,6 +269,8 @@ def create_interview_graph():
     
     workflow.add_edge("evaluator", "socratic")
     workflow.add_conditional_edges("socratic", check_complete)
+    workflow.add_edge("committee", "judge")
+    workflow.add_edge("judge", END)
     
     return workflow.compile()
 

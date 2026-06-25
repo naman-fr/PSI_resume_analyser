@@ -41,10 +41,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-from routers import auth, interview
+from routers import auth, interview, vision
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(interview.router, tags=["interview"])
+app.include_router(vision.router, tags=["vision_streaming"])
 
 # Enable CORS – read allowed origins from environment variable
 # Default to "*" for local development; set ALLOWED_ORIGINS in production
