@@ -40,12 +40,14 @@ flowchart TD
     classDef governance fill:#8b5cf6,stroke:#fff,stroke-width:2px,color:#fff
     classDef learning fill:#0ea5e9,stroke:#fff,stroke-width:2px,color:#fff
     classDef ui fill:#10b981,stroke:#fff,stroke-width:2px,color:#fff
+    classDef proctoring fill:#f59e0b,stroke:#fff,stroke-width:2px,color:#000
 
     %% 0. UI Control Plane
     subgraph UI_Control_Plane [React UI Control Plane]
         U1[Admin Clearance Hub]:::ui
         U2[Live Swarm Debate Transcript]:::ui
         U3[Manual Distillation Trigger]:::ui
+        U4[Cognitive Interview Room]:::ui
     end
 
     %% 1. Ingestion Plane
@@ -55,15 +57,26 @@ flowchart TD
         C --> D[White-on-White ATS Gaming Detector]:::ingestion
     end
 
+    %% 5. Proctoring Plane
+    subgraph Proctoring_Plane [5. Proctoring Plane: Cognitive Security]
+        P1[WebRTC OpenCV Haar Cascades]:::proctoring
+        P2[HTML5 Fullscreen Enforcer]:::proctoring
+        P3[Gaze & Tab-Switch Tracker]:::proctoring
+        P1 --> P3
+        P2 --> P3
+    end
+
     %% 2. Reasoning Plane
     subgraph Reasoning_Plane [2. Reasoning Plane: LangGraph Swarm]
         D -->|Anonymized Context| E{LangGraph Router}:::reasoning
         E --> F[Recruiter Agent: Culture & Tenure]:::reasoning
         E --> G[Tech Lead Agent: Architecture Depth]:::reasoning
+        E --> S[Socratic Interviewer Agent]:::reasoning
         
         G -.->|Invokes| H[(GraphRAG Skill Ontology SQLite)]:::reasoning
         F --> I[Judge Agent: Synthesizer]:::reasoning
         G --> I
+        S --> I
     end
 
     %% 3. Governance Plane
@@ -90,6 +103,8 @@ flowchart TD
     U1 -.->|Visualizes| N
     U2 -.->|Listens via WebSocket| I
     U3 -.->|Fires| Q
+    U4 -.->|Streams Camera| P1
+    U4 -.->|Chats with| S
 ```
 
 ---
@@ -117,6 +132,11 @@ To eliminate bias, the system runs counterfactual "What-If" scenarios during sco
 
 ### 6. MLOps Observability & PSI Drift Monitoring
 Integrated directly with **MLflow**, the platform logs parameters (Temperature, Provider), execution metrics (Latency, Token Usage), and artifacts (State Dictionaries) for every scan. A background chron-job calculates the **Population Stability Index (PSI)** to warn administrators if the LLM's scoring curve diverges from the historical baseline (Data Drift).
+
+### 7. Cognitive Socratic Interviewer & Industrial Proctoring
+The platform includes a real-time, interactive interview room driven by a stateful LangGraph orchestrator. It uses an adaptive difficulty algorithm to challenge candidates dynamically. This environment is hardened by an industrial-grade proctoring suite:
+*   **OpenCV Haar Cascades**: Lightweight WebRTC computer vision tracks multi-face detection and gaze deviations (Eyes Not On Screen) without incurring heavy memory loads (bypassing heavy deep learning models).
+*   **HTML5 Full Screen Enforcer**: Strict enforcement of browser full-screen APIs and `visibilitychange` events instantly red-flags split-screen usage or tab switching.
 
 ---
 
