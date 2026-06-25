@@ -30,8 +30,18 @@ class VisionProctor:
         Returns a dict of alerts (e.g., {"multiple_people": True, "looking_away": False})
         """
         if not self.enabled:
-            # Mock mode
-            return {"status": "mock", "alerts": []}
+            # Mock mode: Simulate alerts occasionally for UI demonstration
+            import random
+            alerts = []
+            rand_val = random.random()
+            if rand_val > 0.95:
+                alerts.append("MULTIPLE_PEOPLE_DETECTED (2)")
+            elif rand_val > 0.90:
+                alerts.append("SUSPICIOUS_GAZE_DETECTED")
+            elif rand_val > 0.85:
+                alerts.append("HEAD_TURNED_AWAY")
+                
+            return {"status": "mock", "alerts": alerts}
             
         try:
             # Decode base64
