@@ -6,7 +6,7 @@ import logging
 import json
 from typing import Any, Dict
 from langgraph.graph import StateGraph, START, END
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage
 
 from agents.interview_state import InterviewState
 
@@ -120,7 +120,6 @@ Return ONLY valid JSON.
 def generate_next_question(state: InterviewState) -> Dict[str, Any]:
     """GenAI Research Feature: Socratic Interview Agent."""
     messages = state.get("messages", [])
-    tree = state.get("interview_tree", [])
     difficulty = state.get("difficulty_level", 5)
     current_topic = state.get("current_topic", "General")
     
@@ -193,7 +192,7 @@ Output a short JSON debate transcript:
                 raw = raw.split("```json")[1].split("```")[0].strip()
             debate_data = json.loads(raw)
             debate = debate_data.get("debate", [])
-        except:
+        except Exception:
             debate = [{"agent": "System", "opinion": "Could not parse debate json."}]
             
         # We store the debate log in final_report for now
@@ -233,7 +232,7 @@ Output a final JSON report:
                 raw = raw.split("```json")[1].split("```")[0].strip()
             parsed = json.loads(raw)
             report = parsed
-        except:
+        except Exception:
             pass
             
         final_report = state.get("final_report", {})

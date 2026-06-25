@@ -1,6 +1,5 @@
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import Dict, Any
 
 from core.proctoring_engine import vision_proctor
 
@@ -48,5 +47,5 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(f"Vision stream error: {e}")
         try:
             await websocket.close()
-        except:
+        except Exception:
             pass

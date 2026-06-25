@@ -18,7 +18,7 @@ from config.settings import settings
 from core.pdf_parser import extract_text_from_pdf
 from core.job_search import search_jobs
 from core.db import get_db_connection, set_cache, get_cache, init_db
-from routers import auth
+from routers import auth, interview, vision
 from agents.graph import run_analysis
 from agents.improver import improve_resume
 from core.telemetry import TelemetryLogger
@@ -41,7 +41,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-from routers import auth, interview, vision
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(interview.router, tags=["interview"])
