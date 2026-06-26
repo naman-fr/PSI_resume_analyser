@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, Database, Lock, TrendingUp, History, Star, Activity, AlertTriangle, Book, Download, ShieldCheck, HardDrive, Calendar, Github, MessageSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
+import ThreeGem from './ThreeGem';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -132,72 +133,84 @@ export default function IntelligenceHub() {
       </div>
 
       {activeView === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div className="p-6 bg-black text-white" style={{ border: '4px solid #fff', transform: 'skewX(-2deg)', boxShadow: '6px 6px 0px #333' }}>
-            <div style={{ transform: 'skewX(2deg)' }}>
-              <h3 className="text-2xl font-black mb-4 flex items-center text-white uppercase tracking-widest border-b-2 border-red-600 pb-2">
-                <Database className="mr-3 h-6 w-6 text-red-500" />
-                AI Memory Core
-              </h3>
-              <div className="space-y-6 mt-4">
-                <div>
-                  <h4 className="text-md font-bold text-red-500 uppercase tracking-widest mb-3 bg-white inline-block px-2 py-1 shadow-[2px_2px_0px_#f00]">
-                    [ IDENTIFIED STRENGTHS ]
-                  </h4>
-                  <div className="flex flex-wrap gap-3">
-                    {profile.ai_memory.strengths.length > 0 ? (
-                      profile.ai_memory.strengths.map((s, i) => (
-                        <span key={i} className="bg-red-600 text-white font-bold px-3 py-1 text-sm border-2 border-white shadow-[2px_2px_0px_#555] uppercase tracking-wider">{s}</span>
-                      ))
-                    ) : (
-                      <span className="text-gray-500 italic font-mono font-bold">NO DATA. UPLOAD RESUME.</span>
-                    )}
+        <div className="relative mt-12 mb-8">
+          {/* 3D Background Element */}
+          <div className="absolute inset-0 z-0 flex items-center justify-center opacity-70 pointer-events-none" style={{ transform: 'scale(1.5)' }}>
+            <div className="w-full h-[600px] pointer-events-auto">
+              <ThreeGem />
+            </div>
+          </div>
+
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 mt-6">
+            <div className="p-8 bg-black/90 backdrop-blur-md text-white border-[6px] border-white shadow-[12px_12px_0px_#f00] hover:shadow-[16px_16px_0px_#f00] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
+              <div style={{ transform: 'skewX(3deg)' }}>
+                <h3 className="text-3xl font-black mb-6 flex items-center text-white uppercase tracking-[0.2em] border-b-4 border-red-600 pb-4">
+                  <Database className="mr-4 h-8 w-8 text-red-500 animate-pulse" />
+                  AI Memory Core
+                </h3>
+                <div className="space-y-8 mt-6">
+                  <div>
+                    <h4 className="text-lg font-black text-white uppercase tracking-widest mb-4 bg-red-600 inline-block px-4 py-2 shadow-[4px_4px_0px_#fff]">
+                      [ IDENTIFIED STRENGTHS ]
+                    </h4>
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      {profile.ai_memory.strengths.length > 0 ? (
+                        profile.ai_memory.strengths.map((s, i) => (
+                          <span key={i} className="bg-white text-black font-black px-4 py-2 text-md border-2 border-black shadow-[3px_3px_0px_#f00] uppercase tracking-wider hover:translate-y-[-2px] transition-transform">{s}</span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 italic font-mono font-bold">NO DATA. UPLOAD RESUME.</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h4 className="text-md font-bold text-black bg-white uppercase tracking-widest mb-3 inline-block px-2 py-1 shadow-[2px_2px_0px_#555]">
-                    [ IMPROVEMENT TARGETS ]
-                  </h4>
-                  <div className="flex flex-wrap gap-3">
-                    {profile.ai_memory.weaknesses.length > 0 ? (
-                      profile.ai_memory.weaknesses.map((w, i) => (
-                        <span key={i} className="bg-gray-800 text-gray-300 font-bold px-3 py-1 text-sm border-2 border-gray-600 uppercase tracking-wider">{w}</span>
-                      ))
-                    ) : (
-                      <span className="text-gray-500 italic font-mono font-bold">NO DATA.</span>
-                    )}
+                  <div>
+                    <h4 className="text-lg font-black text-black bg-white uppercase tracking-widest mb-4 inline-block px-4 py-2 shadow-[4px_4px_0px_#333]">
+                      [ IMPROVEMENT TARGETS ]
+                    </h4>
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      {profile.ai_memory.weaknesses.length > 0 ? (
+                        profile.ai_memory.weaknesses.map((w, i) => (
+                          <span key={i} className="bg-gray-800 text-gray-200 font-bold px-4 py-2 text-md border-2 border-gray-600 uppercase tracking-wider shadow-[3px_3px_0px_#000]">{w}</span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 italic font-mono font-bold">NO DATA.</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="p-6 bg-red-600 text-white" style={{ border: '4px solid #000', transform: 'skewX(-2deg)', boxShadow: '6px 6px 0px #000' }}>
-            <div style={{ transform: 'skewX(2deg)' }}>
-              <h3 className="text-2xl font-black mb-4 flex items-center text-white uppercase tracking-widest border-b-2 border-black pb-2">
-                <TrendingUp className="mr-3 h-6 w-6 text-black" />
-                Skill Genome Matrix
-              </h3>
-              {Object.keys(profile.skill_genome).length > 0 ? (
-                <div className="space-y-4 mt-4">
-                  {Object.entries(profile.skill_genome).map(([skill, weight], idx) => (
-                    <div key={idx} className="bg-black p-2 border-2 border-white">
-                      <div className="flex justify-between text-md font-bold mb-1 uppercase tracking-widest">
-                        <span className="text-white">{skill}</span>
-                        <span className="text-red-500">{Math.round(weight * 100)}%</span>
+            <div className="p-8 bg-red-600/95 backdrop-blur-md text-white border-[6px] border-black shadow-[12px_12px_0px_#000] hover:shadow-[16px_16px_0px_#000] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
+              <div style={{ transform: 'skewX(3deg)' }}>
+                <h3 className="text-3xl font-black mb-6 flex items-center text-black uppercase tracking-[0.2em] border-b-4 border-black pb-4">
+                  <TrendingUp className="mr-4 h-8 w-8 text-white" />
+                  Skill Genome Matrix
+                </h3>
+                {Object.keys(profile.skill_genome).length > 0 ? (
+                  <div className="space-y-6 mt-6">
+                    {Object.entries(profile.skill_genome).map(([skill, weight], idx) => (
+                      <div key={idx} className="bg-black p-3 border-4 border-white group hover:border-red-400 transition-colors">
+                        <div className="flex justify-between text-lg font-black mb-2 uppercase tracking-widest">
+                          <span className="text-white group-hover:text-red-400 transition-colors">{skill}</span>
+                          <span className="text-red-500">{Math.round(weight * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-900 h-4 border-2 border-gray-700 overflow-hidden relative">
+                          <div className="bg-white h-full relative" style={{ width: `${Math.min(100, weight * 100)}%` }}>
+                            {/* Animated scanline effect for progress bar */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white to-transparent w-full" style={{ animation: 'scanLine 2s linear infinite' }}></div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-800 h-3 border border-gray-600">
-                        <div className="bg-white h-full" style={{ width: `${Math.min(100, weight * 100)}%` }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-32 text-black font-bold text-center">
-                  <Layers className="h-10 w-10 mb-2 opacity-80" />
-                  <p className="uppercase tracking-widest bg-black text-white px-2 py-1 mt-2">UPLOAD RESUME TO GENERATE</p>
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-48 text-black font-black text-center border-4 border-dashed border-black mt-4">
+                    <Layers className="h-16 w-16 mb-4 opacity-80" />
+                    <p className="uppercase tracking-[0.2em] bg-black text-white px-4 py-2 mt-2 text-xl shadow-[4px_4px_0px_#fff]">UPLOAD RESUME TO GENERATE</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
