@@ -41,19 +41,18 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+      recognitionRef.current.interimResults = false; // Disable interim results to fix duplication bug
       
       recognitionRef.current.onresult = (event) => {
-        let interimTranscript = '';
         let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
           }
         }
-        setInputMessage((prev) => prev + finalTranscript + interimTranscript);
+        if (finalTranscript) {
+          setInputMessage((prev) => prev + (prev ? " " : "") + finalTranscript.trim());
+        }
       };
       
       recognitionRef.current.onerror = (e) => {

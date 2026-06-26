@@ -69,7 +69,7 @@ JD: {jd_text[:2000]}
         return {
             "interview_tree": tree,
             "current_topic": tree[0] if tree else "Core Architecture",
-            "difficulty_level": 5,  # Start at Medium
+            "difficulty_level": 1,  # Start at Easy (1/10)
             "messages": [{"role": "ai", "content": first_q}]
         }
         
