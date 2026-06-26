@@ -360,14 +360,12 @@ export default function IntelligenceHub() {
                     <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', transform: 'skewX(2deg)', transform: 'skewX(2deg)' }}>
                       <button 
                         onClick={() => handleToggleIntegration(app.id, isConnected)}
-                        style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.75rem 2rem', transition: 'all 0.2s', cursor: 'pointer' }}
-                        style={{ 
-                          background: isConnected ? '#e60012' : '#222', 
+                        style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.75rem 2rem', transition: 'all 0.2s', cursor: 'pointer', 
+background: isConnected ? '#e60012' : '#222', 
                           color: isConnected ? '#fff' : '#aaa',
                           border: `2px solid ${isConnected ? '#e60012' : '#555'}`,
                           transform: 'skewX(-8deg)',
-                          boxShadow: isConnected ? '4px 4px 0px #000' : '4px 4px 0px #000'
-                        }}
+                          boxShadow: isConnected ? '4px 4px 0px #000' : '4px 4px 0px #000' }}
                       >
                         <span style={{ display: 'inline-block', transform: 'skewX(8deg)' }}>
                           {isConnected ? 'LINKED / ACTIVE' : 'CONNECT API'}
