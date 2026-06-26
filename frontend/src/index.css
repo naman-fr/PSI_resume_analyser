@@ -2458,8 +2458,8 @@ body::after {
 ========================================= */
 .hub-scene {
     width: 100%;
-    max-width: 1200px;
-    height: 700px;
+    max-width: 900px;
+    height: 550px;
     position: relative;
     transition: transform 0.1s ease-out; 
     transform-style: preserve-3d;
@@ -2497,11 +2497,11 @@ body::after {
 }
 
 /* Precise Trigonometric Face Positioning 
-   Assuming container max-width is 1200px. translateZ = 600px */
-.hub-face-front { transform: rotateY(0deg) translateZ(600px); }
-.hub-face-right { transform: rotateY(90deg) translateZ(600px); }
-.hub-face-back  { transform: rotateY(180deg) translateZ(600px); }
-.hub-face-left  { transform: rotateY(-90deg) translateZ(600px); }
+   Assuming container max-width is 900px. translateZ = 450px */
+.hub-face-front { transform: rotateY(0deg) translateZ(450px); }
+.hub-face-right { transform: rotateY(90deg) translateZ(450px); }
+.hub-face-back  { transform: rotateY(180deg) translateZ(450px); }
+.hub-face-left  { transform: rotateY(-90deg) translateZ(450px); }
 
 /* Inverted Face Variant */
 .hub-face.inverted {
