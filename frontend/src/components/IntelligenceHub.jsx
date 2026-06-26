@@ -10,6 +10,44 @@ export default function IntelligenceHub() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState('overview');
+  const [currentRotation, setCurrentRotation] = useState(0);
+  const sceneRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!sceneRef.current) return;
+      const xAxisDelta = (window.innerWidth / 2 - e.pageX); 
+      const yAxisDelta = (window.innerHeight / 2 - e.pageY);
+      const rotateY = xAxisDelta / 35;
+      const rotateX = yAxisDelta / 35;
+      sceneRef.current.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+    };
+    
+    const handleMouseLeave = () => {
+      if (!sceneRef.current) return;
+      sceneRef.current.style.transition = 'transform 0.6s ease-out';
+      sceneRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
+      setTimeout(() => {
+        if(sceneRef.current) sceneRef.current.style.transition = 'transform 0.1s ease-out';
+      }, 600);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.body.addEventListener('mouseleave', handleMouseLeave);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.body.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  const handleNavClick = (targetAngle, id) => {
+    setActiveView(id);
+    let diff = targetAngle - (currentRotation % 360);
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    setCurrentRotation(prev => prev + diff);
+  };
 
   useEffect(() => {
     fetchProfile();
