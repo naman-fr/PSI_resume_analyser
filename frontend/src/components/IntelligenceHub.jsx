@@ -14,16 +14,30 @@ export default function IntelligenceHub() {
   const sceneRef = React.useRef(null);
 
   useEffect(() => {
+    let animationFrameId;
+    
     const handleMouseMove = (e) => {
       if (!sceneRef.current) return;
-      const xAxisDelta = (window.innerWidth / 2 - e.pageX); 
-      const yAxisDelta = (window.innerHeight / 2 - e.pageY);
-      const rotateY = xAxisDelta / 35;
-      const rotateX = yAxisDelta / 35;
-      sceneRef.current.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+      
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      
+      animationFrameId = requestAnimationFrame(() => {
+        if (!sceneRef.current) return;
+        const xAxisDelta = (window.innerWidth / 2 - e.pageX); 
+        const yAxisDelta = (window.innerHeight / 2 - e.pageY);
+        // Reduce parallax rotation for smoother less jittery movement
+        const rotateY = xAxisDelta / 45;
+        const rotateX = yAxisDelta / 45;
+        sceneRef.current.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+      });
     };
     
     const handleMouseLeave = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       if (!sceneRef.current) return;
       sceneRef.current.style.transition = 'transform 0.6s ease-out';
       sceneRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
@@ -32,10 +46,13 @@ export default function IntelligenceHub() {
       }, 600);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.body.addEventListener('mouseleave', handleMouseLeave);
     
     return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       document.body.removeEventListener('mouseleave', handleMouseLeave);
     };
@@ -190,7 +207,7 @@ export default function IntelligenceHub() {
           </div>
 
           <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 mt-6">
-            <div className="p-8 bg-black/90 backdrop-blur-md text-white border-[6px] border-white shadow-[12px_12px_0px_#f00] hover:shadow-[16px_16px_0px_#f00] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
+            <div className="p-8 bg-black text-white border-[6px] border-white shadow-[12px_12px_0px_#f00] hover:shadow-[16px_16px_0px_#f00] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
               <div style={{ transform: 'skewX(3deg)' }}>
                 <h3 className="text-3xl font-black mb-6 flex items-center text-white uppercase tracking-[0.2em] border-b-4 border-red-600 pb-4">
                   <Database className="mr-4 h-8 w-8 text-red-500 animate-pulse" />
@@ -229,7 +246,7 @@ export default function IntelligenceHub() {
               </div>
             </div>
 
-            <div className="p-8 bg-red-600/95 backdrop-blur-md text-white border-[6px] border-black shadow-[12px_12px_0px_#000] hover:shadow-[16px_16px_0px_#000] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
+            <div className="p-8 bg-red-600 text-white border-[6px] border-black shadow-[12px_12px_0px_#000] hover:shadow-[16px_16px_0px_#000] transition-all duration-300" style={{ transform: 'skewX(-3deg)' }}>
               <div style={{ transform: 'skewX(3deg)' }}>
                 <h3 className="text-3xl font-black mb-6 flex items-center text-black uppercase tracking-[0.2em] border-b-4 border-black pb-4">
                   <TrendingUp className="mr-4 h-8 w-8 text-white" />
