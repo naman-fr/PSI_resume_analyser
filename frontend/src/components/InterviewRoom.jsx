@@ -239,6 +239,9 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => track.stop());
     }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
     onExit();
   };
 
@@ -317,7 +320,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
               <textarea 
                 value={localResumeText}
                 onChange={(e) => setLocalResumeText(e.target.value)}
-                placeholder="Paste resume text here..."
+                placeholder="Paste or share your resume as text here..."
                 style={{ width: '100%', height: '100px', background: '#121212', color: '#fff', border: '1px solid #333', padding: '0.5rem', fontFamily: 'monospace' }}
               />
             </div>

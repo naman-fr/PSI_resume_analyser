@@ -38,12 +38,12 @@ def build_interview_planner(state: InterviewState) -> Dict[str, Any]:
         prompt = f"""You are the Principal Interview Architect.
 Based on the candidate's resume and the job description, build a 5-step conceptual 'Interview Tree'.
 INSTRUCTION: {focus_instruction}
-Also, formulate the VERY FIRST deeply technical or analytical question to kick off the interview based on their most prominent experience related to the JD. Do not say "Hello" or "Walk me through your resume." Ask a direct, complex question immediately.
+Also, formulate the VERY FIRST question to kick off the interview. Start with a basic question asking them to explain their past experience or a specific project on their resume. Do not start with complex questions. We will slowly increase difficulty based on their answers.
 
 Return ONLY a valid JSON object matching this schema exactly:
 {{
   "tree": ["Concept 1", "Concept 2", "Concept 3", "Concept 4", "Concept 5"],
-  "first_question": "Your highly specific, direct technical question here..."
+  "first_question": "Your basic introductory technical question here..."
 }}
 
 Resume: {resume_text[:2000]}
@@ -53,7 +53,7 @@ JD: {jd_text[:2000]}
         raw_content = response.content
         
         tree = ["Core Architecture", "Scalability", "System Design", "Failure Recovery", "Behavioral"]
-        first_q = "Let's dive right in. Could you explain the most complex technical architectural decision you made in your recent role, and why?"
+        first_q = "Let's dive right in. Could you start by explaining a recent project from your resume and what your specific role was?"
         
         try:
             if "```json" in raw_content:
