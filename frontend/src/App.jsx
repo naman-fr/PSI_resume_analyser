@@ -10,6 +10,7 @@ import P5Button from './components/P5Button';
 import AuthScreen from './components/AuthScreen';
 import InterviewRoom from './components/InterviewRoom';
 import ConsentManager from './components/ConsentManager';
+import IntelligenceHub from './components/IntelligenceHub';
 import { behaviorTracker } from './utils/behaviorTracker';
 import { useAuth } from './AuthContext';
 import loadingGif from './components/Scenes/loading_gif.gif';
@@ -297,6 +298,22 @@ export default function App() {
       if (res.ok) {
         setAnalysisResult(data);
         fetchTelemetry(); // Refresh metrics
+        
+        // Save to Candidate Intelligence Hub if logged in
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          fetch(`${API_URL}/api/hub/save_resume`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              parsed_json: data.debug_graph_state || {},
+              analysis_result: data
+            })
+          }).catch(err => console.error("Failed to save resume to hub", err));
+        }
       } else {
         setAnalysisError(data.detail || data.error || 'Analysis execution failed.');
       }
@@ -829,10 +846,37 @@ export default function App() {
                 </div>
               </div>
             </ScrollSection>
+            {/* Hub Scroll Section: Candidate Intelligence Hub */}
+            <ScrollSection direction="bottom">
+              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
+                <span className="badge badge-green" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>PERSISTENT AI</span>
+                <h2 className="scroll-title">Intelligence<br/>Hub</h2>
+                <p className="scroll-subtitle">
+                  Your persistent AI workspace. Automatically stores resume versions, interview transcripts, and generates a dynamic Skill Genome across your career lifecycle.
+                </p>
+                <button className="btn btn-primary" onClick={() => { setActiveTab('hub'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)', background: '#10b981', color: '#fff', border: '4px solid #fff', boxShadow: '6px 6px 0px #064e3b', fontWeight: 900 }}>
+                  ENTER VAULT →
+                </button>
+              </div>
+              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
+                <div className="geometry-hud" style={{ border: '4px solid #10b981' }}>
+                  <div className="hud-graph" style={{ borderBottom: '2px solid #fff' }}>
+                    <div className="hud-bar" style={{ background: '#10b981', height: '60%' }}></div>
+                    <div className="hud-bar" style={{ background: '#34d399', height: '90%' }}></div>
+                    <div className="hud-bar" style={{ background: '#fff', height: '40%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </ScrollSection>
 
           </div>
 
         </div>
+      )}
+
+      {/* ── TAB CONTENT: INTELLIGENCE HUB ───────────────────────────── */}
+      {activeTab === 'hub' && (
+        <IntelligenceHub />
       )}
 
       {/* ── TAB CONTENT: ANALYZE RESUME ───────────────────────────── */}

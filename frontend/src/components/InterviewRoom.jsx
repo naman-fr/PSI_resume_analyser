@@ -242,6 +242,24 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    
+    // Save to Candidate Intelligence Hub if logged in
+    const token = localStorage.getItem('access_token');
+    if (token && messages.length > 0) {
+      fetch(`${API_URL}/api/hub/save_interview`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          duration_seconds: 600, // mock duration
+          transcript: messages,
+          final_feedback: messages[messages.length - 1]?.content || "Session ended abruptly."
+        })
+      }).catch(err => console.error("Failed to save interview to hub", err));
+    }
+    
     onExit();
   };
 
