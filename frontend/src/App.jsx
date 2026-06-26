@@ -3,7 +3,7 @@ import {
   Building2, FileText, CheckCircle2, ShieldAlert, Cpu, 
   HelpCircle, Sparkles, Search, Layers, RefreshCw, 
   Settings, Award, HelpCircle as HelpIcon, CreditCard,
-  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut, Users
+  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut, Users, User
 } from 'lucide-react';
 
 import P5Button from './components/P5Button';
@@ -228,9 +228,9 @@ export default function App() {
 
   const handleDistill = async () => {
     try {
-      const response = await fetch(`${API_URL}/admin/distill`, {
+      const response = await fetch(`${API_URL}/api/admin/distill`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Distillation failed');
@@ -549,6 +549,12 @@ export default function App() {
           </button>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <button 
+              onClick={() => setActiveTab('hub')}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+            >
+              <User size={16} /> PROFILE
+            </button>
+            <button 
               onClick={() => setShowPasswordModal(true)}
               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
             >
@@ -564,6 +570,12 @@ export default function App() {
         </div>
       ) : (
         <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 100, display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={() => setActiveTab('hub')}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+          >
+            <User size={16} /> PROFILE
+          </button>
           <button 
             onClick={() => setShowPasswordModal(true)}
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
@@ -846,28 +858,7 @@ export default function App() {
                 </div>
               </div>
             </ScrollSection>
-            {/* Hub Scroll Section: Candidate Intelligence Hub */}
-            <ScrollSection direction="bottom">
-              <div style={{ flex: 1, paddingRight: '4rem', zIndex: 2 }}>
-                <span className="badge badge-green" style={{ marginBottom: '1.5rem', display: 'inline-block', fontSize: '1rem', padding: '0.5rem 1.5rem' }}>PERSISTENT AI</span>
-                <h2 className="scroll-title">Intelligence<br/>Hub</h2>
-                <p className="scroll-subtitle">
-                  Your persistent AI workspace. Automatically stores resume versions, interview transcripts, and generates a dynamic Skill Genome across your career lifecycle.
-                </p>
-                <button className="btn btn-primary" onClick={() => { setActiveTab('hub'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '1.5rem 3rem', fontSize: '1.2rem', transform: 'skewX(-4deg)', background: '#10b981', color: '#fff', border: '4px solid #fff', boxShadow: '6px 6px 0px #064e3b', fontWeight: 900 }}>
-                  ENTER VAULT →
-                </button>
-              </div>
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'center', perspective: '1200px', zIndex: 1 }}>
-                <div className="geometry-hud" style={{ border: '4px solid #10b981' }}>
-                  <div className="hud-graph" style={{ borderBottom: '2px solid #fff' }}>
-                    <div className="hud-bar" style={{ background: '#10b981', height: '60%' }}></div>
-                    <div className="hud-bar" style={{ background: '#34d399', height: '90%' }}></div>
-                    <div className="hud-bar" style={{ background: '#fff', height: '40%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </ScrollSection>
+            {/* Hub scroll section removed from home menu per standard UX */}
 
           </div>
 

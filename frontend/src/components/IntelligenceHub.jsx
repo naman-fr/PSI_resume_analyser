@@ -19,6 +19,11 @@ export default function IntelligenceHub() {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('access_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
       const [resProfile, resInteg] = await Promise.all([
         fetch(`${API_URL}/api/hub/profile`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${API_URL}/api/hub/integrations`, { headers: { 'Authorization': `Bearer ${token}` } })
