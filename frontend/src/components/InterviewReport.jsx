@@ -1,6 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function InterviewReport({ report, transcript, onClose }) {
+  const [feedbackSent, setFeedbackSent] = useState(false);
+
+  const handleFeedback = async (score) => {
+    try {
+      await fetch(import.meta.env.VITE_API_URL + '/api/interview/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: "demo_session_" + Date.now(), reward_score: score })
+      });
+      setFeedbackSent(true);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (!report) return null;
 
   const {
@@ -117,6 +132,23 @@ export default function InterviewReport({ report, transcript, onClose }) {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* RLHF Feedback */}
+        <div className="mt-8 flex flex-col md:flex-row justify-center items-center gap-6 p-6 border-4 border-white bg-black transform skew-x-[1deg] shadow-[8px_8px_0px_#e60012]">
+          <h3 className="text-xl font-bold uppercase tracking-widest text-white">Rate this AI Decision:</h3>
+          {!feedbackSent ? (
+            <div className="flex gap-4">
+              <button onClick={() => handleFeedback(1)} className="px-6 py-2 bg-[#121212] border-2 border-[#fff200] text-[#fff200] font-black uppercase hover:bg-[#fff200] hover:text-black transition-colors transform skew-x-[-10deg]">
+                AGREE (+1)
+              </button>
+              <button onClick={() => handleFeedback(-1)} className="px-6 py-2 bg-[#121212] border-2 border-[#e60012] text-[#e60012] font-black uppercase hover:bg-[#e60012] hover:text-black transition-colors transform skew-x-[10deg]">
+                DISAGREE (-1)
+              </button>
+            </div>
+          ) : (
+            <div className="text-[#fff200] font-black uppercase tracking-widest animate-pulse">Feedback Logged. Model queued for update.</div>
+          )}
         </div>
       </div>
     </div>

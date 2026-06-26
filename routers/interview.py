@@ -84,9 +84,16 @@ async def chat_interview(req: ChatRequest):
 @router.post("/proctor")
 async def log_proctor_event(event: ProctorEvent):
     """Phase 5: Real-Time Proctoring Endpoint (Browser Events)."""
-    # In a full production system, we'd append this to a database linked to the session_id
-    logger.warning(f"PROCTOR ALERT: {event.event_type} at {event.timestamp}. Details: {event.details}")
-    return {"status": "logged", "severity": "warning"}
+    # Simulate LVLM Reasoning on the event
+    try:
+        from core.simulated_lvlm import evaluate_visual_telemetry
+        # For simulation, we pretend the active question is "Explain your database schema."
+        lvlm_result = await evaluate_visual_telemetry(event.event_type, event.details or {}, "Explain your database schema.")
+        logger.warning(f"LVLM ASSESSMENT: {lvlm_result}")
+        return {"status": "logged", "severity": lvlm_result.get("action", "warning"), "lvlm_assessment": lvlm_result}
+    except Exception as e:
+        logger.error(f"Failed to run LVLM: {e}")
+        return {"status": "logged", "severity": "warning"}
 
 class MCQRequest(BaseModel):
     resume_text: str
@@ -140,3 +147,14 @@ Resume: {req.resume_text[:1000]}
     except Exception as e:
         logger.error(f"Failed to generate MCQ: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/federated/sync")
+async def federated_sync():
+    """Phase 7: Federated Learning Sync Endpoint."""
+    try:
+        from core.graph_rag import get_federated_weights_payload
+        return get_federated_weights_payload()
+    except Exception as e:
+        logger.error(f"Federated sync failed: {e}")
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=500, content={"detail": "Federated sync failed."})

@@ -91,9 +91,15 @@ def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
     
     try:
         from agents import resume_parser
+        from core.memory_agent import compress_history
         llm, _ = resume_parser.get_llm()
         
+        compressed_context = compress_history(messages)
+        
         prompt = f"""You are generating an internal thought path.
+Context (Compressed Memory):
+{compressed_context}
+
 Question Asked (Difficulty {difficulty}/10): {ai_question}
 Candidate's Answer: {human_answer}
 
@@ -254,12 +260,16 @@ def judge_agent(state: InterviewState) -> Dict[str, Any]:
     logger.info("Judge Agent evaluating final score...")
     try:
         from agents import resume_parser
+        from agents.constitution import get_ai_constitution
         llm, _ = resume_parser.get_llm()
         
         debate = state.get("final_report", {}).get("debate", [])
         debate_str = json.dumps(debate)
+        constitution = get_ai_constitution()
         
         prompt = f"""You are the Final Judge Agent.
+{constitution}
+
 Based on the committee debate:
 {debate_str}
 
@@ -285,6 +295,14 @@ Output a final JSON report:
             
         final_report = state.get("final_report", {})
         final_report.update(report)
+        
+        # Feature 5: Knowledge Distillation
+        try:
+            from core.learning import extract_knowledge_for_distillation
+            extract_knowledge_for_distillation(state)
+        except Exception as distill_err:
+            logger.error(f"Distillation error: {distill_err}")
+            
         return {"final_report": final_report}
     except Exception as e:
         logger.error(f"Judge agent failed: {e}")
