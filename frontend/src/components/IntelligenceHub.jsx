@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Layers, Database, Lock, TrendingUp, History, Star, Activity, AlertTriangle, Book, Download, ShieldCheck, HardDrive, Calendar, Github, MessageSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import ThreeGem from './ThreeGem';
+import useEmblaCarousel from 'embla-carousel-react';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -9,62 +10,25 @@ export default function IntelligenceHub() {
   const { currentUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState('overview');
-  const [currentRotation, setCurrentRotation] = useState(0);
-  const sceneRef = React.useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, skipSnaps: false });
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi, setSelectedIndex]);
 
   useEffect(() => {
-    let animationFrameId;
-    
-    const handleMouseMove = (e) => {
-      if (!sceneRef.current) return;
-      
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      
-      animationFrameId = requestAnimationFrame(() => {
-        if (!sceneRef.current) return;
-        const xAxisDelta = (window.innerWidth / 2 - e.pageX); 
-        const yAxisDelta = (window.innerHeight / 2 - e.pageY);
-        // Reduce parallax rotation for smoother less jittery movement
-        const rotateY = xAxisDelta / 45;
-        const rotateX = yAxisDelta / 45;
-        sceneRef.current.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
-      });
-    };
-    
-    const handleMouseLeave = () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      if (!sceneRef.current) return;
-      sceneRef.current.style.transition = 'transform 0.6s ease-out';
-      sceneRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`;
-      setTimeout(() => {
-        if(sceneRef.current) sceneRef.current.style.transition = 'transform 0.1s ease-out';
-      }, 600);
-    };
+    if (!emblaApi) return;
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+  }, [emblaApi, onSelect]);
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    document.body.addEventListener('mouseleave', handleMouseLeave);
-    
-    return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.body.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, []);
+  const scrollTo = useCallback((index) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+  }, [emblaApi]);
 
-  const handleNavClick = (targetAngle, id) => {
-    setActiveView(id);
-    let diff = targetAngle - (currentRotation % 360);
-    if (diff > 180) diff -= 360;
-    if (diff < -180) diff += 360;
-    setCurrentRotation(prev => prev + diff);
-  };
 
   useEffect(() => {
     fetchProfile();
@@ -164,23 +128,23 @@ export default function IntelligenceHub() {
       </div>
 
       {/* Static Navigation Triggers */}
-      <div className="w-full max-w-[1200px] flex justify-center space-x-6 mb-16 relative z-50 mt-6">
+      <div className="w-full max-w-[1200px] flex justify-center space-x-6 mb-12 relative z-50 mt-6">
         {[
-          { id: 'overview', label: '01 PROFILE', angle: 0 },
-          { id: 'vault', label: '02 STATS', angle: -90 },
-          { id: 'interviews', label: '03 ARCHIVE', angle: -180 },
-          { id: 'integrations', label: '04 CONTACT', angle: -270 }
+          { id: 'overview', label: '01 PROFILE', index: 0 },
+          { id: 'vault', label: '02 STATS', index: 1 },
+          { id: 'interviews', label: '03 ARCHIVE', index: 2 },
+          { id: 'integrations', label: '04 CONTACT', index: 3 }
         ].map(tab => (
           <button 
             key={tab.id}
-            onClick={() => handleNavClick(tab.angle, tab.id)}
+            onClick={() => scrollTo(tab.index)}
             className="px-8 py-3 font-black text-xl uppercase tracking-widest transition-all duration-200 relative"
             style={{ 
-              background: activeView === tab.id ? 'var(--p5-red)' : '#fff', 
-              color: activeView === tab.id ? '#fff' : '#000',
-              clipPath: activeView === tab.id ? 'polygon(0 0, 100% 0, 100% 100%, 10% 100%)' : 'polygon(10% 0, 100% 0, 90% 100%, 0 100%)',
+              background: selectedIndex === tab.index ? 'var(--p5-red)' : '#fff', 
+              color: selectedIndex === tab.index ? '#fff' : '#000',
+              clipPath: selectedIndex === tab.index ? 'polygon(0 0, 100% 0, 100% 100%, 10% 100%)' : 'polygon(10% 0, 100% 0, 90% 100%, 0 100%)',
               border: 'none',
-              transform: activeView === tab.id ? 'scale(1.05) translateX(10px)' : 'none'
+              transform: selectedIndex === tab.index ? 'scale(1.05) translateX(10px)' : 'none'
             }}
           >
             <span className="block transform" style={{ transform: 'skewX(-10deg)' }}>
@@ -190,13 +154,13 @@ export default function IntelligenceHub() {
         ))}
       </div>
 
-      {/* 3D Spatial Perspective Wrapper */}
-      <div className="hub-scene" ref={sceneRef}>
-          {/* The Volumetric Rotating Prism */}
-          <div className="hub-prism" style={{ transform: `rotateY(${currentRotation}deg)` }}>
+      {/* Premium Carousel Viewport */}
+      <div className="embla" ref={emblaRef}>
+          <div className="embla__container">
               
-              {/* FACE 1: ABOUT (FRONT) - 0deg */}
-              <div className="hub-face hub-face-front">
+              {/* SLIDE 1: ABOUT */}
+              <div className="embla__slide">
+                <div className="hub-slide">
 
         <div className="relative mt-12 mb-8">
           {/* 3D Background Element */}
@@ -279,10 +243,12 @@ export default function IntelligenceHub() {
             </div>
           </div>
         </div>
+                </div>
               </div>
               
-              {/* FACE 2: VAULT (RIGHT) - -90deg */}
-              <div className="hub-face hub-face-right inverted">
+              {/* SLIDE 2: VAULT */}
+              <div className="embla__slide">
+                <div className="hub-slide inverted">
         <div className="glass-panel p-6">
           <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
             <History className="mr-2 h-5 w-5 text-indigo-400" />
@@ -314,10 +280,12 @@ export default function IntelligenceHub() {
             </div>
           )}
         </div>
+                </div>
               </div>
 
-              {/* FACE 3: INTERVIEWS (BACK) - -180deg */}
-              <div className="hub-face hub-face-back">
+              {/* SLIDE 3: INTERVIEWS */}
+              <div className="embla__slide">
+                <div className="hub-slide">
         <div className="glass-panel p-6">
           <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
             <Star className="mr-2 h-5 w-5 text-emerald-400" />
@@ -346,10 +314,12 @@ export default function IntelligenceHub() {
             </div>
           )}
         </div>
+                </div>
               </div>
 
-              {/* FACE 4: INTEGRATIONS (LEFT) - -270deg */}
-              <div className="hub-face hub-face-left inverted">
+              {/* SLIDE 4: INTEGRATIONS */}
+              <div className="embla__slide">
+                <div className="hub-slide inverted">
         <div className="space-y-6">
           <div className="p5-glitch-header" style={{ padding: '2rem', background: '#000', border: '4px solid #e60012', transform: 'skewX(-2deg)', boxShadow: '8px 8px 0px #e60012' }}>
             <h3 className="text-3xl font-black text-white uppercase tracking-widest" style={{ textShadow: '2px 2px 0px #e60012' }}>
@@ -416,7 +386,18 @@ export default function IntelligenceHub() {
             })}
           </div>
         </div>
+                </div>
               </div>
+          </div>
+          
+          <div className="flex justify-center mt-8 pb-4">
+            {[0, 1, 2, 3].map((index) => (
+              <div 
+                key={index} 
+                onClick={() => scrollTo(index)}
+                className={`embla-dot ${index === selectedIndex ? 'is-active' : ''}`} 
+              />
+            ))}
           </div>
       </div>
     </div>
