@@ -178,4 +178,18 @@ docker-compose logs -f app
     Set the `ADMIN_MAIL` environment variable. On the VIP checkout page, click **LOGIN AS ADMIN & BYPASS** and enter your administrator email to instantly unlock the premium Enterprise Control Plane.
 
 ---
+
+## 🚀 Future Research & Architectural Roadmap (2025-2026)
+
+To elevate this platform to the standard of **Google Research, Microsoft Research, OpenAI, and Anthropic**, we are implementing a bleeding-edge roadmap targeting **Test-Time Scaling** and **Agentic OS Architecture**:
+
+1. **Test-Time Scaling & Tree of Thoughts (o3/R1 Style)**: Implementing an internal reasoning loop where the agent generates 5 reasoning paths, performs self-consistency verification, and uses a Critic Agent before finalizing evaluations.
+2. **Large Vision Language Models (LVLM)**: Migrating from OpenCV/YOLO to unified LVLMs (e.g., Qwen2.5-VL, Llama 4 Vision) that reason over webcam, whiteboard, IDE, and gestures simultaneously.
+3. **Agentic Interview Operating System**: Transitioning from a single Interview Agent to a decentralized OS comprising Planning, Memory, Reflection, Critic, Judge, and Safety Agents.
+4. **Constitutional AI & Counterfactual Bias Guardrails**: Establishing an AI Constitution to guarantee EEOC and GDPR compliance, ensuring zero-hallucination and rigorous bias mitigation.
+5. **Continuous Online Learning & Knowledge Distillation (RAD)**: Establishing an automated pipeline where Teacher Ensembles (GPT-4/Claude 3.5) generate synthetic labels to continuously fine-tune our lightweight student model, **PSI-ProctorNet**.
+6. **Multi-Agent Reinforcement Learning (RLHF)**: Implementing a reward model where each agent (Planner, Critic, Judge) learns from human recruiter feedback over time.
+7. **Federated Learning & Temporal Knowledge Graphs**: Enabling enterprise clients to train the scoring model locally on their encrypted data, utilizing PyTorch Geometric and DGL for skill graph propagation across time.
+
+---
 *Architected and engineered as a comprehensive Staff/Principal AI Engineering portfolio standard.*

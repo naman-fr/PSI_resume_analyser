@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useProctoring } from '../hooks/useProctoring';
 import { useVisionStream } from '../hooks/useVisionStream';
 import InterviewReport from './InterviewReport';
+import MCQAssessment from './MCQAssessment';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'https://psi-resume-analyser.onrender.com';
 const CLEAN_BASE = BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
@@ -11,6 +12,7 @@ import './InterviewRoom.css';
 
 export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [hasConsent, setHasConsent] = useState(false);
+  const [assessmentFormat, setAssessmentFormat] = useState(null); // 'mcq' or 'interview'
   const [focusSelected, setFocusSelected] = useState(false);
   const [interviewFocus, setInterviewFocus] = useState("balanced");
   const [cameraStream, setCameraStream] = useState(null);
@@ -29,8 +31,62 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
-  const videoRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
   
+  const videoRef = useRef(null);
+  const recognitionRef = useRef(null);
+  
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      
+      recognitionRef.current.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        setInputMessage((prev) => prev + finalTranscript + interimTranscript);
+      };
+      
+      recognitionRef.current.onerror = (e) => {
+        console.error("Speech Recognition Error", e);
+        setIsListening(false);
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      setInputMessage(""); // Clear before speaking new sentence
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
+  };
+
+  const speakText = (text) => {
+    if (window.speechSynthesis) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   // Attach proctoring once consent is given and session starts
   const { localAlerts } = useProctoring(hasConsent ? sessionId : null);
   const { visionAlerts } = useVisionStream(sessionId, videoRef, hasConsent && !isComplete);
@@ -112,6 +168,12 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         setInterviewTree(data.interview_tree);
         setCurrentTopic(data.current_topic);
         setDifficulty(data.difficulty_level);
+        
+        // Auto-speak the first question
+        const firstAiMessage = data.messages.find(m => m.role === 'ai');
+        if (firstAiMessage) {
+           speakText(firstAiMessage.content);
+        }
       } else {
         throw new Error(data.error || "Failed to generate interview questions. The AI may be rate-limited.");
       }
@@ -125,6 +187,10 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || isComplete) return;
+    
+    if (isListening) {
+      toggleListening(); // Stop mic when submitting
+    }
 
     const newMessages = [...messages, { role: "human", content: inputMessage }];
     setMessages(newMessages);
@@ -150,6 +216,13 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
         setDifficulty(data.difficulty_level);
         setEvaluations(data.evaluations);
         setIsComplete(data.is_complete);
+        
+        // Auto-speak the response
+        const lastAiMessage = [...data.messages].reverse().find(m => m.role === 'ai');
+        if (lastAiMessage && !data.is_complete) {
+          speakText(lastAiMessage.content);
+        }
+        
         if (data.final_report) {
           setFinalReport(data.final_report);
         }
@@ -201,8 +274,36 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
       </div>
     );
   }
+  
+  if (hasConsent && !assessmentFormat) {
+    return (
+      <div className="ir-overlay">
+        <div className="ir-overlay-bg"></div>
+        <div className="ir-gateway-box" style={{ maxWidth: '800px' }}>
+          <h2 className="ir-gateway-title" style={{ fontSize: '2rem' }}>SELECT ASSESSMENT FORMAT</h2>
+          <div className="ir-gateway-warning" style={{ textAlign: 'center' }}>
+            <p style={{ marginBottom: '1.5rem', color: '#000' }}>Choose your evaluation methodology.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+              <button onClick={() => setAssessmentFormat('mcq')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#121212', border: '2px solid #fff200' }}>
+                <div style={{ color: '#fff200', marginBottom: '0.5rem' }}>2-LEVEL MCQ ASSESSMENT</div>
+                <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Progressive difficulty (Easy to Hard) technical screening.</div>
+              </button>
+              <button onClick={() => setAssessmentFormat('interview')} className="ir-btn-primary" style={{ transform: 'skewX(0deg)', background: '#e60012', border: '2px solid #fff' }}>
+                <div style={{ color: '#fff', marginBottom: '0.5rem' }}>COGNITIVE INTERVIEW (VOICE ENABLED)</div>
+                <div style={{ fontSize: '0.8rem', color: '#fff', textTransform: 'none', fontWeight: 'normal' }}>Real-time Socratic dialogue with the AI Supervisor.</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (assessmentFormat === 'mcq') {
+    return <MCQAssessment resumeText={resumeText} jdText={jdText} onExit={handleEnd} combinedAlerts={combinedAlerts} sessionId={sessionId} />;
+  }
 
-  if (hasConsent && !focusSelected) {
+  if (hasConsent && assessmentFormat === 'interview' && !focusSelected) {
     return (
       <div className="ir-overlay">
         <div className="ir-overlay-bg"></div>
@@ -402,8 +503,8 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
 
         {/* Chat Input */}
         <form onSubmit={handleSendMessage} className="ir-chat-form">
-          <div className="ir-chat-form-row">
-            <div className="ir-chat-input-wrapper">
+          <div className="ir-chat-form-row" style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="ir-chat-input-wrapper" style={{ flexGrow: 1 }}>
               <textarea 
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
@@ -413,12 +514,26 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
                     handleSendMessage(e);
                   }
                 }}
-                placeholder={isComplete ? "SESSION TERMINATED." : "ENTER RESPONSE..."}
+                placeholder={isComplete ? "SESSION TERMINATED." : "ENTER RESPONSE OR USE VOICE..."}
                 disabled={isComplete || isLoading}
                 rows={1}
                 className="ir-chat-textarea"
               />
             </div>
+            
+            {/* Voice Mic Button */}
+            {window.SpeechRecognition || window.webkitSpeechRecognition ? (
+              <button 
+                type="button"
+                onClick={toggleListening}
+                className="ir-btn-submit"
+                style={{ background: isListening ? '#e60012' : '#333', borderColor: isListening ? '#fff' : '#555', color: '#fff', width: '60px', padding: '0' }}
+                title="Toggle Voice Input"
+              >
+                <i className={`fas fa-microphone${isListening ? '' : '-slash'}`}></i>
+              </button>
+            ) : null}
+
             <button 
               type="submit"
               disabled={isComplete || isLoading || !inputMessage.trim()}
@@ -428,7 +543,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
             </button>
           </div>
           <div className="ir-chat-footer">
-             <span>PSI Cognitive Processing Engine v2.0</span>
+             <span>PSI Cognitive Processing Engine v2.0 | Voice Recognition Active</span>
           </div>
         </form>
       </div>
