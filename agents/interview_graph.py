@@ -79,8 +79,8 @@ JD: {jd_text[:2000]}
 
 
 def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
-    """Test-Time Scaling: Generate multiple thought paths evaluating the candidate."""
-    logger.info("Generating 2 Reasoning Paths (Free-Tier Optimized)...")
+    """Single-shot path generation (optimized for free-tier limits)."""
+    logger.info("Generating 1 Reasoning Path (Free-Tier Optimized)...")
     messages = state.get("messages", [])
     if len(messages) < 2 or messages[-1].get("role") != "human":
         return {}
@@ -96,70 +96,19 @@ def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
         
         compressed_context = compress_history(messages)
         
-        prompt = f"""You are generating internal thought paths.
+        prompt = f"""You are evaluating the candidate.
 Context (Compressed Memory):
 {compressed_context}
 
 Question Asked (Difficulty {difficulty}/10): {ai_question}
 Candidate's Answer: {human_answer}
 
-Generate 2 distinct evaluations and NEXT questions (one easier, one harder).
-Output ONLY a JSON array of 2 objects:
-[
-  {{
-    "critique": "Internal reasoning...",
-    "proposed_score": 5,
-    "proposed_next_question": "..."
-  }},
-  {{
-    "critique": "Different internal reasoning...",
-    "proposed_score": 6,
-    "proposed_next_question": "..."
-  }}
-]
-"""
-        # Single generation to respect free tier rate limits
-        response = llm.invoke([SystemMessage(content=prompt)])
-        raw = response.content
-        
-        paths = []
-        try:
-            if "```json" in raw:
-                raw = raw.split("```json")[1].split("```")[0].strip()
-            parsed_paths = json.loads(raw)
-            for idx, p in enumerate(parsed_paths):
-                p["path_id"] = f"path_{idx}"
-                paths.append(p)
-        except Exception as parse_e:
-            logger.error(f"Failed to parse paths JSON: {parse_e}")
-                
-        return {"reasoning_paths": paths}
-        
-    except Exception as e:
-        logger.error(f"Failed to generate paths: {e}")
-        return {"reasoning_paths": []}
-
-def critique_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
-    """Test-Time Scaling: Critic Agent reviews the 5 generated paths."""
-    logger.info("Critic Agent evaluating the 5 paths...")
-    paths = state.get("reasoning_paths", [])
-    if not paths:
-        return {}
-        
-    try:
-        from agents import resume_parser
-        llm, _ = resume_parser.get_llm()
-        
-        paths_str = json.dumps(paths, indent=2)
-        prompt = f"""You are the Critic Agent. Review these {len(paths)} reasoning paths.
-{paths_str}
-
-Score each path out of 10 for how good the proposed next question is, and how accurate the critique is.
+Generate an evaluation and the NEXT question.
 Output ONLY JSON:
 {{
-  "critiques": [
-    {{"path_id": "path_0", "critic_score": 8, "reason": "..."}}
-  ]
+  "critique": "Internal reasoning...",
+  "proposed_score": 5,
+  "proposed_next_question": "..."
 }}
 """
         response = llm.invoke([SystemMessage(content=prompt)])
@@ -168,19 +117,22 @@ Output ONLY JSON:
         try:
             if "```json" in raw:
                 raw = raw.split("```json")[1].split("```")[0].strip()
-            data = json.loads(raw)
-            critique_map = {c.get("path_id"): c.get("critic_score", 0) for c in data.get("critiques", [])}
-            for p in paths:
-                p["critic_score"] = critique_map.get(p["path_id"], 0)
-        except Exception as e:
-            logger.error(f"Critic parsing failed: {e}")
-            for p in paths:
-                p["critic_score"] = 0
-            
-        return {"reasoning_paths": paths}
+            path_data = json.loads(raw)
+            path_data["path_id"] = "path_0"
+            path_data["critic_score"] = 10 # Default bypass score
+            return {"reasoning_paths": [path_data]}
+        except Exception as parse_e:
+            logger.error(f"Failed to parse paths JSON: {parse_e}")
+                
+        return {"reasoning_paths": []}
+        
     except Exception as e:
-        logger.error(f"Critic failed: {e}")
-        return {}
+        logger.error(f"Failed to generate paths: {e}")
+        return {"reasoning_paths": []}
+
+def critique_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
+    """Bypassed for free-tier to save API rate limits."""
+    return {}
 
 def select_best_path_and_respond(state: InterviewState) -> Dict[str, Any]:
     """Test-Time Scaling: Verifier selects the best path and appends the message."""
