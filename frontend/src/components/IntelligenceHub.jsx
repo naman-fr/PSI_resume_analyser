@@ -32,6 +32,10 @@ export default function IntelligenceHub() {
       if (resProfile.ok) {
         const data = await resProfile.json();
         setProfile(data);
+      } else if (resProfile.status === 401) {
+        localStorage.removeItem('access_token');
+        setLoading(false);
+        return;
       }
       if (resInteg.ok) {
         const integData = await resInteg.json();

@@ -547,46 +547,46 @@ export default function App() {
           >
             <span style={{ color: 'var(--p5-red)' }}>←</span> RETURN TO HUB
           </button>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', gap: '1.5rem', background: '#000', padding: '0.75rem 1.5rem', transform: 'skewX(-10deg)', border: '2px solid var(--p5-red)', boxShadow: '6px 6px 0px var(--p5-red)' }}>
             <button 
               onClick={() => setActiveTab('hub')}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--p5-red)', border: 'none', color: '#fff', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
             >
-              <User size={16} /> PROFILE
+              <User size={18} /> PROFILE
             </button>
             <button 
               onClick={() => setShowPasswordModal(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', border: 'none', color: '#000', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
             >
-              <Settings size={16} /> SETTINGS
+              <Settings size={18} /> SETTINGS
             </button>
             <button 
               onClick={logout}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.2rem', cursor: 'pointer', letterSpacing: '0.05em' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#222', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
             >
-              <LogOut size={16} /> LOGOUT
+              <LogOut size={18} /> LOGOUT
             </button>
           </div>
         </div>
       ) : (
-        <div style={{ position: 'absolute', top: '1.5rem', right: '2rem', zIndex: 100, display: 'flex', gap: '1rem' }}>
+        <div style={{ position: 'absolute', top: '2rem', right: '2rem', zIndex: 100, display: 'flex', gap: '1rem', background: '#000', padding: '0.75rem 1.5rem', transform: 'skewX(-10deg)', border: '2px solid var(--p5-red)', boxShadow: '6px 6px 0px var(--p5-red)' }}>
           <button 
             onClick={() => setActiveTab('hub')}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--p5-red)', border: 'none', color: '#fff', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
           >
-            <User size={16} /> PROFILE
+            <User size={18} /> PROFILE
           </button>
           <button 
             onClick={() => setShowPasswordModal(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--p5-white)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', border: 'none', color: '#000', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
           >
-            <Settings size={16} /> SETTINGS
+            <Settings size={18} /> SETTINGS
           </button>
           <button 
             onClick={logout}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--panel)', border: '1px solid var(--panel-2)', padding: '0.5rem 1rem', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1rem', cursor: 'pointer', letterSpacing: '0.05em', borderRadius: '4px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#222', border: 'none', color: 'var(--red)', fontFamily: 'var(--ff-display)', fontSize: '1.1rem', cursor: 'pointer', letterSpacing: '0.1em', padding: '0.5rem 1rem', transform: 'skewX(10deg)', fontWeight: 'bold' }}
           >
-            <LogOut size={16} /> LOGOUT
+            <LogOut size={18} /> LOGOUT
           </button>
         </div>
       )}
