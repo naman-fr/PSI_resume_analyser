@@ -78,110 +78,134 @@ JD: {jd_text[:2000]}
         return {"error": str(exc)}
 
 
-def evaluate_answer(state: InterviewState) -> Dict[str, Any]:
-    """Phase 4 & Interview Intelligence: Evaluates the last human answer."""
+def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
+    """Test-Time Scaling: Generate 5 separate thought paths evaluating the candidate."""
+    logger.info("Generating 5 Reasoning Paths (Test-Time Scaling)...")
     messages = state.get("messages", [])
     if len(messages) < 2 or messages[-1].get("role") != "human":
-        return {} # Nothing to evaluate yet
+        return {}
         
     human_answer = messages[-1].get("content", "")
     ai_question = messages[-2].get("content", "")
-    difficulty = state.get("difficulty_level", 5)
+    difficulty = state.get("difficulty_level", 1)
     
     try:
         from agents import resume_parser
         llm, _ = resume_parser.get_llm()
         
-        prompt = f"""You are the Technical Evaluator.
+        prompt = f"""You are generating an internal thought path.
 Question Asked (Difficulty {difficulty}/10): {ai_question}
 Candidate's Answer: {human_answer}
 
-Evaluate the candidate's answer. Output a JSON with:
-- "correctness": 0-10
-- "depth": 0-10
-- "communication": 0-10
-- "reasoning": 0-10
-- "next_difficulty_delta": -1, 0, or 1 (decrease, maintain, or increase difficulty based on how well they answered)
+Generate an evaluation and the NEXT question.
+Output ONLY JSON:
+{{
+  "critique": "Internal reasoning about their answer...",
+  "proposed_score": 5,
+  "proposed_next_question": "..."
+}}
+"""
+        # Batch generation of 5 paths
+        prompts = [SystemMessage(content=prompt)] * 5
+        responses = llm.batch(prompts)
+        
+        paths = []
+        for idx, res in enumerate(responses):
+            raw = res.content
+            try:
+                if "```json" in raw:
+                    raw = raw.split("```json")[1].split("```")[0].strip()
+                path_data = json.loads(raw)
+                path_data["path_id"] = f"path_{idx}"
+                paths.append(path_data)
+            except Exception:
+                pass
+                
+        return {"reasoning_paths": paths}
+        
+    except Exception as e:
+        logger.error(f"Failed to generate paths: {e}")
+        return {"reasoning_paths": []}
 
-Return ONLY valid JSON.
+def critique_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
+    """Test-Time Scaling: Critic Agent reviews the 5 generated paths."""
+    logger.info("Critic Agent evaluating the 5 paths...")
+    paths = state.get("reasoning_paths", [])
+    if not paths:
+        return {}
+        
+    try:
+        from agents import resume_parser
+        llm, _ = resume_parser.get_llm()
+        
+        paths_str = json.dumps(paths, indent=2)
+        prompt = f"""You are the Critic Agent. Review these {len(paths)} reasoning paths.
+{paths_str}
+
+Score each path out of 10 for how good the proposed next question is, and how accurate the critique is.
+Output ONLY JSON:
+{{
+  "critiques": [
+    {{"path_id": "path_0", "critic_score": 8, "reason": "..."}}
+  ]
+}}
 """
         response = llm.invoke([SystemMessage(content=prompt)])
         raw = response.content
         
-        evaluation = {"correctness": 5, "depth": 5, "communication": 5, "reasoning": 5, "next_difficulty_delta": 0}
         try:
             if "```json" in raw:
                 raw = raw.split("```json")[1].split("```")[0].strip()
-            evaluation = json.loads(raw)
-        except Exception:
-            pass
+            data = json.loads(raw)
+            critique_map = {c.get("path_id"): c.get("critic_score", 0) for c in data.get("critiques", [])}
+            for p in paths:
+                p["critic_score"] = critique_map.get(p["path_id"], 0)
+        except Exception as e:
+            logger.error(f"Critic parsing failed: {e}")
+            for p in paths: p["critic_score"] = 0
             
-        new_difficulty = max(1, min(10, difficulty + evaluation.get("next_difficulty_delta", 0)))
-        
-        evals = state.get("evaluations", [])
-        evals.append({
-            "question": ai_question,
-            "answer": human_answer,
-            "scores": evaluation
-        })
-        
-        return {
-            "evaluations": evals,
-            "difficulty_level": new_difficulty
-        }
-        
+        return {"reasoning_paths": paths}
     except Exception as e:
-        logger.warning(f"Evaluation failed: {e}")
+        logger.error(f"Critic failed: {e}")
         return {}
 
-
-def generate_next_question(state: InterviewState) -> Dict[str, Any]:
-    """GenAI Research Feature: Socratic Interview Agent."""
+def select_best_path_and_respond(state: InterviewState) -> Dict[str, Any]:
+    """Test-Time Scaling: Verifier selects the best path and appends the message."""
+    logger.info("Verifier Agent selecting best path...")
+    paths = state.get("reasoning_paths", [])
     messages = state.get("messages", [])
-    difficulty = state.get("difficulty_level", 5)
-    current_topic = state.get("current_topic", "General")
+    difficulty = state.get("difficulty_level", 1)
     
-    # Check if we should end the interview (e.g., after 10 questions)
     ai_msg_count = len([m for m in messages if m.get("role") == "ai"])
     if ai_msg_count >= 10:
         return {"is_complete": True, "messages": messages + [{"role": "ai", "content": "Thank you for your time. The interview is now complete. Our hiring committee will review your results."}]}
         
-    try:
-        from agents import resume_parser
-        llm, _ = resume_parser.get_llm()
+    if not paths:
+        return {"messages": messages + [{"role": "ai", "content": "I encountered an issue synthesizing my thoughts. Could you expand on that?"}]}
         
-        # Build context
-        chat_history = ""
-        for m in messages[-4:]:  # Last 2 exchanges
-            chat_history += f"\n{m['role'].upper()}: {m['content']}"
-            
-        prompt = f"""You are a Socratic Technical Interviewer (like a real Google interviewer).
-Current Topic: {current_topic}
-Current Target Difficulty (1-10): {difficulty}
-
-Recent Conversation:
-{chat_history}
-
-First, silently evaluate their answer for correctness, depth, and reasoning.
-Then, generate the NEXT response to the candidate.
-CRITICAL REQUIREMENT: Your response MUST begin with an explicit, harsh, Persona 5 style grade wrapped in brackets like this: [GRADE: X/10] (where X is 1-10). Provide 1 short sentence justifying the grade.
-Then, ask ONE deep, focused follow-up question based directly on what they just said. 
-DO NOT ask multiple questions at once.
-If they answered well, dig deeper into their explanation (e.g., "Why did you choose X over Y?" or "How does that scale?").
-If their answer was poor or shallow, challenge their assumptions aggressively.
-Keep it concise, conversational, and highly technical.
-Example Output:
-[GRADE: 4/10] You completely ignored race conditions in your explanation. How exactly would your proposed database schema handle concurrent write transactions at scale?
-"""
-        response = llm.invoke([SystemMessage(content=prompt)])
-        new_q = response.content
+    best_path = max(paths, key=lambda x: x.get("critic_score", 0))
+    proposed_score = best_path.get("proposed_score", 5)
+    next_q = best_path.get("proposed_next_question", "Could you elaborate?")
+    
+    final_q = f"[GRADE: {proposed_score}/10] {next_q}"
+    
+    if proposed_score >= 8:
+        difficulty = min(10, difficulty + 1)
+    elif proposed_score <= 4:
+        difficulty = max(1, difficulty - 1)
         
-        new_messages = messages + [{"role": "ai", "content": new_q}]
-        return {"messages": new_messages}
-        
-    except Exception as e:
-        logger.error(f"Generate question failed: {e}")
-        return {"messages": messages + [{"role": "ai", "content": "I encountered a technical issue. Could you expand more on your last point?"}]}
+    evals = state.get("evaluations", [])
+    evals.append({
+        "question": messages[-2].get("content", "") if len(messages)>=2 else "",
+        "answer": messages[-1].get("content", "") if len(messages)>=1 else "",
+        "scores": {"correctness": proposed_score, "depth": proposed_score}
+    })
+    
+    return {
+        "messages": messages + [{"role": "ai", "content": final_q}],
+        "difficulty_level": difficulty,
+        "evaluations": evals
+    }
 
 def hiring_committee(state: InterviewState) -> Dict[str, Any]:
     """Phase 6: Hiring Committee Debate. 5 Agents review the transcript."""
@@ -271,8 +295,9 @@ def create_interview_graph():
     workflow = StateGraph(InterviewState)
     
     workflow.add_node("planner", build_interview_planner)
-    workflow.add_node("evaluator", evaluate_answer)
-    workflow.add_node("socratic", generate_next_question)
+    workflow.add_node("generate_paths", generate_reasoning_paths)
+    workflow.add_node("critique_paths", critique_reasoning_paths)
+    workflow.add_node("select_path", select_best_path_and_respond)
     workflow.add_node("committee", hiring_committee)
     workflow.add_node("judge", judge_agent)
     
@@ -280,7 +305,7 @@ def create_interview_graph():
     def route_start(state: InterviewState):
         if not state.get("interview_tree"):
             return "planner"
-        return "evaluator"
+        return "generate_paths"
         
     def check_complete(state: InterviewState):
         if state.get("is_complete"):
@@ -291,8 +316,9 @@ def create_interview_graph():
     workflow.add_conditional_edges(START, route_start)
     workflow.add_edge("planner", END) # Planner just initializes the state, we return to the user.
     
-    workflow.add_edge("evaluator", "socratic")
-    workflow.add_conditional_edges("socratic", check_complete)
+    workflow.add_edge("generate_paths", "critique_paths")
+    workflow.add_edge("critique_paths", "select_path")
+    workflow.add_conditional_edges("select_path", check_complete)
     workflow.add_edge("committee", "judge")
     workflow.add_edge("judge", END)
     
