@@ -168,7 +168,8 @@ Output ONLY JSON:
                 p["critic_score"] = critique_map.get(p["path_id"], 0)
         except Exception as e:
             logger.error(f"Critic parsing failed: {e}")
-            for p in paths: p["critic_score"] = 0
+            for p in paths:
+                p["critic_score"] = 0
             
         return {"reasoning_paths": paths}
     except Exception as e:
