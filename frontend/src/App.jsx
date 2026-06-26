@@ -230,7 +230,7 @@ export default function App() {
     try {
       const response = await fetch(`${API_URL}/api/admin/distill`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Distillation failed');
@@ -300,7 +300,7 @@ export default function App() {
         fetchTelemetry(); // Refresh metrics
         
         // Save to Candidate Intelligence Hub if logged in
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem('token');
         if (token) {
           fetch(`${API_URL}/api/hub/save_resume`, {
             method: 'POST',

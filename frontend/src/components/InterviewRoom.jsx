@@ -244,7 +244,7 @@ export default function InterviewRoom({ resumeText, jdText, onExit }) {
     }
     
     // Save to Candidate Intelligence Hub if logged in
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('token');
     if (token && messages.length > 0) {
       fetch(`${API_URL}/api/hub/save_interview`, {
         method: 'POST',

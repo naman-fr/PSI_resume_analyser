@@ -18,7 +18,7 @@ export default function IntelligenceHub() {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       if (!token) {
         setLoading(false);
         return;
@@ -33,7 +33,7 @@ export default function IntelligenceHub() {
         const data = await resProfile.json();
         setProfile(data);
       } else if (resProfile.status === 401) {
-        localStorage.removeItem('access_token');
+        localStorage.removeItem('token');
         setLoading(false);
         return;
       }
@@ -50,7 +50,7 @@ export default function IntelligenceHub() {
 
   const handleToggleIntegration = async (id, currentStatus) => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/hub/integrations/toggle`, {
         method: 'POST',
         headers: {
