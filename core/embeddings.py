@@ -43,6 +43,19 @@ def get_embedding_model() -> Any:
                 logger.info("Model loaded successfully.")
     return _model
 
+def unload_model() -> None:
+    """
+    Explicitly unload the SentenceTransformer model to free up RAM.
+    """
+    global _model
+    with _model_lock:
+        if _model is not None:
+            logger.info("Unloading sentence-transformer model '%s' from memory to save RAM.", _MODEL_NAME)
+            del _model
+            _model = None
+            import gc
+            gc.collect()
+
 
 # ---------------------------------------------------------------------------
 # API Fallbacks (Low Memory / Render Free Tier)

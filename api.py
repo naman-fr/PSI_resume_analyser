@@ -382,6 +382,15 @@ async def analyze_endpoint(
                 os.remove(temp_filepath)
             except Exception as e:
                 logger.warning(f"Failed to delete temp file {temp_filepath}: {e}")
+                
+        # Aggressive memory optimization for Render Free Tier
+        try:
+            from core.embeddings import unload_model
+            unload_model()
+        except Exception:
+            pass
+        import gc
+        gc.collect()
 
 
 @app.post("/api/improve")

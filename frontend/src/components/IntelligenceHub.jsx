@@ -87,8 +87,11 @@ export default function IntelligenceHub() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
-      <div className="flex justify-between items-center bg-black p-4" style={{ transform: 'skewX(-5deg)', border: '4px solid var(--p5-red)', boxShadow: '8px 8px 0px var(--p5-red)' }}>
+    <div className="animate-fade-in pb-12 w-full flex flex-col items-center overflow-hidden">
+      {/* Diegetic Background Halftone Texture */}
+      <div className="fixed top-0 left-0 w-screen h-screen -z-10 opacity-10 pointer-events-none" style={{ background: 'radial-gradient(var(--p5-red) 15%, transparent 16%), radial-gradient(var(--p5-red) 15%, transparent 16%)', backgroundSize: '20px 20px', backgroundPosition: '0 0, 10px 10px', animation: 'bgStripeScroll 20s linear infinite' }}></div>
+
+      <div className="flex justify-between items-center bg-black p-4 w-full max-w-[1200px] mb-8" style={{ transform: 'skewX(-5deg)', border: '4px solid var(--p5-red)', boxShadow: '8px 8px 0px var(--p5-red)' }}>
         <div style={{ transform: 'skewX(5deg)' }}>
           <h2 className="text-4xl font-black text-white uppercase tracking-widest" style={{ textShadow: '2px 2px 0px var(--p5-red)', fontFamily: 'var(--ff-display)' }}>
             🧠 Candidate Intelligence Hub
@@ -105,34 +108,41 @@ export default function IntelligenceHub() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-4 border-b-4 border-red-600 pb-0 pt-4">
+      {/* Static Navigation Triggers */}
+      <div className="w-full max-w-[1200px] flex justify-center space-x-6 mb-16 relative z-50 mt-6">
         {[
-          { id: 'overview', label: 'OVERVIEW & TIMELINE' },
-          { id: 'vault', label: '📂 RESUME VAULT' },
-          { id: 'interviews', label: '🎙️ INTERVIEWS' },
-          { id: 'integrations', label: '🔌 INTEGRATIONS (MCP)' }
+          { id: 'overview', label: '01 PROFILE', angle: 0 },
+          { id: 'vault', label: '02 STATS', angle: -90 },
+          { id: 'interviews', label: '03 ARCHIVE', angle: -180 },
+          { id: 'integrations', label: '04 CONTACT', angle: -270 }
         ].map(tab => (
           <button 
             key={tab.id}
-            className="px-6 py-3 font-black text-lg uppercase tracking-widest transition-all"
+            onClick={() => handleNavClick(tab.angle, tab.id)}
+            className="px-8 py-3 font-black text-xl uppercase tracking-widest transition-all duration-200 relative"
             style={{ 
-              background: activeView === tab.id ? 'var(--p5-red)' : '#111', 
-              color: activeView === tab.id ? '#fff' : '#666',
-              border: '2px solid',
-              borderColor: activeView === tab.id ? 'var(--p5-red)' : '#333',
-              borderBottom: 'none',
-              transform: 'skewX(-10deg)',
-              transformOrigin: 'bottom'
+              background: activeView === tab.id ? 'var(--p5-red)' : '#fff', 
+              color: activeView === tab.id ? '#fff' : '#000',
+              clipPath: activeView === tab.id ? 'polygon(0 0, 100% 0, 100% 100%, 10% 100%)' : 'polygon(10% 0, 100% 0, 90% 100%, 0 100%)',
+              border: 'none',
+              transform: activeView === tab.id ? 'scale(1.05) translateX(10px)' : 'none'
             }}
-            onClick={() => setActiveView(tab.id)}
           >
-            <span style={{ display: 'inline-block', transform: 'skewX(10deg)' }}>{tab.label}</span>
+            <span className="block transform" style={{ transform: 'skewX(-10deg)' }}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </div>
 
-      {activeView === 'overview' && (
+      {/* 3D Spatial Perspective Wrapper */}
+      <div className="hub-scene" ref={sceneRef}>
+          {/* The Volumetric Rotating Prism */}
+          <div className="hub-prism" style={{ transform: `rotateY(${currentRotation}deg)` }}>
+              
+              {/* FACE 1: ABOUT (FRONT) - 0deg */}
+              <div className="hub-face hub-face-front">
+
         <div className="relative mt-12 mb-8">
           {/* 3D Background Element */}
           <div className="absolute inset-0 z-0 flex items-center justify-center opacity-70 pointer-events-none" style={{ transform: 'scale(1.5)' }}>
@@ -214,9 +224,10 @@ export default function IntelligenceHub() {
             </div>
           </div>
         </div>
-      )}
-
-      {activeView === 'vault' && (
+              </div>
+              
+              {/* FACE 2: VAULT (RIGHT) - -90deg */}
+              <div className="hub-face hub-face-right inverted">
         <div className="glass-panel p-6">
           <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
             <History className="mr-2 h-5 w-5 text-indigo-400" />
@@ -248,9 +259,10 @@ export default function IntelligenceHub() {
             </div>
           )}
         </div>
-      )}
+              </div>
 
-      {activeView === 'interviews' && (
+              {/* FACE 3: INTERVIEWS (BACK) - -180deg */}
+              <div className="hub-face hub-face-back">
         <div className="glass-panel p-6">
           <h3 className="text-xl font-semibold mb-6 flex items-center text-white">
             <Star className="mr-2 h-5 w-5 text-emerald-400" />
@@ -279,9 +291,10 @@ export default function IntelligenceHub() {
             </div>
           )}
         </div>
-      )}
+              </div>
 
-      {activeView === 'integrations' && (
+              {/* FACE 4: INTEGRATIONS (LEFT) - -270deg */}
+              <div className="hub-face hub-face-left inverted">
         <div className="space-y-6">
           <div className="p5-glitch-header" style={{ padding: '2rem', background: '#000', border: '4px solid #e60012', transform: 'skewX(-2deg)', boxShadow: '8px 8px 0px #e60012' }}>
             <h3 className="text-3xl font-black text-white uppercase tracking-widest" style={{ textShadow: '2px 2px 0px #e60012' }}>
@@ -348,7 +361,9 @@ export default function IntelligenceHub() {
             })}
           </div>
         </div>
-      )}
+              </div>
+          </div>
+      </div>
     </div>
   );
 }
