@@ -18,7 +18,7 @@ from config.settings import settings
 from core.pdf_parser import extract_text_from_pdf
 from core.job_search import search_jobs
 from core.db import get_db_connection, set_cache, get_cache, init_db
-from routers import auth, interview, vision
+from routers import auth, interview, vision, identity
 from agents.graph import run_analysis
 from agents.improver import improve_resume
 from core.telemetry import TelemetryLogger
@@ -45,6 +45,7 @@ app = FastAPI(
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(interview.router, tags=["interview"])
 app.include_router(vision.router, tags=["vision_streaming"])
+app.include_router(identity.router)
 
 # Enable CORS – read allowed origins from environment variable
 # Default to "*" for local development; set ALLOWED_ORIGINS in production

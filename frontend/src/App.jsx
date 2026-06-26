@@ -9,6 +9,8 @@ import {
 import P5Button from './components/P5Button';
 import AuthScreen from './components/AuthScreen';
 import InterviewRoom from './components/InterviewRoom';
+import ConsentManager from './components/ConsentManager';
+import { behaviorTracker } from './utils/behaviorTracker';
 import { useAuth } from './AuthContext';
 import loadingGif from './components/Scenes/loading_gif.gif';
 
@@ -100,6 +102,7 @@ export default function App() {
   const [stressPrompt, setStressPrompt] = useState('');
   const [stressResult, setStressResult] = useState(null);
   const [stressLoading, setStressLoading] = useState(false);
+  const [showConsentManager, setShowConsentManager] = useState(false);
 
   // Batch Mode State
   const [batchFiles, setBatchFiles] = useState([]);
@@ -114,6 +117,16 @@ export default function App() {
 
   const [sampleJds, setSampleJds] = useState([]);
   const [selectedJdId, setSelectedJdId] = useState('');
+
+  const [botDetected, setBotDetected] = useState(false);
+
+  useEffect(() => {
+    const handleTelemetry = (e) => {
+      if (e.detail.is_bot) setBotDetected(true);
+    };
+    window.addEventListener('telemetrySync', handleTelemetry);
+    return () => window.removeEventListener('telemetrySync', handleTelemetry);
+  }, []);
 
   // Load telemetry stats and sample JDs on mount
   useEffect(() => {
@@ -2284,12 +2297,30 @@ export default function App() {
           alt="Loading Scene" 
           style={{ position: 'absolute', bottom: '-20px', left: '10px', width: '80px', opacity: 0.8, pointerEvents: 'none' }} 
         />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          PSI Resume Analyser v1.0.0 • React + FastAPI Full-Stack Architecture • Built with 
-          <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 
-          <a href="https://ai.google.dev" target="_blank" rel="noreferrer"> Gemini</a>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+          <div>
+            PSI Resume Analyser v1.0.0 • React + FastAPI Full-Stack Architecture • Built with 
+            <a href="https://www.langchain.com/langgraph" target="_blank" rel="noreferrer"> LangGraph</a> & 
+            <a href="https://ai.google.dev" target="_blank" rel="noreferrer"> Gemini</a>
+          </div>
+          <button 
+            onClick={() => setShowConsentManager(true)}
+            style={{ background: 'none', border: 'none', color: '#888', textDecoration: 'underline', fontSize: '0.8rem', cursor: 'pointer' }}
+          >
+            AI Data Governance & Privacy
+          </button>
         </div>
       </footer>
+
+      {showConsentManager && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', zIndex: 100002,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <ConsentManager userId={currentUser ? currentUser.email : "anonymous"} onClose={() => setShowConsentManager(false)} />
+        </div>
+      )}
 
       {/* ── MORGANA HELPER ────────────────────────────────────────── */}
       <div 
