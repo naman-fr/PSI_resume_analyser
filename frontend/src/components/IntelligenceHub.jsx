@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, Database, Lock, TrendingUp, History, Star, Activity, AlertTriangle, Book, Download, ShieldCheck } from 'lucide-react';
+import { Layers, Database, Lock, TrendingUp, History, Star, Activity, AlertTriangle, Book, Download, ShieldCheck, HardDrive, Calendar, Github, MessageSquare } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -279,51 +279,55 @@ export default function IntelligenceHub() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
             {[
-              { id: 'google_drive', name: 'Google Drive', icon: '📁', desc: 'Resume & Certificate Vault Sync', color: '#34a853' },
-              { id: 'google_calendar', name: 'Google Calendar', icon: '📅', desc: 'AI Interview Scheduler', color: '#4285f4' },
-              { id: 'github', name: 'GitHub MCP', icon: '🐙', desc: 'Portfolio & Code Analysis', color: '#f0f6fc' },
-              { id: 'notion', name: 'Notion MCP', icon: '📝', desc: 'Learning Roadmap Sync', color: '#fff' },
-              { id: 'slack', name: 'Slack Addon', icon: '💬', desc: 'Recruiter Notifications', color: '#e01e5a' },
-              { id: 'neo4j', name: 'Neo4j MCP', icon: '🗄️', desc: 'Graph Database Skill Genome', color: '#018bff' }
+              { id: 'google_drive', name: 'Google Drive', icon: <HardDrive size={32} color="#34a853" />, desc: 'Resume & Certificate Vault Sync', color: '#34a853' },
+              { id: 'google_calendar', name: 'Google Calendar', icon: <Calendar size={32} color="#4285f4" />, desc: 'AI Interview Scheduler', color: '#4285f4' },
+              { id: 'github', name: 'GitHub MCP', icon: <Github size={32} color="#f0f6fc" />, desc: 'Portfolio & Code Analysis', color: '#f0f6fc' },
+              { id: 'notion', name: 'Notion MCP', icon: <Book size={32} color="#fff" />, desc: 'Learning Roadmap Sync', color: '#fff' },
+              { id: 'slack', name: 'Slack Addon', icon: <MessageSquare size={32} color="#e01e5a" />, desc: 'Recruiter Notifications', color: '#e01e5a' },
+              { id: 'neo4j', name: 'Neo4j MCP', icon: <Database size={32} color="#018bff" />, desc: 'Graph Database Skill Genome', color: '#018bff' }
             ].map((app) => {
               const isConnected = integrations[app.id];
               return (
-                <div key={app.id} className="relative overflow-hidden" style={{ background: '#111', border: `2px solid ${isConnected ? '#e60012' : '#333'}`, transform: 'skewX(-2deg)', transition: 'all 0.3s' }}>
+                <div key={app.id} className="relative overflow-hidden group cursor-pointer" style={{ background: '#0a0a0a', border: `3px solid ${isConnected ? '#e60012' : '#333'}`, transform: 'skewX(-2deg)', boxShadow: isConnected ? '8px 8px 0px #e60012' : '6px 6px 0px #111', transition: 'all 0.2s ease-in-out' }}>
                   <div className="p-6 flex flex-col h-full relative z-10">
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-4xl">{app.icon}</span>
-                        <div>
-                          <h4 className="text-xl font-bold text-white uppercase tracking-wider">{app.name}</h4>
-                          <span className="text-xs font-mono font-bold px-2 py-1 bg-black text-white mt-1 inline-block" style={{ border: `1px solid ${app.color}` }}>
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-black border-2" style={{ borderColor: app.color, transform: 'skewX(2deg)' }}>
+                          <div style={{ transform: 'skewX(-2deg)' }}>{app.icon}</div>
+                        </div>
+                        <div style={{ transform: 'skewX(2deg)' }}>
+                          <h4 className="text-2xl font-black text-white uppercase tracking-wider">{app.name}</h4>
+                          <span className="text-sm font-bold px-2 py-1 bg-black text-white mt-2 inline-block shadow-[2px_2px_0px_#555]" style={{ border: `1px solid ${app.color}` }}>
                             {app.desc}
                           </span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="mt-auto pt-4 flex justify-end">
+                    <div className="mt-6 flex justify-end" style={{ transform: 'skewX(2deg)' }}>
                       <button 
                         onClick={() => handleToggleIntegration(app.id, isConnected)}
-                        className="font-bold uppercase tracking-widest px-6 py-2 transition-all"
+                        className="font-black uppercase tracking-widest px-8 py-3 transition-all hover:brightness-125"
                         style={{ 
-                          background: isConnected ? '#e60012' : 'transparent', 
-                          color: isConnected ? '#fff' : '#888',
+                          background: isConnected ? '#e60012' : '#222', 
+                          color: isConnected ? '#fff' : '#aaa',
                           border: `2px solid ${isConnected ? '#e60012' : '#555'}`,
-                          transform: 'skewX(-5deg)',
-                          boxShadow: isConnected ? '4px 4px 0px #000' : 'none'
+                          transform: 'skewX(-8deg)',
+                          boxShadow: isConnected ? '4px 4px 0px #000' : '4px 4px 0px #000'
                         }}
                       >
-                        {isConnected ? 'LINKED' : 'CONNECT'}
+                        <span style={{ display: 'inline-block', transform: 'skewX(8deg)' }}>
+                          {isConnected ? 'LINKED / ACTIVE' : 'CONNECT API'}
+                        </span>
                       </button>
                     </div>
                   </div>
                   
                   {isConnected && (
-                    <div className="absolute top-0 right-0 p-2 opacity-10">
-                      <Lock className="w-24 h-24 text-red-500" style={{ transform: 'rotate(15deg)' }} />
+                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                      <Lock className="w-32 h-32 text-red-500" style={{ transform: 'rotate(15deg)' }} />
                     </div>
                   )}
                 </div>

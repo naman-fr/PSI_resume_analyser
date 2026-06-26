@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import uuid
 
 from core.mongo_db import get_db
+from core.cache import cache
 from routers.auth import get_current_user
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,11 @@ def get_hub_profile(user_id: str = Depends(get_current_user)):
     """Fetches the complete Candidate Intelligence Hub profile."""
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    cache_key = f"profile_{user_id}"
+    cached_profile = cache.get(cache_key)
+    if cached_profile:
+        return cached_profile
+
     db = get_db()
     if db is None:
         raise HTTPException(status_code=500, detail="Database not configured")
@@ -41,7 +47,7 @@ def get_hub_profile(user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
         
     # Ensure default arrays exist
-    return {
+    profile_data = {
         "resume_vault": user_doc.get("resume_vault", []),
         "interview_vault": user_doc.get("interview_vault", []),
         "skill_genome": user_doc.get("skill_genome", {}),
@@ -52,6 +58,9 @@ def get_hub_profile(user_id: str = Depends(get_current_user)):
         }),
         "career_health_score": user_doc.get("career_health_score", 85)
     }
+    
+    cache.set(cache_key, profile_data, expire_seconds=3600)
+    return profile_data
 
 @router.post("/save_resume")
 def save_resume_to_vault(payload: ResumeSavePayload, user_id: str = Depends(get_current_user)):
@@ -74,6 +83,8 @@ def save_resume_to_vault(payload: ResumeSavePayload, user_id: str = Depends(get_
         {"user_id": user_id},
         {"$push": {"resume_vault": vault_entry}}
     )
+    
+    cache.invalidate(f"profile_{user_id}")
     
     return {"status": "success", "message": "Resume saved to Intelligence Vault"}
 
@@ -99,6 +110,8 @@ def save_interview_to_vault(payload: InterviewSavePayload, user_id: str = Depend
         {"$push": {"interview_vault": vault_entry}}
     )
     
+    cache.invalidate(f"profile_{user_id}")
+    
     return {"status": "success", "message": "Interview session saved to Vault"}
 
 class IntegrationTogglePayload(BaseModel):
@@ -110,6 +123,11 @@ def get_integrations(user_id: str = Depends(get_current_user)):
     """Fetch connected app integrations."""
     if not user_id:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    cache_key = f"integrations_{user_id}"
+    cached_integ = cache.get(cache_key)
+    if cached_integ:
+        return cached_integ
+
     db = get_db()
     if db is None:
         raise HTTPException(status_code=500, detail="Database not configured")
@@ -131,6 +149,8 @@ def get_integrations(user_id: str = Depends(get_current_user)):
     
     current_integrations = user_doc.get("integrations", {})
     default_integrations.update(current_integrations)
+    
+    cache.set(cache_key, default_integrations, expire_seconds=3600)
     return default_integrations
 
 @router.post("/integrations/toggle")
@@ -146,5 +166,7 @@ def toggle_integration(payload: IntegrationTogglePayload, user_id: str = Depends
         {"user_id": user_id},
         {"$set": {f"integrations.{payload.integration_id}": payload.is_connected}}
     )
+    
+    cache.invalidate(f"integrations_{user_id}")
     
     return {"status": "success", "integration_id": payload.integration_id, "is_connected": payload.is_connected}
