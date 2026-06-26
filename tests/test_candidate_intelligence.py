@@ -5,7 +5,7 @@ Bias Audits, Model Routers, Event Bus, and MCP Sandbox client.
 """
 
 from core.multimodal_parser import MultimodalParser
-from core.graph_rag import GraphRAG
+from core.graph_rag import generate_temporal_skill_graph, get_federated_weights_payload
 from core.digital_twin import CandidateDigitalTwin, RecruiterDigitalTwin
 from core.fairness import PIIRedactor, BiasAuditor, CounterfactualCalibrator, RobustnessEvaluator
 from core.model_router import ModelGatewayRouter
@@ -24,19 +24,17 @@ def test_multimodal_parser_layout_extraction():
     assert result["llm_verified"]
 
 def test_graph_rag_ontology_insertion():
-    # Test Node/Edge upsert and query
-    GraphRAG.init_graph_db()
-    GraphRAG.upsert_node("test_skill", "Test Skill", "skill", {"popularity": 5})
-    GraphRAG.upsert_edge("test_skill", "python", "RELATES_TO", 0.9)
+    # Test new temporal graph extraction
+    res = generate_temporal_skill_graph("python dev")
+    assert "nodes" in res
+    assert "edges" in res
+    assert len(res["nodes"]) > 0
     
-    # Traverse adjacent
-    adj = GraphRAG.get_adjacent_skills("test_skill")
-    assert len(adj) > 0
-    assert adj[0]["skill_id"] == "python"
-
-    # Query GraphRAG
-    query_res = GraphRAG.query_graph_rag("test_skill developer")
-    assert len(query_res["matched_entities"]) > 0
+    # Test federated sync payload
+    weights = get_federated_weights_payload()
+    assert "federated_version" in weights
+    assert "gradient_hash" in weights
+    assert len(weights["weights_sample"]) > 0
 
 def test_digital_twins():
     resume_parsed = {
