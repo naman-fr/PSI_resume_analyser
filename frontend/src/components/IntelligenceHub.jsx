@@ -87,111 +87,118 @@ export default function IntelligenceHub() {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+      <div className="flex justify-between items-center bg-black p-4" style={{ transform: 'skewX(-5deg)', border: '4px solid var(--p5-red)', boxShadow: '8px 8px 0px var(--p5-red)' }}>
+        <div style={{ transform: 'skewX(5deg)' }}>
+          <h2 className="text-4xl font-black text-white uppercase tracking-widest" style={{ textShadow: '2px 2px 0px var(--p5-red)', fontFamily: 'var(--ff-display)' }}>
             🧠 Candidate Intelligence Hub
           </h2>
-          <p className="text-slate-400 mt-1">
-            Persistent AI Workspace & Career Vault
+          <p className="text-red-400 mt-1 font-bold tracking-widest uppercase text-sm">
+            [ PERSISTENT AI WORKSPACE & CAREER VAULT ]
           </p>
         </div>
-        <div className="flex space-x-2">
-          <span className="bg-indigo-500/20 text-indigo-300 px-4 py-2 rounded-full text-sm font-mono border border-indigo-500/30 flex items-center">
-            <Activity className="h-4 w-4 mr-2 text-indigo-400" />
-            Health Score: {profile.career_health_score}/100
+        <div className="flex space-x-2" style={{ transform: 'skewX(5deg)' }}>
+          <span className="bg-white text-black px-4 py-2 text-xl font-black font-mono border-2 border-black flex items-center shadow-[4px_4px_0px_var(--p5-red)] uppercase tracking-wider">
+            <Activity className="h-6 w-6 mr-2 text-red-600" />
+            Health: {profile.career_health_score}/100
           </span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-4 border-b border-slate-700/50 pb-2">
-        <button 
-          className={`px-4 py-2 rounded-t-lg transition-colors ${activeView === 'overview' ? 'bg-slate-800/80 text-white border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white'}`}
-          onClick={() => setActiveView('overview')}
-        >
-          Overview & Timeline
-        </button>
-        <button 
-          className={`px-4 py-2 rounded-t-lg transition-colors ${activeView === 'vault' ? 'bg-slate-800/80 text-white border-b-2 border-cyan-500' : 'text-slate-400 hover:text-white'}`}
-          onClick={() => setActiveView('vault')}
-        >
-          📂 Resume Vault
-        </button>
-        <button 
-          className={`px-4 py-2 rounded-t-lg transition-colors ${activeView === 'interviews' ? 'bg-slate-800/80 text-white border-b-2 border-emerald-500' : 'text-slate-400 hover:text-white'}`}
-          onClick={() => setActiveView('interviews')}
-        >
-          🎙️ Interview History
-        </button>
-        <button 
-          className={`px-4 py-2 rounded-t-lg transition-colors ${activeView === 'integrations' ? 'bg-slate-800/80 text-white border-b-2 border-red-500' : 'text-slate-400 hover:text-white'}`}
-          onClick={() => setActiveView('integrations')}
-        >
-          🔌 Integrations (MCP)
-        </button>
+      <div className="flex space-x-4 border-b-4 border-red-600 pb-0 pt-4">
+        {[
+          { id: 'overview', label: 'OVERVIEW & TIMELINE' },
+          { id: 'vault', label: '📂 RESUME VAULT' },
+          { id: 'interviews', label: '🎙️ INTERVIEWS' },
+          { id: 'integrations', label: '🔌 INTEGRATIONS (MCP)' }
+        ].map(tab => (
+          <button 
+            key={tab.id}
+            className="px-6 py-3 font-black text-lg uppercase tracking-widest transition-all"
+            style={{ 
+              background: activeView === tab.id ? 'var(--p5-red)' : '#111', 
+              color: activeView === tab.id ? '#fff' : '#666',
+              border: '2px solid',
+              borderColor: activeView === tab.id ? 'var(--p5-red)' : '#333',
+              borderBottom: 'none',
+              transform: 'skewX(-10deg)',
+              transformOrigin: 'bottom'
+            }}
+            onClick={() => setActiveView(tab.id)}
+          >
+            <span style={{ display: 'inline-block', transform: 'skewX(10deg)' }}>{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {activeView === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-panel p-6 border-l-4 border-l-indigo-500">
-            <h3 className="text-xl font-semibold mb-4 flex items-center text-white">
-              <Database className="mr-2 h-5 w-5 text-indigo-400" />
-              AI Memory & Weaknesses
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm text-slate-400 uppercase tracking-wider mb-2">Identified Strengths</h4>
-                <div className="flex flex-wrap gap-2">
-                  {profile.ai_memory.strengths.length > 0 ? (
-                    profile.ai_memory.strengths.map((s, i) => (
-                      <span key={i} className="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded text-sm border border-emerald-500/30">{s}</span>
-                    ))
-                  ) : (
-                    <span className="text-slate-500 italic">No data yet. Upload a resume.</span>
-                  )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="p-6 bg-black text-white" style={{ border: '4px solid #fff', transform: 'skewX(-2deg)', boxShadow: '6px 6px 0px #333' }}>
+            <div style={{ transform: 'skewX(2deg)' }}>
+              <h3 className="text-2xl font-black mb-4 flex items-center text-white uppercase tracking-widest border-b-2 border-red-600 pb-2">
+                <Database className="mr-3 h-6 w-6 text-red-500" />
+                AI Memory Core
+              </h3>
+              <div className="space-y-6 mt-4">
+                <div>
+                  <h4 className="text-md font-bold text-red-500 uppercase tracking-widest mb-3 bg-white inline-block px-2 py-1 shadow-[2px_2px_0px_#f00]">
+                    [ IDENTIFIED STRENGTHS ]
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {profile.ai_memory.strengths.length > 0 ? (
+                      profile.ai_memory.strengths.map((s, i) => (
+                        <span key={i} className="bg-red-600 text-white font-bold px-3 py-1 text-sm border-2 border-white shadow-[2px_2px_0px_#555] uppercase tracking-wider">{s}</span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 italic font-mono font-bold">NO DATA. UPLOAD RESUME.</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <h4 className="text-sm text-slate-400 uppercase tracking-wider mb-2">Areas for Improvement</h4>
-                <div className="flex flex-wrap gap-2">
-                  {profile.ai_memory.weaknesses.length > 0 ? (
-                    profile.ai_memory.weaknesses.map((w, i) => (
-                      <span key={i} className="bg-red-500/20 text-red-300 px-3 py-1 rounded text-sm border border-red-500/30">{w}</span>
-                    ))
-                  ) : (
-                    <span className="text-slate-500 italic">No data yet.</span>
-                  )}
+                <div>
+                  <h4 className="text-md font-bold text-black bg-white uppercase tracking-widest mb-3 inline-block px-2 py-1 shadow-[2px_2px_0px_#555]">
+                    [ IMPROVEMENT TARGETS ]
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    {profile.ai_memory.weaknesses.length > 0 ? (
+                      profile.ai_memory.weaknesses.map((w, i) => (
+                        <span key={i} className="bg-gray-800 text-gray-300 font-bold px-3 py-1 text-sm border-2 border-gray-600 uppercase tracking-wider">{w}</span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 italic font-mono font-bold">NO DATA.</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="glass-panel p-6 border-l-4 border-l-cyan-500">
-            <h3 className="text-xl font-semibold mb-4 flex items-center text-white">
-              <TrendingUp className="mr-2 h-5 w-5 text-cyan-400" />
-              Skill Genome Progression
-            </h3>
-            {Object.keys(profile.skill_genome).length > 0 ? (
-              <div className="space-y-3">
-                {Object.entries(profile.skill_genome).map(([skill, weight], idx) => (
-                  <div key={idx}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-slate-300">{skill}</span>
-                      <span className="text-cyan-400">{Math.round(weight * 100)}%</span>
+          <div className="p-6 bg-red-600 text-white" style={{ border: '4px solid #000', transform: 'skewX(-2deg)', boxShadow: '6px 6px 0px #000' }}>
+            <div style={{ transform: 'skewX(2deg)' }}>
+              <h3 className="text-2xl font-black mb-4 flex items-center text-white uppercase tracking-widest border-b-2 border-black pb-2">
+                <TrendingUp className="mr-3 h-6 w-6 text-black" />
+                Skill Genome Matrix
+              </h3>
+              {Object.keys(profile.skill_genome).length > 0 ? (
+                <div className="space-y-4 mt-4">
+                  {Object.entries(profile.skill_genome).map(([skill, weight], idx) => (
+                    <div key={idx} className="bg-black p-2 border-2 border-white">
+                      <div className="flex justify-between text-md font-bold mb-1 uppercase tracking-widest">
+                        <span className="text-white">{skill}</span>
+                        <span className="text-red-500">{Math.round(weight * 100)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-800 h-3 border border-gray-600">
+                        <div className="bg-white h-full" style={{ width: `${Math.min(100, weight * 100)}%` }}></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-700/50 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style={{ width: `${Math.min(100, weight * 100)}%` }}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-                <Layers className="h-8 w-8 mb-2 opacity-50" />
-                <p>Upload a resume to generate your Skill Genome</p>
-              </div>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-32 text-black font-bold text-center">
+                  <Layers className="h-10 w-10 mb-2 opacity-80" />
+                  <p className="uppercase tracking-widest bg-black text-white px-2 py-1 mt-2">UPLOAD RESUME TO GENERATE</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
