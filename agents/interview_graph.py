@@ -79,8 +79,8 @@ JD: {jd_text[:2000]}
 
 
 def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
-    """Test-Time Scaling: Generate 5 separate thought paths evaluating the candidate."""
-    logger.info("Generating 5 Reasoning Paths (Test-Time Scaling)...")
+    """Test-Time Scaling: Generate multiple thought paths evaluating the candidate."""
+    logger.info("Generating 2 Reasoning Paths (Free-Tier Optimized)...")
     messages = state.get("messages", [])
     if len(messages) < 2 or messages[-1].get("role") != "human":
         return {}
@@ -96,36 +96,42 @@ def generate_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
         
         compressed_context = compress_history(messages)
         
-        prompt = f"""You are generating an internal thought path.
+        prompt = f"""You are generating internal thought paths.
 Context (Compressed Memory):
 {compressed_context}
 
 Question Asked (Difficulty {difficulty}/10): {ai_question}
 Candidate's Answer: {human_answer}
 
-Generate an evaluation and the NEXT question.
-Output ONLY JSON:
-{{
-  "critique": "Internal reasoning about their answer...",
-  "proposed_score": 5,
-  "proposed_next_question": "..."
-}}
+Generate 2 distinct evaluations and NEXT questions (one easier, one harder).
+Output ONLY a JSON array of 2 objects:
+[
+  {{
+    "critique": "Internal reasoning...",
+    "proposed_score": 5,
+    "proposed_next_question": "..."
+  }},
+  {{
+    "critique": "Different internal reasoning...",
+    "proposed_score": 6,
+    "proposed_next_question": "..."
+  }}
+]
 """
-        # Batch generation of 5 paths
-        prompts = [SystemMessage(content=prompt)] * 5
-        responses = llm.batch(prompts)
+        # Single generation to respect free tier rate limits
+        response = llm.invoke([SystemMessage(content=prompt)])
+        raw = response.content
         
         paths = []
-        for idx, res in enumerate(responses):
-            raw = res.content
-            try:
-                if "```json" in raw:
-                    raw = raw.split("```json")[1].split("```")[0].strip()
-                path_data = json.loads(raw)
-                path_data["path_id"] = f"path_{idx}"
-                paths.append(path_data)
-            except Exception:
-                pass
+        try:
+            if "```json" in raw:
+                raw = raw.split("```json")[1].split("```")[0].strip()
+            parsed_paths = json.loads(raw)
+            for idx, p in enumerate(parsed_paths):
+                p["path_id"] = f"path_{idx}"
+                paths.append(p)
+        except Exception as parse_e:
+            logger.error(f"Failed to parse paths JSON: {parse_e}")
                 
         return {"reasoning_paths": paths}
         

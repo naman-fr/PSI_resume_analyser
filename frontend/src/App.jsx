@@ -3,7 +3,7 @@ import {
   Building2, FileText, CheckCircle2, ShieldAlert, Cpu, 
   HelpCircle, Sparkles, Search, Layers, RefreshCw, 
   Settings, Award, HelpCircle as HelpIcon, CreditCard,
-  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut
+  Plus, Check, X, ArrowRight, BookOpen, AlertTriangle, LogOut, Users
 } from 'lucide-react';
 
 import P5Button from './components/P5Button';
