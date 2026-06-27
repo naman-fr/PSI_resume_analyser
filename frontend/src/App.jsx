@@ -11,6 +11,7 @@ import AuthScreen from './components/AuthScreen';
 import InterviewRoom from './components/InterviewRoom';
 import ConsentManager from './components/ConsentManager';
 import IntelligenceHub from './components/IntelligenceHub';
+import ResumeSelector from './components/ResumeSelector';
 import { behaviorTracker } from './utils/behaviorTracker';
 import { useAuth } from './AuthContext';
 import loadingGif from './components/Scenes/loading_gif.gif';

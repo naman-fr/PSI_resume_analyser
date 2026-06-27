@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, UploadCloud, CheckCircle } from 'lucide-react';
-import { API_URL } from '../config';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const ResumeSelector = ({ onSelect, label = "Select Resume" }) => {
   const [vaultResumes, setVaultResumes] = useState([]);
