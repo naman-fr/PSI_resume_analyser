@@ -219,7 +219,7 @@ async def analyze_endpoint(
             resume_text = extract_text_from_pdf(temp_filepath)
             if not resume_text or len(resume_text.strip()) < 50:
                 raise HTTPException(status_code=400, detail="Could not extract readable text from PDF resume.")
-        except Exception as e:
+        except Exception:
             pass
     else:
         raise HTTPException(status_code=400, detail="Must provide either file or resume_id.")
@@ -437,7 +437,8 @@ async def improve_endpoint(
                             resume_text = r.get("resume_text", "")
                             break
         elif file:
-            import shutil, uuid
+            import shutil
+            import uuid
             filename = file.filename
             temp_file_id = str(uuid.uuid4())
             temp_filepath = os.path.join(UPLOAD_DIR, f"{temp_file_id}.pdf")
@@ -514,12 +515,12 @@ async def improve_endpoint(
         # Fallback to avoid 500 error
         try:
             heuristic_bullets = []
-            for line in req.resume_text.split("\n"):
+            for line in resume_text.split("\n"):
                 line_clean = line.strip().lstrip("*-•0123456789. ")
                 if line_clean:
                     heuristic_bullets.append(line_clean)
             if not heuristic_bullets:
-                heuristic_bullets = [req.resume_text]
+                heuristic_bullets = [resume_text]
             return {"improved_bullets": "\n".join(heuristic_bullets), "error": str(e)}
         except Exception:
             raise HTTPException(status_code=500, detail=str(e))
