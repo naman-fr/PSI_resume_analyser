@@ -296,8 +296,10 @@ export default function App() {
     formData.append('premium_mode', premiumMode);
 
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${API_URL}/api/analyze`, {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData
       });
       const data = await res.json();
@@ -1284,7 +1286,7 @@ export default function App() {
                   <div>
                     <span className="badge badge-blue" style={{ marginBottom: '0.75rem' }}>Matched Core Skills</span>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {analysisResult.skill_match?.matched_skills?.map((s, idx) => (
+                      {analysisResult.skill_match?.matched?.map((s, idx) => (
                         <span key={idx} style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', color: 'var(--secondary-light)', fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 600 }}>
                           {s}
                         </span>
@@ -1294,7 +1296,7 @@ export default function App() {
                   <div>
                     <span className="badge badge-purple" style={{ marginBottom: '0.75rem' }}>Missing Target Skills</span>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {analysisResult.skill_match?.missing_skills?.map((s, idx) => (
+                      {analysisResult.skill_match?.missing?.map((s, idx) => (
                         <span key={idx} style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)', color: 'var(--primary-light)', fontSize: '0.8rem', padding: '0.2rem 0.6rem', borderRadius: '4px', fontWeight: 600 }}>
                           {s}
                         </span>
