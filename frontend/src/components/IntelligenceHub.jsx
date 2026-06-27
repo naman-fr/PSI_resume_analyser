@@ -221,8 +221,8 @@ export default function IntelligenceHub() {
                     {Object.entries(profile.skill_genome).map(([skill, weight], idx) => (
                       <div key={idx} style={{ background: 'var(--p5-black)', padding: '0.75rem', border: '4px solid var(--p5-white)', transition: 'border-color 0.2s' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.125rem', fontWeight: 900, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                          <span className="text-white group-hover:text-red-400 transition-colors">{skill}</span>
-                          <span className="text-red-500">{Math.round(weight * 100)}%</span>
+                          <span style={{ color: '#F5F5DC', transition: 'color 0.2s' }}>{skill}</span>
+                          <span style={{ color: '#4ADE80' }}>{Math.round(weight * 100)}%</span>
                         </div>
                         <div className="hub-progress-bar">
                           <div className="hub-progress-fill" style={{ width: `${Math.min(100, weight * 100)}%` }}>
