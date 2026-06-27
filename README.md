@@ -157,6 +157,18 @@ Every single LLM trace, temperature setting, latency metric, tool execution, and
 *   **Cryptographic PII Redaction**: The parser uses REGEX and NLP to instantly redact phone numbers, emails, and physical addresses from the resume before the LLM ever sees it, ensuring strict GDPR compliance.
 *   **GraphRAG Skill Ontology (`core/skill_taxonomy.py`)**: Flat keyword matching is dead. We use an adjacency graph. If a job requires `PyTorch` and the resume has `Deep Learning` and `Python`, the graph calculates the shortest path through the shared parent nodes, awarding partial competency credit rather than a `0.0` keyword miss.
 
+### 10. 🌐 Intelligence Hub & Persona 5 HUD (`components/IntelligenceHub.jsx`)
+We built a visually stunning central command center that provides candidates with a deep, holistic view of their AI profile.
+*   **Premium Embla Carousel & 3D Spatial Prism**: The entire dashboard is wrapped in a dynamic, swipeable multi-view interface, layered with a low-poly 3D geometric prism rendered using Three.js. It features a stark, high-contrast Persona 5 aesthetic (vibrant reds, deep blacks, and skewed geometry).
+*   **AI Memory Core & Skill Genome Matrix**: A dynamic telemetry readout that constantly aggregates data from the user's interactions, visualizing identified strengths, improvement targets, and a quantitative matrix of technical proficiencies.
+*   **MCP / External Addons**: Mock integrations with external services (Google Drive, Slack, GitHub) displaying active pipeline syncs and telemetry nodes, complete with bespoke UI interactions.
+
+### 11. 🗄️ Global Resume Vault Architecture (`routers/hub.py`)
+We completely eliminated the legacy paradigm of "uploading a file every time you want an analysis."
+*   **Centralized MongoDB Vault**: Every time a candidate uploads a new resume, it is asynchronously synced into their centralized MongoDB User Document (`resume_vault`), preserving the extracted raw text, parsed JSON graph state, and metadata.
+*   **Cross-Tab State Hydration**: Instead of juggling raw `File` objects across the DOM, all primary features (Analysis, Job Swiper, Bullet Improver) are natively hooked into the global `resumeSelection` state. Users can seamlessly query their existing historical resumes from the vault via a specialized `ResumeSelector` React component without ever needing to re-upload.
+*   **Secure API Contracts**: All data is governed by strict JWT authorization headers, ensuring users can only interact with and evaluate resumes securely anchored to their cryptographic identity.
+
 ---
 
 ## 🛠️ The Comprehensive Technology Stack
@@ -165,6 +177,7 @@ We didn't just use Python; we integrated the absolute best tools across frontend
 
 ### 1. The Multi-Platform Frontend Experience (Vercel)
 *   **React 18 + Vite**: Lightning-fast hot-module reloading and optimized production chunking.
+*   **Embla Carousel**: Powering the ultra-smooth, swipeable Intelligence Hub UI and dynamic page views.
 *   **Three.js / React-Three-Fiber**: Rendering custom `.glb` 3D robotic assets on the login screen for an immersive, futuristic UX.
 *   **Vanilla CSS & Glassmorphism**: Tailored, framework-less CSS using dynamic CSS variables to achieve a stunning, responsive, frosted-glass aesthetic.
 *   **OpenCV.js**: Native browser computer vision for proctoring without round-tripping to the server.
