@@ -273,8 +273,8 @@ export default function App() {
 
   const handleAnalyzeSubmit = async (e) => {
     e.preventDefault();
-    if (!resumeFile) {
-      setAnalysisError('Please upload a PDF resume.');
+    if (!resumeSelection.file && !resumeSelection.id) {
+      setAnalysisError('Please select or upload a resume.');
       return;
     }
     if (!jdText.trim()) {
@@ -287,7 +287,11 @@ export default function App() {
     setAnalysisResult(null);
 
     const formData = new FormData();
-    formData.append('file', resumeFile);
+    if (resumeSelection.file) {
+      formData.append('file', resumeSelection.file);
+    } else {
+      formData.append('resume_id', resumeSelection.id);
+    }
     formData.append('jd_text', jdText);
     formData.append('premium_mode', premiumMode);
 
@@ -1339,14 +1343,15 @@ export default function App() {
           <form onSubmit={handleImproveSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="split-layout">
               <div className="input-group">
-                <span className="input-label">Resume Text / Bullet Points</span>
-                <textarea 
-                  className="text-input" 
-                  style={{ height: '180px', resize: 'none' }} 
-                  placeholder="Paste raw experience bullet points here..."
-                  required
-                  value={improveResumeText}
-                  onChange={(e) => setImproveResumeText(e.target.value)}
+                <ResumeSelector 
+                  label="Select Resume for Bullet Improvement" 
+                  onSelect={(fileOrId, text) => {
+                    if (typeof fileOrId === 'string') {
+                      setImproveResumeSelection({ file: null, id: fileOrId, text });
+                    } else {
+                      setImproveResumeSelection({ file: fileOrId, id: null, text: null });
+                    }
+                  }} 
                 />
               </div>
 
@@ -1376,7 +1381,7 @@ export default function App() {
                 <div className="diff-box original">
                   <h4 style={{ fontSize: '0.9rem', color: 'var(--danger)' }}>Original Raw Input</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {improveResumeText.split('\n').filter(b => b.trim()).map((b, idx) => (
+                    {(improveResumeSelection?.text || 'Resume content not available (from file upload)').split('\n').filter(b => b.trim()).map((b, idx) => (
                       <div className="diff-bullet" key={idx}>{b}</div>
                     ))}
                   </div>
