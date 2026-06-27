@@ -72,14 +72,14 @@ export default function App() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   
   // Analysis Form State
-  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeSelection, setResumeSelection] = useState({ file: null, id: null, text: null });
   const [jdText, setJdText] = useState('');
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analysisError, setAnalysisError] = useState('');
 
   // Improve Bullet Form State
-  const [improveResumeText, setImproveResumeText] = useState('');
+  const [improveResumeSelection, setImproveResumeSelection] = useState({ file: null, id: null, text: null });
   const [improveJdText, setImproveJdText] = useState('');
   const [improveLoading, setImproveLoading] = useState(false);
   const [improvedBullets, setImprovedBullets] = useState(null);
@@ -107,6 +107,7 @@ export default function App() {
 
   // Batch Mode State
   const [batchFiles, setBatchFiles] = useState([]);
+  const [batchSelection, setBatchSelection] = useState({ file: null, id: null, text: null });
   const [batchJd, setBatchJd] = useState('');
   const [batchResults, setBatchResults] = useState([]);
   const [batchLoading, setBatchLoading] = useState(false);
@@ -299,21 +300,7 @@ export default function App() {
         setAnalysisResult(data);
         fetchTelemetry(); // Refresh metrics
         
-        // Save to Candidate Intelligence Hub if logged in
-        const token = localStorage.getItem('token');
-        if (token) {
-          fetch(`${API_URL}/api/hub/save_resume`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              parsed_json: data.debug_graph_state || {},
-              analysis_result: data
-            })
-          }).catch(err => console.error("Failed to save resume to hub", err));
-        }
+
       } else {
         setAnalysisError(data.detail || data.error || 'Analysis execution failed.');
       }
@@ -327,13 +314,24 @@ export default function App() {
 
   const handleImproveSubmit = async (e) => {
     e.preventDefault();
-    if (!improveResumeText.trim()) return;
+    if ((!improveResumeSelection.file && !improveResumeSelection.id && !improveResumeSelection.text) || !improveJdText.trim()) return;
     setImproveLoading(true);
     try {
+      const formData = new FormData();
+      if (improveResumeSelection.file) {
+        formData.append('file', improveResumeSelection.file);
+      } else if (improveResumeSelection.id) {
+        formData.append('resume_id', improveResumeSelection.id);
+      } else if (improveResumeSelection.text) {
+        formData.append('resume_text_input', improveResumeSelection.text);
+      }
+      formData.append('jd_text', improveJdText);
+      const token = localStorage.getItem('token');
+      
       const res = await fetch(`${API_URL}/api/improve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume_text: improveResumeText, jd_text: improveJdText })
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData
       });
       if (res.ok) {
         const data = await res.json();
@@ -419,12 +417,16 @@ export default function App() {
     setBatchLoading(true);
     setBatchResults([]);
     
-    // Process files sequentially or in parallel via sequential endpoint hits
+    // Process files sequentially
     const results = [];
     for (let i = 0; i < batchFiles.length; i++) {
-      const file = batchFiles[i];
+      const file = batchFiles[i]; // in the new UI they might be File objects or objects with {id, text}
       const formData = new FormData();
-      formData.append('file', file);
+      if (file instanceof File) {
+        formData.append('file', file);
+      } else if (file.id) {
+        formData.append('resume_id', file.id);
+      }
       formData.append('jd_text', batchJd);
       formData.append('premium_mode', premiumMode);
       
@@ -910,28 +912,15 @@ export default function App() {
           <form onSubmit={handleAnalyzeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="split-layout">
               <div className="input-group">
-                <span className="input-label">Upload Resume (PDF)</span>
-                <div 
-                  className="file-dropzone" 
-                  onClick={() => document.getElementById('resumeFileId').click()}
-                >
-                  <FileText className="upload-icon" />
-                  <div>
-                    <span style={{ fontWeight: 700, color: 'var(--primary-light)' }}>Click to upload</span> or drag file here
-                  </div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>PDF files up to 10MB</p>
-                  {resumeFile && (
-                    <div style={{ marginTop: '0.75rem', padding: '0.25rem 0.75rem', background: 'var(--primary-glow)', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                      Selected: {resumeFile.name}
-                    </div>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  id="resumeFileId" 
-                  accept=".pdf" 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => setResumeFile(e.target.files[0])}
+                <ResumeSelector 
+                  label="Select Resume for Analysis" 
+                  onSelect={(fileOrId, text) => {
+                    if (typeof fileOrId === 'string') {
+                      setResumeSelection({ file: null, id: fileOrId, text });
+                    } else {
+                      setResumeSelection({ file: fileOrId, id: null, text: null });
+                    }
+                  }} 
                 />
               </div>
 

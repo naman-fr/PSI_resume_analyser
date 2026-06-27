@@ -176,34 +176,55 @@ async def trigger_student_distillation(user_id: Optional[str] = Depends(auth.get
 
 @app.post("/api/analyze")
 async def analyze_endpoint(
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = File(None),
+    resume_id: Optional[str] = Form(None),
     jd_text: str = Form(...),
     premium_mode: bool = Form(False),
     user_id: Optional[str] = Depends(auth.get_current_user)
 ):
     start_time = time.time()
     
-    # Verify file extension
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext != ".pdf":
-        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-    
-    # Save upload file to temporary location
     temp_file_id = str(uuid.uuid4())
     temp_filepath = os.path.join(UPLOAD_DIR, f"{temp_file_id}.pdf")
+    resume_text = ""
+    filename = "vault_resume.pdf"
     
-    try:
-        with open(temp_filepath, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as e:
-        logger.error(f"Failed to write uploaded file: {e}")
-        raise HTTPException(status_code=500, detail="Failed to store uploaded file.")
+    if resume_id and user_id:
+        from core.mongo_db import get_db
+        db = get_db()
+        if db:
+            user_doc = db.users.find_one({"user_id": user_id})
+            if user_doc:
+                for r in user_doc.get("resume_vault", []):
+                    if r.get("id") == resume_id:
+                        resume_text = r.get("resume_text", "")
+                        filename = r.get("filename", filename)
+                        break
+        if not resume_text:
+            raise HTTPException(status_code=404, detail="Saved resume not found in vault.")
+    elif file:
+        filename = file.filename
+        ext = os.path.splitext(filename)[1].lower()
+        if ext != ".pdf":
+            raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+            
+        try:
+            with open(temp_filepath, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+        except Exception as e:
+            logger.error(f"Failed to write uploaded file: {e}")
+            raise HTTPException(status_code=500, detail="Failed to store uploaded file.")
+            
+        try:
+            resume_text = extract_text_from_pdf(temp_filepath)
+            if not resume_text or len(resume_text.strip()) < 50:
+                raise HTTPException(status_code=400, detail="Could not extract readable text from PDF resume.")
+        except Exception as e:
+            pass
+    else:
+        raise HTTPException(status_code=400, detail="Must provide either file or resume_id.")
         
     try:
-        # Extract text from PDF
-        resume_text = extract_text_from_pdf(temp_filepath)
-        if not resume_text or len(resume_text.strip()) < 50:
-            raise HTTPException(status_code=400, detail="Could not extract readable text from PDF resume.")
         
         # Check for prompt injection in resume
         is_inj, conf, reason = scan_prompt_injection(resume_text)
@@ -394,10 +415,44 @@ async def analyze_endpoint(
 
 
 @app.post("/api/improve")
-def improve_endpoint(req: ImproveRequest):
+async def improve_endpoint(
+    file: Optional[UploadFile] = File(None),
+    resume_id: Optional[str] = Form(None),
+    resume_text_input: Optional[str] = Form(None),
+    jd_text: str = Form(...),
+    user_id: Optional[str] = Depends(auth.get_current_user)
+):
     try:
-        # Heuristically split resume_text into individual bullets
-        raw_lines = req.resume_text.split("\n")
+        resume_text = ""
+        if resume_text_input:
+            resume_text = resume_text_input
+        elif resume_id and user_id:
+            from core.mongo_db import get_db
+            db = get_db()
+            if db:
+                user_doc = db.users.find_one({"user_id": user_id})
+                if user_doc:
+                    for r in user_doc.get("resume_vault", []):
+                        if r.get("id") == resume_id:
+                            resume_text = r.get("resume_text", "")
+                            break
+        elif file:
+            import shutil, uuid
+            filename = file.filename
+            temp_file_id = str(uuid.uuid4())
+            temp_filepath = os.path.join(UPLOAD_DIR, f"{temp_file_id}.pdf")
+            with open(temp_filepath, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            resume_text = extract_text_from_pdf(temp_filepath)
+            
+            if user_id:
+                from routers.hub import sync_resume_to_vault
+                sync_resume_to_vault(user_id, filename, resume_text, {}, {})
+        
+        if not resume_text:
+            raise HTTPException(status_code=400, detail="Could not retrieve resume text.")
+
+        raw_lines = resume_text.split("\n")
         existing_bullets = []
         for line in raw_lines:
             line_clean = line.strip().lstrip("*-•0123456789. ")
@@ -405,17 +460,16 @@ def improve_endpoint(req: ImproveRequest):
                 existing_bullets.append(line_clean)
         
         if not existing_bullets:
-            existing_bullets = [req.resume_text.strip()]
+            existing_bullets = [resume_text.strip()]
 
-        # Construct the Graph State dict
         state = {
             "resume_parsed": {
                 "experience": [{"bullets": existing_bullets}]
             },
             "jd_extracted": {
                 "job_title": "Target Role",
-                "required_skills": [req.jd_text[:100]] if req.jd_text else [],
-                "responsibilities": [req.jd_text[:200]] if req.jd_text else []
+                "required_skills": [jd_text[:100]] if jd_text else [],
+                "responsibilities": [jd_text[:200]] if jd_text else []
             },
             "skill_match": {},
             "gaps": ["Add quantitative metrics and business impact"],

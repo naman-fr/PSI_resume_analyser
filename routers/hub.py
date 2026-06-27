@@ -62,6 +62,84 @@ def get_hub_profile(user_id: str = Depends(get_current_user)):
     cache.set(cache_key, profile_data, expire_seconds=3600)
     return profile_data
 
+
+def sync_resume_to_vault(user_id: str, filename: str, resume_text: str, parsed_json: Dict[str, Any], analysis_result: Dict[str, Any]) -> str:
+    db = get_db()
+    if db is None:
+        return ""
+        
+    vault_entry = {
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "filename": filename,
+        "resume_text": resume_text,
+        "parsed_data": parsed_json,
+        "analysis": analysis_result,
+        "overall_score": analysis_result.get("overall_score", 0)
+    }
+    
+    db.users.update_one(
+        {"user_id": user_id},
+        {"$push": {"resume_vault": vault_entry}}
+    )
+    
+    try:
+        from agents.resume_parser import get_llm
+        from langchain_core.messages import HumanMessage, SystemMessage
+        import json
+        
+        llm, provider = get_llm()
+        
+        prompt = f"""
+Extract a skill_genome and ai_memory from this resume.
+Format MUST be strictly JSON:
+{{
+  "skill_genome": {{ "Python": 0.9, "React": 0.8 }},
+  "ai_memory": {{ "strengths": ["Strong backend"], "weaknesses": ["No cloud"], "learning_style": "unknown" }}
+}}
+Resume:
+{resume_text[:3000]}
+"""
+        res = llm.invoke([
+            SystemMessage(content="You are a JSON extractor. Return ONLY valid JSON."),
+            HumanMessage(content=prompt)
+        ])
+        
+        content = res.content.strip()
+        if content.startswith("```json"):
+            content = content[7:-3]
+        elif content.startswith("```"):
+            content = content[3:-3]
+            
+        data = json.loads(content)
+        new_genome = data.get("skill_genome", {})
+        new_memory = data.get("ai_memory", {})
+        
+        user_doc = db.users.find_one({"user_id": user_id})
+        if user_doc:
+            current_genome = user_doc.get("skill_genome", {})
+            for k, v in new_genome.items():
+                current_genome[k] = max(current_genome.get(k, 0.0), float(v))
+                
+            current_ai = user_doc.get("ai_memory", {"strengths": [], "weaknesses": [], "learning_style": "unknown"})
+            
+            db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {
+                    "skill_genome": current_genome,
+                    "ai_memory": {
+                        "strengths": list(set(current_ai.get("strengths", []) + new_memory.get("strengths", []))),
+                        "weaknesses": list(set(current_ai.get("weaknesses", []) + new_memory.get("weaknesses", []))),
+                        "learning_style": new_memory.get("learning_style", current_ai.get("learning_style"))
+                    }
+                }}
+            )
+    except Exception as e:
+        logger.error(f"Failed to extract genome in sync_resume: {e}")
+        
+    cache.invalidate(f"profile_{user_id}")
+    return vault_entry["id"]
+
 @router.post("/save_resume")
 def save_resume_to_vault(payload: ResumeSavePayload, user_id: str = Depends(get_current_user)):
     if not user_id:
