@@ -324,11 +324,12 @@ async def analyze_endpoint(
         if user_id:
             try:
                 from core.mongo_db import get_db
+                from routers.hub import sync_resume_to_vault
                 mongo_db = get_db()
                 if mongo_db is not None:
                     memory_entry = {
                         "timestamp": datetime.now(timezone.utc).isoformat(),
-                        "resume_name": file.filename,
+                        "resume_name": filename,
                         "match_score": analysis_result.get("match_score"),
                         "analysis": analysis_result
                     }
@@ -344,6 +345,16 @@ async def analyze_endpoint(
                             }
                         }
                     )
+                    
+                    # If this was a fresh file upload, sync it to vault
+                    if file:
+                        sync_resume_to_vault(
+                            user_id=user_id,
+                            filename=filename,
+                            resume_text=resume_text,
+                            parsed_json=analysis_result.get("debug_graph_state", {}),
+                            analysis_result=analysis_result
+                        )
             except Exception as e:
                 logger.error(f"Failed to save to MongoDB memory: {e}")
         
