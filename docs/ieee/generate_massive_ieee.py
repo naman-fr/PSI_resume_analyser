@@ -6,7 +6,8 @@ from datetime import datetime
 OUTPUT_FILE = "docs/ieee/PSI_IEEE_Paper_Full.tex"
 
 def escape_latex(text):
-    if not text: return ""
+    if not text:
+        return ""
     replacements = {
         '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_',
         '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}',
@@ -244,7 +245,8 @@ Running commercial LLMs continuously is financially inviable. We implemented a T
         # Merge manual sections
         manual_files = sorted(glob.glob("docs/ieee/*.tex"))
         for mf in manual_files:
-            if "PSI_IEEE_Paper" in mf: continue
+            if "PSI_IEEE_Paper" in mf:
+                continue
             with open(mf, 'r', encoding='utf-8') as f:
                 content = f.read().encode('ascii', 'ignore').decode('ascii')
                 # Skip duplicate manual sections that we rewrote above to avoid redundancy
@@ -268,7 +270,8 @@ To provide total transparency into the systemic design of the PSI Resume Analyse
             tex.write("This subsystem comprises critical operational logic for the application.\n\n")
             
             for filepath in glob.glob(f"{d}/*.py"):
-                if "__pycache__" in filepath: continue
+                if "__pycache__" in filepath:
+                    continue
                 basename = os.path.basename(filepath)
                 details = extract_python_details(filepath)
                 
