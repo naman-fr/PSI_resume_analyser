@@ -1,0 +1,29 @@
+\section{Frontend Architecture and Deployment}\label{sec:frontend}
+
+\subsection{Intelligence Hub and React SPA}
+The client-side interface is an optimized React 18 Single Page Application (SPA) built with Vite. It moves beyond standard CRUD dashboards, implementing an interactive \textbf{Intelligence Hub} and \textbf{Global Resume Vault}.
+
+Key frontend components include:
+\begin{itemize}
+    \item \textbf{AI Memory Core}: An aggregated display of the user's historical strengths, weaknesses, and a dynamic "Skill Genome Matrix" compiled by the backend over multiple resume evaluations.
+    \item \textbf{Tinder-Style Job Swiper}: Integrated with the Multi-API Job Matchmaking Engine (which aggregates listings from Remotive, Arbeitnow, and Adzuna). The UI allows candidates to swipe on jobs ranked by the LLM-generated matching score.
+    \item \textbf{Interactive 3D UI}: Leveraging \texttt{Three.js} and \texttt{react-three-fiber}, the interface renders a dynamic, low-poly 3D crystal representation of the candidate's skill matrix, significantly enhancing the UX of the Persona 5-themed aesthetic.
+\end{itemize}
+The SPA manages state asynchronously and gracefully falls back to mock endpoints when the API is rate-limited.
+
+\subsection{Database Persistence and Caching}
+The backend relies on an interconnected, polyglot persistence strategy:
+\begin{enumerate}
+    \item \textbf{MongoDB Atlas}: The primary Document Database. It stores user profiles, encrypted JWT credentials, and the unstructured arrays of the Global Resume Vault and Interview Vaults.
+    \item \textbf{SQLite (data/app.db)}: The high-speed relational store managing telemetry logs, financial payment session stubs (via Stripe), and the job caching tables.
+    \item \textbf{Redis Cache}: Handles transient state, API response caching, and endpoint rate limiting.
+\end{enumerate}
+
+\subsection{Deployment and Containerization}
+The architecture is aggressively optimized for free-tier and low-cost deployment. 
+\begin{itemize}
+    \item \textbf{Docker}: A multi-stage \texttt{Dockerfile} containerizes the FastAPI backend, utilizing Uvicorn as the ASGI server. \texttt{docker-compose} defines volume mounts for persistent SQLite and ChromaDB directories.
+    \item \textbf{Render}: The backend API is deployed on Render's PaaS, benefiting from automatic HTTPS and continuous deployment via GitHub webhooks.
+    \item \textbf{Vercel}: The React SPA is statically compiled and deployed to Vercel's Edge Network, ensuring minimal initial load times globally.
+    \item \textbf{HuggingFace Spaces}: To guarantee availability during Vercel/Render cold starts, a standalone Gradio interface (\texttt{app.py}) is deployed to HuggingFace, providing a reliable fallback presentation layer.
+\end{itemize}

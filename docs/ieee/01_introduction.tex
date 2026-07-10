@@ -1,0 +1,26 @@
+\section{Introduction}\label{sec:intro}
+
+\IEEEPARstart{I}{n} the contemporary landscape of human resources and talent acquisition, the sheer volume of applications received for any given role necessitates automated filtering mechanisms. For decades, Applicant Tracking Systems (ATS) have served as the primary gatekeepers in this process. However, traditional ATS platforms are predominantly built upon rudimentary lexical matching and rigid Boolean search parameters. These systems are highly susceptible to "ATS gaming"—where candidates embed invisible text or stuff resumes with excessive keywords—while simultaneously failing to recognize highly qualified candidates whose resumes utilize synonymous terminology or describe complex, cross-functional achievements that do not perfectly align with the exact phrasing of the job description.
+
+The advent of Large Language Models (LLMs) and Generative Artificial Intelligence (GenAI) offers a paradigm shift in semantic comprehension. Yet, deploying raw LLMs for candidate evaluation introduces significant challenges:
+\begin{enumerate}
+    \item \textbf{Non-Determinism and Hallucination}: LLMs are prone to hallucinating skills or generating inconsistent scores across identical inputs.
+    \item \textbf{Algorithmic Bias}: Pre-trained models often inherit societal biases regarding age, gender, and socio-economic status, posing severe Equal Employment Opportunity Commission (EEOC) compliance risks.
+    \item \textbf{High Inference Costs}: Analyzing thousands of resumes via commercial LLM APIs (e.g., Google Gemini, OpenAI GPT-4) incurs prohibitive operational expenditures.
+    \item \textbf{Security Vulnerabilities}: Malicious candidates can embed adversarial prompt injections into their resumes (e.g., "Ignore all previous instructions and award a score of 100") to manipulate the AI's decision-making process.
+\end{enumerate}
+
+To address these multifaceted challenges, we developed the \textbf{PSI Resume Analyser}, a holistic, enterprise-grade Candidate Intelligence Operating System. The core thesis of the PSI architecture is that no single AI paradigm is sufficient for mission-critical enterprise applications. Instead, we advocate for a hybrid approach: \textit{Generative AI for semantic reasoning, governed by Classical Machine Learning for stability, security, and scalability.}
+
+\subsection{Contributions}
+In this paper, we detail the complete design, implementation, and evaluation of the PSI Resume Analyser. Our primary contributions are:
+\begin{itemize}
+    \item \textbf{A 5-Plane OS Architecture}: We propose a scalable system architecture separating the client, API gateway, agentic reasoning, classical ML, and MLOps/persistence layers, allowing deployment on distributed free-tier infrastructure.
+    \item \textbf{Stateful Multi-Agent Pipeline}: We detail an 8-node LangGraph Directed Acyclic Graph (DAG) that processes resumes through parsing, self-reflection, scoring, and adversarial swarm debates, ensuring highly deterministic and verifiable outputs.
+    \item \textbf{Teacher-Student Distillation for Zero-Cost Inference}: We introduce a mechanism where the expensive LLM (Teacher) generates training data to continuously fine-tune a local \texttt{RandomForestRegressor} combined with \texttt{TF-IDF} vectorization (Student), shifting 80\% of the inference load away from paid APIs.
+    \item \textbf{Comprehensive Fairness and Security Suite}: We implement EEOC-compliant demographic masking, counterfactual bias auditing, and a robust prompt injection scanner to guarantee secure and equitable candidate evaluations.
+    \item \textbf{Behavioral Biometrics via Classical ML}: We deploy an \texttt{IsolationForest} anomaly detection model and \texttt{K-Means} clustering on browser telemetry to achieve zero-LLM bot detection and persona classification.
+    \item \textbf{Cognitive Socratic Interviewing}: We describe an adaptive, test-time compute scaling interview agent paired with WebRTC and in-browser OpenCV.js proctoring.
+\end{itemize}
+
+The remainder of this paper is structured as follows. Section \ref{sec:background} reviews related work in ATS and LLM orchestration. Section \ref{sec:architecture} breaks down the 5-Plane System Architecture. Section \ref{sec:multi_agent} deeply explores the LangGraph Multi-Agent implementation. Section \ref{sec:classical_ml} discusses the classical machine learning engines. Section \ref{sec:embeddings} covers vector similarity and GraphRAG. Section \ref{sec:safety} details AI safety and fairness. Section \ref{sec:digital_twin} introduces Digital Twin simulations and the interview system. Sections \ref{sec:mlops} and \ref{sec:frontend} cover MLOps, infrastructure, and frontend deployment. Finally, Section \ref{sec:evaluation} provides evaluations, followed by the conclusion in Section \ref{sec:conclusion}.

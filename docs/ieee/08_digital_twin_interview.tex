@@ -1,0 +1,40 @@
+\section{Digital Twin Simulation and Cognitive Voice Interview}\label{sec:digital_twin}
+
+\subsection{Digital Twin Simulation Engine}
+The \texttt{core/digital\_twin.py} module elevates traditional resume scoring by generating mathematically approximated "Digital Twins" of both the Candidate and the Hiring Manager.
+
+\subsubsection{Candidate Digital Twin}
+This module simulates a 360-degree candidate profile without requiring human interaction. It implements:
+\begin{itemize}
+    \item \textbf{Job Family Prediction}: A heuristic-based skill matcher that maps the candidate's capabilities to predefined job family clusters (e.g., "AI / ML Engineering" at 0.95 confidence).
+    \item \textbf{Compensation Estimator}: Estimates salary bands using a base rate + premium skill multiplier formula: 
+    \begin{equation}
+        \text{Salary} = 80,000 + \sum(\text{Premium Skills} \times 3,500) + \min(\text{Jobs} \times 8,000, 45,000)
+    \end{equation}
+    \item \textbf{Interview Risk Score}: Evaluates the risk of the candidate failing a technical screen based on unquantified bullet points, capping the maximum risk penalty at 100.
+\end{itemize}
+
+\subsubsection{Recruiter Digital Twin}
+Simulates a human recruiter's screening behavior, notably producing an \textbf{Attention Heatmap}. The twin evaluates every bullet point on a $[0, 100]$ scale, rewarding quantifiable metrics ($+25$) and strong action verbs ($+15$), while penalizing passive phrasing ($-15$) and insufficient detail ($-20$).
+
+\subsection{Cognitive Voice Interview System}
+To evaluate soft skills and technical depth dynamically, the PSI platform implements a standalone Socratic Interview LangGraph DAG (\texttt{agents/interview\_graph.py}).
+
+\subsubsection{Test-Time Compute Scaling (TTS) Verifier Pattern}
+To optimize LLM inference accuracy, the interview generator leverages a TTS Verifier pattern. The agent generates multiple reasoning paths for the next question, critiques its own paths, and selects the optimal path mathematically. 
+The difficulty of the interview dynamically scales $[1, 10]$ based on the candidate's previous response quality:
+\begin{equation}
+    d_{n+1} = \max\left(1, \min\left(10, d_n + \mathbb{1}[\text{score} \geq 8] - \mathbb{1}[\text{score} \leq 4]\right)\right)
+\end{equation}
+
+\subsubsection{Token-Compressing Memory Agent}
+Long conversations typically exceed LLM context windows or incur exponential token costs. The \texttt{Memory Agent} resolves this by retaining only the last two conversational exchanges intact. Older historical turns are aggressively summarized and truncated to 50 characters, preserving narrative continuity while halting context bloat.
+
+\subsubsection{WebRTC and Simulated LVLM Proctoring}
+A major innovation of the frontend React architecture is the integration of \textbf{WebRTC} coupled with \textbf{OpenCV.js} for in-browser visual proctoring.
+\begin{itemize}
+    \item The client utilizes Haar Cascade classifiers to detect face bounding boxes and eye coordinates locally.
+    \item Frame anomalies (e.g., missing face, multiple faces, gazing off-screen for $>3$ consecutive frames) trigger WebSockets alerts to the FastAPI backend.
+    \item Instead of using a computationally heavy, true Large Vision-Language Model (LVLM), the server passes the structured OpenCV spatial metadata into a fast text LLM (Groq LLaMA 3). This \textbf{Simulated LVLM} reasons about the context, determining whether the candidate is cheating or simply looking up to think.
+\end{itemize}
+Finally, the Web Speech API manages dictation (STT) and voice synthesis (TTS) directly in the browser, entirely avoiding costly server-side audio processing.

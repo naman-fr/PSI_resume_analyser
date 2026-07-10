@@ -1,0 +1,29 @@
+\section{MLOps, Telemetry, and Continuous Learning}\label{sec:mlops}
+
+To maintain production stability and govern AI costs, the PSI Resume Analyser employs a comprehensive MLOps and observability suite.
+
+\subsection{Telemetry and Cost Optimization Router}
+Every LLM invocation is logged by the \texttt{TelemetryLogger}, recording latency, prompt tokens, completion tokens, and the exact API cost based on provider pricing tables. 
+
+Because executing deep reasoning tasks is expensive, the \textbf{Model Gateway Router} dynamically routes requests. It calculates a complexity heuristic and a token budget estimation:
+\begin{itemize}
+    \item \textbf{Low Complexity / Free Tier}: Routes to Groq LLaMA 3 8B Instruct ($\sim \$0.05$ per 1M tokens).
+    \item \textbf{High Complexity / Premium Tier}: Routes to Google Gemini 2.0 Flash or Pro ($\sim \$0.075$ to $\$1.25$ per 1M tokens).
+\end{itemize}
+If the estimated token budget exceeds the tenant's predefined maximum budget USD, the router falls back to the zero-cost classical ML Student Model.
+
+\subsection{MLflow Experiment Tracking and Prometheus}
+The platform standardizes experiment tracking by integrating \textbf{MLflow}. Every pipeline execution creates an MLflow run stored in a local SQLite database (\texttt{mlflow.db}), persisting the final JSON state, all composite scores, and runtime parameters.
+
+Simultaneously, the system exposes a \texttt{/metrics} endpoint utilizing the \texttt{prometheus\_client}. Custom Prometheus metrics include:
+\begin{itemize}
+    \item \texttt{PSI\_ANALYSIS\_LATENCY}: Histogram tracking end-to-end pipeline durations.
+    \item \texttt{PSI\_LLM\_COST}: Counter accumulating USD expenditures.
+    \item \texttt{PSI\_DRIFT\_SCORE}: Gauge monitoring the live PSI drift metric.
+\end{itemize}
+These metrics enable seamless integration with Grafana dashboards for DevOps monitoring.
+
+\subsection{Data Flywheel: Continuous Knowledge Distillation (RAD)}
+To facilitate continuous model improvement, the system implements a \textbf{Data Flywheel}. The \texttt{core/learning.py} module extracts high-quality Q\&A pairs from the Socratic interview agent and high-confidence resume-JD pairings. 
+
+Pairs exceeding a strict quality threshold (e.g., correctness score $\geq 8$) are serialized as Instruction-Tuning JSONL records: \texttt{\{instruction, input, output\_score\}}. Over time, this curated dataset is utilized to fine-tune the internal \textit{PSI-ProctorNet} student models, allowing the classical ML infrastructure to continuously absorb the reasoning capabilities of the commercial LLMs without continuous human annotation.

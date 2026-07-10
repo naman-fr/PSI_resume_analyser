@@ -1,0 +1,50 @@
+\section{Multi-Agent Orchestration Engine}\label{sec:multi_agent}
+
+The core intelligence of the PSI Resume Analyser is driven by a stateful, cyclical, multi-agent DAG compiled via LangGraph. This architecture decomposes the complex task of resume evaluation into smaller, tractable sub-tasks, drastically reducing the LLM hallucination rate.
+
+\subsection{State Management}
+All agents communicate via a shared \texttt{ResumeJDState} dictionary. Utilizing Python's \texttt{TypedDict} with \texttt{total=False}, agents act as pure functions that accept the global state and return a partial dictionary. LangGraph automatically reduces and merges these partial returns into the global state. The state schema tracks over 30 variables, including raw inputs, normalized skills, component scores (keyword, semantic, experience, education), red/green flags, and the swarm debate log.
+
+\subsection{The 8-Node DAG Topology}
+The pipeline executes sequentially through the following nodes:
+
+\subsubsection{1. Planner Agent}
+Initializes the orchestration plan. It evaluates the raw inputs to define the sequence of processing steps, identifies the domain specificity (e.g., Healthcare vs. Finance), and selects the appropriate versioned prompts from the \texttt{PromptRegistry}.
+
+\subsubsection{2. Resume Parser}
+The primary extraction node. It invokes the LLM (Google Gemini 2.0 Flash or Groq LLaMA 3) using a strict structured output prompt to extract JSON data (skills, experience, education). To prevent data leakage and reduce API costs, this node integrates with an \textbf{Episodic Memory Cache}. The SHA-256 hash of the resume text is used as a lookup key; if a cache hit occurs, the LLM invocation is bypassed entirely.
+
+\subsubsection{3. Job Description Extractor}
+Mirrors the parser, but focuses on extracting mandatory versus preferred skills, minimum experience requirements, and core responsibilities from the JD.
+
+\subsubsection{4. Skill Normalizer (Hybrid AI)}
+Implements a two-pass normalization strategy. First, it attempts a deterministic $O(1)$ lookup against a NetworkX-based Skill Taxonomy Graph. If a skill (e.g., "tf") resolves to a canonical name ("TensorFlow"), it bypasses the LLM. Only unresolved, novel skills are batched into a single LLM call for semantic mapping, significantly optimizing token usage.
+
+\subsubsection{5. Critic Validator \& Self-Reflection}
+A vital node for system stability. The Critic evaluates the parser's output via two mechanisms:
+\begin{enumerate}
+    \item \textbf{Heuristic Checks}: Ensures arrays like \texttt{skills[]} and \texttt{experience[]} are non-empty.
+    \item \textbf{LLM Evaluation}: Validates schema conformity and absence of hallucination.
+\end{enumerate}
+If validation fails, the Critic generates specific feedback and routes the graph via a \textbf{conditional cyclic edge} back to the Parser node, injecting the feedback into the parser's system prompt. This self-correction loop is capped at a maximum of 2 iterations to prevent infinite cycles.
+
+\subsubsection{6. Enterprise ATS Scorer}
+The most mathematically rigorous node. It computes a final composite score ($S_{final} \in [0, 100]$) based on a weighted formula:
+\begin{equation}
+    S_{final} = w_k S_k + w_s S_s + w_e S_e + w_d S_d + w_r S_r + w_a S_a + \Delta_f
+\end{equation}
+Where the weights are distributed across Keyword match ($w_k = 0.35$), Semantic overlap ($w_s = 0.10$), Experience ($w_e = 0.20$), Education ($w_d = 0.10$), Recency ($w_r = 0.15$), and Achievement Quality ($w_a = 0.05$). $\Delta_f$ represents the net adjustment from red flags (penalties, e.g., Job Hopping: -10 pts) and green flags (bonuses, e.g., Upward Trajectory: +3 pts).
+
+\subsubsection{7. Multi-Agent Swarm Debate}
+Instead of relying on a single scoring mechanism, the system initiates an adversarial debate. 
+\begin{itemize}
+    \item A \textbf{Recruiter Agent} argues in favor of the candidate, highlighting cultural fit and tenure.
+    \item A \textbf{Tech Lead Agent} argues against, scrutinizing technical depth. This agent is augmented with the \textbf{Model Context Protocol (MCP)}, allowing it to dynamically execute tools (e.g., fetching the candidate's GitHub repositories) to support its arguments.
+    \item A \textbf{Judge Agent} synthesizes the transcript to produce a final consensus.
+\end{itemize}
+
+\subsubsection{8. Resume Improver}
+The final node generates actionable, ATS-optimized bullet points using the STAR (Situation, Task, Action, Result) framework, and identifies critical skills missing from the candidate's profile.
+
+\subsection{Prompt Engineering and Constitutional AI}
+All LLM prompts are governed by a central \texttt{PromptRegistry} that supports versioning and metadata tagging. Furthermore, to ensure compliance with EEOC guidelines, all evaluative nodes utilize a \textbf{Constitutional AI} system prompt overlay. This overlay strictly prohibits assumptions regarding age, gender, race, or nationality, mandating objective, deterministic decisions based solely on the provided text.

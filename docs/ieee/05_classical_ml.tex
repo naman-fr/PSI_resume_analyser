@@ -1,0 +1,42 @@
+\section{Classical Machine Learning Subsystems}\label{sec:classical_ml}
+
+While LLMs excel at semantic reasoning, they are inherently non-deterministic and computationally expensive. To provide stability, security, and scalability, the PSI architecture integrates several classical ML subsystems built on \texttt{scikit-learn}.
+
+\subsection{Identity Engine: Behavioral Biometrics}
+Traditional bot detection mechanisms (e.g., CAPTCHAs) introduce severe UX friction. The PSI Identity Engine implements a zero-friction, zero-LLM behavioral biometric pipeline. 
+A lightweight React hook collects 5-dimensional telemetry data: $\vec{x} = [\text{mouse\_speed}, \text{click\_rate}, \text{typing\_speed}, \text{error\_rate}, \text{session\_duration}]$.
+
+This vector is processed by two parallel ML models:
+\begin{enumerate}
+    \item \textbf{Isolation Forest (Anomaly Detection)}: Configured with \texttt{contamination=0.05} and \texttt{random\_state=42}, this model identifies statistically significant outliers. The raw anomaly score $a \in [-0.5, 0.5]$ is normalized to a risk scale:
+    \begin{equation}
+        Risk = \max(0, \min(100, \lfloor (0.5 - a) \times 100 \rfloor))
+    \end{equation}
+    A user is flagged and blocked if the model predicts an outlier ($-1$) or if $Risk > 75$.
+    \item \textbf{K-Means Clustering (Persona Identification)}: Configured with $K=3$, this model segments users into behavioral personas ("Aggressive/Fast", "Methodical/Slow", "Standard/Average"). To prevent degenerate clusters when vectors are identical, Gaussian noise $\mathcal{N}(0, 0.01)$ is dynamically injected during training.
+\end{enumerate}
+These models undergo \textbf{Continual Learning}, automatically retraining every 5 sessions on a sliding window of the most recent 1,000 data points.
+
+\subsection{Teacher-Student Knowledge Distillation}
+Processing tens of thousands of resumes via commercial LLM APIs is cost-prohibitive. We implement a Knowledge Distillation (KD) pipeline to train a local, zero-cost Student model.
+
+Historical execution logs (where the LLM Teacher provided a high-confidence match score) are pulled from SQLite. The candidate's skills and experience texts are concatenated into a single corpus. A \texttt{TfidfVectorizer} (with \texttt{max\_features=1000} and English stop-word removal) transforms this corpus into a sparse matrix.
+
+A \texttt{RandomForestRegressor} (with \texttt{n\_estimators=100}) is then trained to predict the LLM Teacher's exact score. Once trained on a minimum threshold of examples (e.g., $N \geq 5$), the Student model can perform sub-millisecond inference on incoming resumes. This enables the platform to offer a "Fast Score" feature or process bulk analytics entirely offline, reducing API costs by an estimated 90\%.
+
+\subsection{Population Stability Index (PSI) Drift Monitor}
+Machine learning models operating in production are vulnerable to concept drift—where the statistical properties of the target variable change over time (e.g., the LLM becomes stricter following an API update). To govern model degradation, we implement a statistical drift detection engine using the \textbf{Population Stability Index (PSI)}.
+
+The continuous target variable (the composite score) is discretized into $B=5$ bins ($[0-20, 21-40, \dots, 81-100]$). The PSI is calculated by comparing the baseline expected distribution ($p_i^{expected}$) against the actual distribution of the last 50 runs ($p_i^{actual}$):
+
+\begin{equation}
+    PSI = \sum_{i=1}^{B} \left(p_i^{actual} - p_i^{expected}\right) \cdot \ln\left(\frac{p_i^{actual}}{p_i^{expected}}\right)
+\end{equation}
+
+A small $\epsilon = 0.0001$ is added to prevent zero-division errors. The system triggers automated alerts based on strict thresholds:
+\begin{itemize}
+    \item $PSI < 0.10$: \textbf{STABLE}
+    \item $0.10 \leq PSI < 0.25$: \textbf{WARNING} (Monitor closely)
+    \item $PSI \geq 0.25$: \textbf{DRIFT DETECTED} (Triggers automated MLOps alert for immediate model retraining or prompt adjustment)
+\end{itemize}
+Furthermore, the monitor tracks \textit{input parameter drift}. If the average character length of incoming resumes deviates by more than 50\% from the historical baseline, a data-shift warning is raised.

@@ -1,0 +1,23 @@
+\section{Background and Related Work}\label{sec:background}
+
+The development of the PSI Resume Analyser intersects several active domains of research, including automated recruitment systems, multi-agent LLM orchestration, knowledge distillation, and algorithmic fairness.
+
+\subsection{Evolution of Applicant Tracking Systems (ATS)}
+Early ATS platforms functioned essentially as keyword-matching databases, utilizing Term Frequency-Inverse Document Frequency (TF-IDF) or simple boolean logic to rank candidates \cite{ats_evolution}. While computationally efficient, these systems suffered from a rigid inability to interpret context. A candidate who listed "Developed a high-throughput backend in Python" might be scored lower than one who simply listed "Python" ten times in a skills section.
+
+Subsequent generations of ATS incorporated early Natural Language Processing (NLP) techniques, such as Word2Vec or GloVe embeddings, to capture synonymy. However, these static embeddings lacked contextual awareness (e.g., distinguishing between "Java" the programming language and "Java" the island). The advent of Transformer architectures \cite{attention_is_all_you_need} and dense retrieval models enabled highly contextual semantic matching, but their deployment in HR tech remained limited by computational costs and a lack of explainability.
+
+\subsection{Multi-Agent Systems and Orchestration}
+Recent advancements in Generative AI have moved beyond zero-shot prompting towards complex, stateful multi-agent systems. Frameworks like LangChain and AutoGen have demonstrated that LLMs perform significantly better when their workflows are constrained into sequential, graph-based pipelines with explicit roles \cite{multi_agent_llm}. 
+
+Specifically, the paradigm of \textit{Self-Reflection} and \textit{Chain-of-Verification} has proven effective in reducing hallucination rates. By introducing a "Critic" agent that audits the output of a "Generator" agent before proceeding, systems can self-correct malformed JSON or fabricated facts. The PSI system extends this by utilizing a Directed Acyclic Graph (DAG) via LangGraph, enabling deterministic control flows and bounded retry loops.
+
+\subsection{Knowledge Distillation in LLMs}
+Deploying state-of-the-art LLMs (e.g., GPT-4, LLaMA 3 70B) in high-throughput environments is often economically unviable. Knowledge Distillation (KD) involves transferring knowledge from a large, complex "Teacher" model to a smaller, faster "Student" model \cite{hinton_distillation}. 
+
+In the context of NLP classification, research has shown that an LLM can be used to generate high-quality synthetic labels, which are then used to train classical ML models (such as Random Forests or Support Vector Machines) or smaller Transformers (like DistilBERT). The PSI system adopts an aggressive KD approach, utilizing a Teacher LLM to score resumes and a Student \texttt{RandomForestRegressor} to learn the scoring function, thereby achieving a near-zero marginal cost for bulk inference.
+
+\subsection{Algorithmic Fairness and Prompt Injection}
+The application of AI in recruitment is highly regulated. The EEOC and international equivalents mandate that algorithms must not exhibit disparate impact based on protected characteristics (race, gender, age, etc.). Researchers have proposed various mitigation strategies, ranging from adversarial debiasing during model training to post-hoc counterfactual analysis.
+
+Furthermore, LLMs are uniquely vulnerable to Prompt Injection—where an attacker embeds malicious instructions within the input data. Traditional cybersecurity measures (like SQL injection filters) are insufficient because LLMs inherently treat all input as natural language instructions. The PSI system implements a defense-in-depth strategy, combining pre-execution Regex heuristics with rigorous Constitutional AI prompting to sanitize and govern the evaluation process.

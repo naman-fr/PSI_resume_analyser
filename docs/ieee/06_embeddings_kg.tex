@@ -1,0 +1,40 @@
+\section{Embeddings, Vector Storage, and Knowledge Graphs}\label{sec:embeddings}
+
+Semantic matching forms the backbone of the PSI scoring engine. Rather than relying solely on lexical keyword matching, the system translates text into high-dimensional geometric spaces.
+
+\subsection{Multi-Tier Embedding Pipeline}
+Embedding generation is centralized in \texttt{core/embeddings.py}, which implements a highly resilient, 3-tier fallback architecture:
+\begin{enumerate}
+    \item \textbf{Google Gemini Embeddings}: Primary provider utilizing the \texttt{text-embedding-004} model.
+    \item \textbf{HuggingFace Inference API}: Secondary remote provider utilizing \texttt{sentence-transformers/all-MiniLM-L6-v2}.
+    \item \textbf{Local SentenceTransformer}: Ultimate fallback utilizing a locally executed \texttt{all-MiniLM-L6-v2} model (384-dimensional). This model is lazy-loaded using a thread-safe double-checked locking singleton pattern to minimize memory overhead.
+\end{enumerate}
+
+\subsection{Composite Similarity Scoring}
+The final semantic score blends both dense vector similarity and traditional token overlap. Given a resume embedding $\vec{r}$ and a JD embedding $\vec{j}$:
+
+\begin{equation}
+    S_{semantic} = \alpha \cdot \left( \frac{\vec{r} \cdot \vec{j}}{||\vec{r}||\cdot||\vec{j}||} \right) + (1-\alpha) \cdot \left( \frac{|T_r \cap T_j|}{|T_j|} \right)
+\end{equation}
+
+Where $T_r$ and $T_j$ represent sets of normalized lexical tokens, and $\alpha = 0.6$ is the blending hyperparameter favoring semantic representation. The result is mathematically clamped to $[0, 100]$, and negative cosine similarities are treated as zero.
+
+\subsection{ChromaDB Persistence and Caching}
+To eliminate redundant API calls for identical documents, all embeddings are cached in a persistent \textbf{ChromaDB} vector store located at \texttt{data/chroma\_db}. 
+The text undergoes SHA-256 hashing to generate a deterministic document ID. A cache-through pattern is employed: the system first queries ChromaDB using the hash; upon a cache miss, it computes the embedding via the multi-tier pipeline and upserts the vector into the \texttt{psi\_resume\_embeddings} collection.
+
+\subsection{GraphRAG Skill Ontology}
+A critical limitation of pure LLM evaluation is the failure to award partial competency credit. If a JD requires "PyTorch" and a candidate possesses "Deep Learning" and "TensorFlow", a strict keyword matcher awards 0 points.
+
+To solve this, PSI implements a \textbf{Skill Taxonomy Graph} utilizing the \texttt{NetworkX} library. The ontology represents skills as leaf nodes and categories as parent nodes, connected via \texttt{IS\_A} and \texttt{ALIAS\_OF} directed edges. 
+
+During the \textit{Skill Normalizer} agent phase, the system traverses this graph. For any given skill $s$, the graph expands the candidate's capabilities by returning all nodes within a Breadth-First Search (BFS) distance $\leq 2$:
+\begin{equation}
+    Expanded(s) = \{v \in V \mid \text{shortest\_path}(s, v) \leq 2\}
+\end{equation}
+This allows the ATS scorer to recognize semantic proximities and award proportional credit, dramatically improving fairness for self-taught or non-traditional candidates.
+
+\subsection{Temporal Knowledge Graphs and Federated Learning}
+In addition to the static taxonomy, the system models \textbf{Temporal Knowledge Graphs}, a simulated Graph RAG architecture. Here, skills are nodes, and the edges represent temporal co-occurrence (e.g., using React and Node.js in the same job role). The edge weights decay over time, providing the LLM with mathematical context regarding the recency and intensity of the candidate's experience.
+
+Furthermore, the architecture prepares for cross-tenant data sharing via a \textbf{Federated Learning Simulation}. The system generates encrypted, SHA-256 hashed gradient weight payloads, demonstrating a privacy-preserving mechanism where multiple enterprise tenants can collaboratively improve the Knowledge Distillation models without exposing underlying PII.

@@ -1,0 +1,44 @@
+\section{System Architecture}\label{sec:architecture}
+
+The PSI Resume Analyser adopts a monolithic-yet-modular \textbf{5-Plane Operating System Architecture}. This design decouples concerns, allowing independent scaling, testing, and deployment of distinct subsystems while maintaining unified state management.
+
+\subsection{The 5-Plane OS Paradigm}
+
+\subsubsection{Plane 1: Multi-Platform Client Plane}
+The presentation layer is primarily a React 18 Single Page Application (SPA) built with Vite. It incorporates advanced frontend technologies:
+\begin{itemize}
+    \item \textbf{Three.js \& React-Three-Fiber}: Utilized for rendering a Persona 5-themed 3D UI, enhancing user engagement without sacrificing performance.
+    \item \textbf{WebRTC \& OpenCV.js}: Enables client-side processing of video streams for cognitive proctoring, drastically reducing server bandwidth and latency.
+    \item \textbf{Web Speech API}: Powers the Socratic interview agent with native browser Text-to-Speech (TTS) and Speech-to-Text (STT) capabilities.
+\end{itemize}
+A secondary, lightweight Gradio client acts as a fallback interface, hosted independently on HuggingFace Spaces.
+
+\subsubsection{Plane 2: FastAPI Distributed Gateway}
+Acting as the central nervous system, a robust FastAPI backend routes traffic, manages state, and enforces security policies. Key features include:
+\begin{itemize}
+    \item \textbf{Asynchronous I/O}: Leveraging Python's \texttt{asyncio} for high-throughput concurrency, crucial for handling parallel LLM API requests.
+    \item \textbf{Security \& Auth}: Implements JSON Web Token (JWT) authentication via PyJWT, bcrypt password hashing, and Stripe API integration for premium tier access control.
+    \item \textbf{WebSockets}: Maintains persistent, bi-directional connections for real-time video proctoring telemetry.
+\end{itemize}
+
+\subsubsection{Plane 3: Agentic Reasoning Plane}
+This plane houses the Generative AI orchestration logic. Instead of relying on monolithic, zero-shot LLM calls, the system utilizes \textbf{LangGraph} to construct a Directed Acyclic Graph (DAG). This stateful graph routes execution through 8 specialized agent nodes, each responsible for a distinct sub-task (Parsing, Normalization, Scoring, Critique, etc.). State is maintained across nodes via a shared Python \texttt{TypedDict}, ensuring that partial updates are deterministically merged.
+
+\subsubsection{Plane 4: ML Identity \& Governance Plane}
+To enforce security and optimize costs, the classical ML plane operates in parallel to the GenAI plane:
+\begin{itemize}
+    \item \textbf{Identity Engine}: Ingests browser telemetry to run \texttt{IsolationForest} anomaly detection, identifying bots and scrapers without incurring LLM API costs.
+    \item \textbf{Knowledge Distillation}: A \texttt{RandomForestRegressor} learns the scoring behavior of the LLM, enabling zero-cost batch inference on large resume datasets.
+\end{itemize}
+
+\subsubsection{Plane 5: Persistence \& MLOps Plane}
+Data storage and observability are distributed across specialized databases:
+\begin{itemize}
+    \item \textbf{MongoDB Atlas}: Serves as the primary Document DB for user profiles, JWT state, and the "Global Resume Vault."
+    \item \textbf{SQLite}: Acts as the high-speed local store for MLflow tracking, telemetry logging, and the fine-tuning data flywheel.
+    \item \textbf{ChromaDB}: A persistent, local vector database for storing and querying dense semantic embeddings of resumes and job descriptions.
+    \item \textbf{Redis}: Provides an in-memory caching layer with TTL enforcement for rate limiting and API response caching.
+\end{itemize}
+
+\subsection{Infrastructure and Inter-Process Communication}
+Inter-process communication within the backend relies on an asynchronous \textbf{Event Bus}. This Pub/Sub mechanism decouples components; for instance, when a resume is successfully scored, a \texttt{score\_event} is published. Subscribed listeners (such as the MLOps logger and the Data Loop engine) receive this event asynchronously, preventing logging overhead from blocking the primary API response. The Event Bus implements an exponential backoff retry mechanism (max 3 retries, $0.1 \times \text{retry\_count}$ seconds delay) to ensure resilience against transient failures.
