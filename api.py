@@ -103,6 +103,11 @@ class CheckoutRequest(BaseModel):
     cvv: str
     amount: float = 49.0
 
+class FederatedUpdateRequest(BaseModel):
+    client_id: str
+    weights: list[float]
+    num_samples: int
+
 
 # --- Endpoints ---
 
@@ -172,6 +177,28 @@ async def trigger_student_distillation(user_id: Optional[str] = Depends(auth.get
     except Exception as e:
         logger.error(f"Distillation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to run distillation: {str(e)}")
+
+
+@app.post("/api/federated-sync")
+async def federated_sync_endpoint(req: FederatedUpdateRequest):
+    """
+    Federated Behavioral Learning endpoint.
+    Receives local weight deltas from the client's browser and aggregates them securely.
+    """
+    try:
+        from core.federated_learning import federated_aggregator
+        success = federated_aggregator.receive_local_update(
+            client_id=req.client_id,
+            weights=req.weights,
+            num_samples=req.num_samples
+        )
+        if success:
+            return {"status": "success", "message": "Federated weights aggregated securely."}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid weight vector.")
+    except Exception as e:
+        logger.error(f"Federated sync failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/analyze")
