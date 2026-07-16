@@ -89,9 +89,17 @@ class MockChatModel(BaseChatModel):
         return "mock-chat-model"
 
 def get_llm() -> Tuple[BaseChatModel, str]:
-    """Return the Groq LLM instance or a MockChatModel fallback."""
+    """Return the Groq LLM instance, Local LLM, or a MockChatModel fallback."""
     import os
     from config.settings import settings
+    
+    if os.environ.get("PSI_LOCAL_MODE", "false").lower() == "true":
+        from core.local_llm import get_local_llm, is_ollama_available
+        if is_ollama_available():
+            logger.info("PSI_LOCAL_MODE enabled and Ollama is healthy. Returning local LLM.")
+            return get_local_llm(), "ollama-local"
+        else:
+            logger.warning("PSI_LOCAL_MODE enabled but Ollama is unreachable. Falling back to Groq/Mock.")
     
     api_key = settings.models.groq_api_key or os.environ.get("GROQ_API_KEY")
     is_pytest = "PYTEST_CURRENT_TEST" in os.environ
