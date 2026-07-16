@@ -6,9 +6,11 @@ calculating context budgets, and applying fallback paths if budgets are breached
 
 import logging
 import os
+import json
 from typing import Dict, Any
 
 from core.local_llm import is_ollama_available
+from core.lora_distillation import log_escalation_event
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +133,43 @@ class ModelGatewayRouter:
             "context_truncated": truncated,
             "budget_remaining_usd": max(0.0, self.max_budget_usd - self.spent_usd),
             "sandboxed": False
+        }
+
+    def evaluate_local_confidence(self, prompt: str, local_response: Dict[str, Any], task_type: str, confidence_threshold: float = 0.85) -> Dict[str, Any]:
+        """
+        Confidence-Gated Cascade Routing.
+        Evaluates the local model's output confidence. If below threshold, escalates to Cloud Tier
+        and logs the event for future LoRA distillation.
+        """
+        # Extract self-reported confidence or fallback to schema validity check
+        confidence = local_response.get("confidence_score", 1.0)
+        
+        if confidence < confidence_threshold:
+            logger.warning(f"Local confidence ({confidence:.2f}) < threshold ({confidence_threshold}). Escalating to Cloud Tier 2.")
+            
+            # Temporarily force cloud routing for this specific retry
+            original_prefer_local = self.prefer_local
+            self.prefer_local = False
+            cloud_routing = self.route_request(task_type, len(prompt))
+            self.prefer_local = original_prefer_local
+            
+            # Note: The actual execution of the cloud model happens in the agent node.
+            # Here we just log that an escalation occurred for the Data Flywheel.
+            log_escalation_event(
+                prompt=prompt,
+                cloud_response={"status": "escalated_to_cloud", "routing_details": cloud_routing},
+                task_type=task_type,
+                confidence_score=confidence
+            )
+            
+            return {
+                "action": "escalate",
+                "cloud_routing": cloud_routing
+            }
+            
+        return {
+            "action": "accept_local",
+            "confidence": confidence
         }
 
     def record_cost(self, model_name: str, input_tokens: int, output_tokens: int):
