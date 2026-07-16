@@ -254,15 +254,6 @@ We have recently integrated massive, systems-engineering level research methodol
 
 ---
 
-## 🚀 Future Research & Architectural Roadmap (2025-2026)
-
-To elevate this platform to the standard of **Google Research, Microsoft Research, OpenAI, and Anthropic**, we are implementing a bleeding-edge roadmap targeting **Test-Time Scaling** and **Federated AI**:
-
-1. **Test-Time Scaling & Tree of Thoughts (o3/R1 Style)**: Implementing an internal reasoning loop where the agent generates 5 reasoning paths, performs self-consistency verification, and uses a Critic Agent before finalizing evaluations.
-2. **Large Vision Language Models (LVLM)**: Migrating from OpenCV/YOLO to unified LVLMs (e.g., Qwen2.5-VL, Llama 4 Vision) that reason over webcam, whiteboard, IDE, and gestures simultaneously.
-3. **Agentic Interview Operating System**: Transitioning from a single Interview Agent to a decentralized OS comprising Planning, Memory, Reflection, Critic, Judge, and Safety Agents.
-4. **Federated Behavioral Learning**: Instead of collecting biometrics centrally, local models on the user's browser will generate weight updates, syncing to a global model to ensure 100% data privacy.
-
 ---
 
 <div align="center">
