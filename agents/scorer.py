@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 from agents import resume_parser
 from agents.state import ResumeJDState
 from core.similarity import compute_keyword_overlap, compute_semantic_score
+from core.conformal_prediction import conformal_predictor
 
 logger = logging.getLogger(__name__)
 
@@ -779,6 +780,10 @@ def score_match(state: ResumeJDState) -> Dict[str, Any]:
     bonus_total = sum(f["bonus"] for f in green_flags)
     match_score = overall_score + penalty_total + bonus_total
     match_score = min(max(round(match_score, 1), 0.0), 100.0)
+    
+    # Apply Conformal Prediction Interval
+    lower_bound, upper_bound = conformal_predictor.get_conformal_interval(match_score, alpha=0.10)
+    match_score_interval = f"[{lower_bound}, {upper_bound}]"
 
     # ── Strengths & gaps ─────────────────────────────────────────────────
     strengths, gaps = _identify_strengths_and_gaps(
@@ -811,14 +816,11 @@ def score_match(state: ResumeJDState) -> Dict[str, Any]:
     }
 
     return {
-        "keyword_score": keyword_score,
-        "semantic_score": semantic_score,
-        "experience_score": experience_score,
-        "education_score": education_score,
         "overall_score": overall_score,
         "recency_score": recency_score,
         "achievement_score": achievement_score,
         "match_score": match_score,
+        "match_score_interval": match_score_interval,
         "disqualified": disqualified,
         "disqualification_reason": disqualification_reason,
         "job_hopping_info": hopping_res,
