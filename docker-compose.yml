@@ -13,10 +13,14 @@ services:
       - HF_TOKEN=${HF_TOKEN:-}
       - MONGODB_URI=mongodb://mongodb:27017/psi_resume_analyser
       - ENABLE_DATA_LOOP=true
+      - PSI_LOCAL_MODE=true
+      - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
       - ./data:/app/data
     depends_on:
       mongodb:
+        condition: service_healthy
+      ollama:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7860/api/health"]
@@ -37,5 +41,19 @@ services:
       timeout: 5s
       retries: 3
 
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
 volumes:
   mongo_data:
+  ollama_models:
