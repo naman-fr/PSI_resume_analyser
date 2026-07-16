@@ -251,6 +251,10 @@ We have recently integrated massive, systems-engineering level research methodol
 *   **Self-Editing Semantic Memory (`core/memory.py`)**: Our agents don't just read—they write. Powered by a Mem0-style architecture using ChromaDB, the Swarm autonomously extracts broad industry facts (e.g., "Skill X implies Skill Y") and embeds them into a persistent knowledge graph for future retrieval.
 *   **Conformal Prediction Intervals (`core/conformal_prediction.py`)**: Point-scores are statistically wrapped in marginal conformal prediction intervals (e.g., 74.5 [69.2, 79.8]). By maintaining a historical non-conformity calibration set, the system transparently quantifies uncertainty to satisfy EEOC fairness audits.
 *   **Air-Gapped Compliance**: The backend and inference engines run entirely disconnected from the public internet using `internal: true` Docker Compose networks, fully answering stringent corporate data residency requirements.
+*   **Test-Time Scaling & Tree of Thoughts (o3/R1 Style)**: Implementing an internal reasoning loop where the agent generates 5 reasoning paths, performs self-consistency verification, and uses a Critic Agent before finalizing evaluations.
+*   **Large Vision Language Models (LVLM)**: Migrating from OpenCV/YOLO to unified LVLMs (e.g., Qwen2.5-VL, Llama 4 Vision) that reason over webcam, whiteboard, IDE, and gestures simultaneously.
+*   **Agentic Interview Operating System**: Transitioning from a single Interview Agent to a decentralized OS comprising Planning, Memory, Reflection, Critic, Judge, and Safety Agents.
+*   **Federated Behavioral Learning**: Instead of collecting biometrics centrally, local models on the user's browser will generate weight updates, syncing to a global model to ensure 100% data privacy.
 
 ---
 

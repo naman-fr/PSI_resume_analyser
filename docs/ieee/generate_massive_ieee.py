@@ -366,8 +366,8 @@ Moving beyond episodic key-value caching, the architecture implements a Mem0-sty
 \subsection{Conformal Prediction Intervals}
 To quantify uncertainty and ensure fairness transparency, the point-estimate match scores are wrapped in marginal conformal prediction intervals. Utilizing a calibration hold-out set, the system dynamically calculates a statistically rigorous $(1-\alpha)$ confidence bound (e.g., 90\% confidence) around the final score. This explicitly satisfies EEOC auditing requirements by rendering the model's uncertainty transparent to the hiring committee.
 
-\section{Future Research \& Architectural Roadmap (2025-2026)}
-To elevate this platform to the standard of Google Research, Microsoft Research, OpenAI, and Anthropic, we are implementing a bleeding-edge roadmap targeting Test-Time Scaling and Federated AI:
+\section{Phase 3: Deep AI Architectures \& Federated Privacy}
+Elevating the platform to the standards of leading AI research labs (e.g., Google Research, Anthropic), the system implements the following advanced inference and privacy operations:
 
 \begin{itemize}
     \item \textbf{Test-Time Scaling \& Tree of Thoughts (o3/R1 Style)}: Implementing an internal reasoning loop where the agent generates 5 reasoning paths, performs self-consistency verification, and uses a Critic Agent before finalizing evaluations.
