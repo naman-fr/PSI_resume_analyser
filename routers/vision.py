@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from core.proctoring_engine import vision_proctor
+from core.lvlm_engine import lvlm_engine
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +25,15 @@ async def websocket_endpoint(websocket: WebSocket):
             frame_base64 = data.get("frame")
             
             if frame_base64:
-                # Process the frame via MediaPipe
-                results = vision_proctor.process_frame(frame_base64)
+                # Process the frame via LVLM for semantic context
+                results = lvlm_engine.analyze_multimodal_feed(frame_base64)
                 
                 # If there are alerts, immediately send them back to the frontend
-                if results.get("alerts"):
+                if results.get("risk_level") in ["medium", "high"]:
                     await websocket.send_json({
                         "type": "proctor_alert",
-                        "alerts": results["alerts"]
+                        "alerts": [results["inference"]],
+                        "model": results["model_used"]
                     })
                     # In a real system, we'd also log these alerts to the DB for the Final Report
                 else:
