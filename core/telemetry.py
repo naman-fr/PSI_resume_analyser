@@ -28,6 +28,8 @@ class TelemetryLogger:
         elif "gemini" in p:
             cost = (prompt_tokens * settings.telemetry.gemini_input_cost / 1_000_000) + \
                    (completion_tokens * settings.telemetry.gemini_output_cost / 1_000_000)
+        elif "ollama" in p:
+            cost = 0.0
         else:
             # Baseline estimation if generic
             cost = (prompt_tokens * 0.15 / 1_000_000) + (completion_tokens * 0.60 / 1_000_000)

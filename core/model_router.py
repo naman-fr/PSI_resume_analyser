@@ -5,7 +5,10 @@ calculating context budgets, and applying fallback paths if budgets are breached
 """
 
 import logging
+import os
 from typing import Dict, Any
+
+from core.local_llm import is_ollama_available
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +30,8 @@ class ModelGatewayRouter:
         self.tenant_tier = tenant_tier.lower()
         self.max_budget_usd = max_budget_usd
         self.spent_usd = 0.0
+        self.prefer_local = os.environ.get("PSI_LOCAL_MODE", "false").lower() == "true"
+        self._local_healthy = None
 
     def route_request(self, task_type: str, context_length: int) -> Dict[str, Any]:
         """
@@ -40,18 +45,37 @@ class ModelGatewayRouter:
         elif task_type in ["reasoning_plane", "graph_rag", "digital_twin"]:
             complexity = "high"
 
-        # 2. Check if tenant has exceeded budget
+        # 2. Check local tier preference first
+        if self.prefer_local:
+            if self._local_healthy is None:
+                self._local_healthy = is_ollama_available()
+            if self._local_healthy:
+                model = "qwen2.5:7b-instruct-q4_K_M" if complexity == "high" else "gemma2:2b"
+                return {
+                    "model_name": model,
+                    "tier": "local",
+                    "estimated_cost_usd": 0.0,
+                    "context_truncated": False,
+                    "budget_remaining_usd": max(0.0, self.max_budget_usd - self.spent_usd),
+                    "sandboxed": False,
+                    "provider": "ollama-local"
+                }
+            logger.warning("Ollama unreachable — falling back to cloud tier.")
+
+        # 3. Check if tenant has exceeded budget
         if self.spent_usd >= self.max_budget_usd:
             logger.warning("Tenant budget cap exceeded. Routing to offline/local fallback model.")
             return {
                 "model_name": "local-fallback-model",
                 "tier": "low",
                 "estimated_cost_usd": 0.0,
+                "context_truncated": False,
+                "budget_remaining_usd": 0.0,
                 "sandboxed": True,
                 "notes": "Budget cap hit: using local mock engine"
             }
 
-        # 3. Model routing decision tree based on Tenant Tier and Task Complexity
+        # 4. Model routing decision tree based on Tenant Tier and Task Complexity
         selected_model = "gemini-1.5-flash" # default baseline
 
         if self.tenant_tier == "free":
@@ -76,7 +100,7 @@ class ModelGatewayRouter:
             else:
                 selected_model = "llama-3-8b-instruct"
 
-        # 4. Context budget adjustment
+        # 5. Context budget adjustment
         # If the input text is massive, we enforce text slicing to avoid massive bills
         max_context = 100000
         if selected_model == "llama-3-8b-instruct":
@@ -91,7 +115,7 @@ class ModelGatewayRouter:
             truncated = True
             logger.info(f"Context budget exceeded. Slicing input to fit {max_context} tokens.")
 
-        # 5. Estimate cost
+        # 6. Estimate cost
         rates = self.PRICING.get(selected_model, self.PRICING["local-fallback-model"])
         # Estimate ~4 characters per token
         est_tokens = effective_context / 4.0
