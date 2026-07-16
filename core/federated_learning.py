@@ -5,7 +5,7 @@ Instead of sending raw PII/telemetry to the server, local browser models train o
 their own behavioral data and only send weight deltas (gradients) to this endpoint.
 """
 import logging
-from typing import List, Dict
+from typing import List
 
 logger = logging.getLogger(__name__)
 

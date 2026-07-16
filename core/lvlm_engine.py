@@ -45,8 +45,10 @@ class LVLMEngine:
             inference = random.choice(context_inferences[1:])
             
         risk_level = "low"
-        if "Medium" in inference: risk_level = "medium"
-        elif "High" in inference: risk_level = "high"
+        if "Medium" in inference:
+            risk_level = "medium"
+        elif "High" in inference:
+            risk_level = "high"
 
         return {
             "model_used": "qwen2.5-vl-mock",

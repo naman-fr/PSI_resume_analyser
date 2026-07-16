@@ -147,8 +147,10 @@ Output ONLY JSON:
                 p["critic_score"] = 0 # To be scored by critic
                 
                 # Introduce slight variation
-                if i == 1: p["proposed_score"] = max(1, p["proposed_score"] - 1)
-                elif i == 2: p["proposed_score"] = min(10, p["proposed_score"] + 1)
+                if i == 1:
+                    p["proposed_score"] = max(1, p["proposed_score"] - 1)
+                elif i == 2:
+                    p["proposed_score"] = min(10, p["proposed_score"] + 1)
                 
                 paths.append(p)
                 
@@ -166,7 +168,8 @@ def critique_reasoning_paths(state: InterviewState) -> Dict[str, Any]:
     """Critic Agent: Evaluates the 5 generated paths for self-consistency and logic."""
     logger.info("Critic Agent evaluating Tree of Thoughts...")
     paths = state.get("reasoning_paths", [])
-    if not paths: return {}
+    if not paths:
+        return {}
     
     # In a real system, the Critic LLM evaluates each path. Here we mock the self-consistency scoring.
     for path in paths:
