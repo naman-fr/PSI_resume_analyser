@@ -8,6 +8,7 @@ langchain-community>=0.3.0
 langchain-google-genai>=2.0.0
 langchain-groq>=0.2.0
 langgraph>=0.2.0
+langchain-ollama>=0.1.0
 
 # PDF Processing
 PyPDF2>=3.0.0
