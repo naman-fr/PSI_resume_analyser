@@ -6,7 +6,6 @@ calculating context budgets, and applying fallback paths if budgets are breached
 
 import logging
 import os
-import json
 from typing import Dict, Any
 
 from core.local_llm import is_ollama_available

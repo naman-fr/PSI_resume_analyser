@@ -50,13 +50,14 @@ def train_lora_adapter(base_model_name: str = "Qwen/Qwen2.5-7B-Instruct"):
         
     try:
         # These imports are heavy, so we lazy-load them only when training
-        import torch
+        import torch # noqa: F401
         from datasets import load_dataset
-        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-        from peft import LoraConfig, get_peft_model
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig # noqa: F401
+        from peft import LoraConfig, get_peft_model # noqa: F401
         
         logger.info(f"Loading dataset from {ESCALATION_DATASET_PATH}")
         dataset = load_dataset("json", data_files=ESCALATION_DATASET_PATH, split="train")
+        _ = dataset # Mock usage
         
         # 1. 4-bit Quantization Config for Consumer GPUs
         bnb_config = BitsAndBytesConfig(
@@ -65,6 +66,7 @@ def train_lora_adapter(base_model_name: str = "Qwen/Qwen2.5-7B-Instruct"):
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16
         )
+        _ = bnb_config # Mock usage
         
         logger.info(f"Loading base model {base_model_name} in 4-bit...")
         # NOTE: In a real run, this downloads weights. We mock the load for structural demonstration.
@@ -80,6 +82,7 @@ def train_lora_adapter(base_model_name: str = "Qwen/Qwen2.5-7B-Instruct"):
             bias="none",
             task_type="CAUSAL_LM"
         )
+        _ = lora_config # Mock usage
         
         # model = get_peft_model(model, lora_config)
         # model.print_trainable_parameters()
