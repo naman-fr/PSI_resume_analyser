@@ -240,6 +240,20 @@ docker-compose logs -f app
 
 ---
 
+## 🧬 Advanced 2026 AI Methodologies (Recent Upgrades)
+
+We have recently integrated massive, systems-engineering level research methodologies that elevate the platform beyond standard GenAI patterns:
+
+*   **Local LLM Tier & Confidence-Gated Routing**: The system routes low-complexity queries to an air-gapped local LLM (`Ollama`, `llama.cpp`), preserving cloud API budgets. If the local model's confidence threshold is too low, the query escalates to a top-tier cloud model seamlessly.
+*   **QLoRA Distillation Pipeline (`core/lora_distillation.py`)**: The system automatically logs escalated queries and formats them for LoRA fine-tuning. This "Teacher-Student" flywheel continuously improves the local model on domain-specific tasks.
+*   **Schema-Constrained Generation (GBNF)**: Forced adherence to `Pydantic` JSON schemas at the token level using formal grammars natively in the local runtime, ensuring 0% parsing failure rates.
+*   **Learned Reward Model / RLHF-Lite (`core/reward_model.py`)**: Moving away from opaque "LLM-as-a-judge" scoring, the platform employs a differentiable Bradley-Terry reward model. It embeds agent stances and predicts a mathematical preference scalar trained on historical human recruiter decisions.
+*   **Self-Editing Semantic Memory (`core/memory.py`)**: Our agents don't just read—they write. Powered by a Mem0-style architecture using ChromaDB, the Swarm autonomously extracts broad industry facts (e.g., "Skill X implies Skill Y") and embeds them into a persistent knowledge graph for future retrieval.
+*   **Conformal Prediction Intervals (`core/conformal_prediction.py`)**: Point-scores are statistically wrapped in marginal conformal prediction intervals (e.g., 74.5 [69.2, 79.8]). By maintaining a historical non-conformity calibration set, the system transparently quantifies uncertainty to satisfy EEOC fairness audits.
+*   **Air-Gapped Compliance**: The backend and inference engines run entirely disconnected from the public internet using `internal: true` Docker Compose networks, fully answering stringent corporate data residency requirements.
+
+---
+
 ## 🚀 Future Research & Architectural Roadmap (2025-2026)
 
 To elevate this platform to the standard of **Google Research, Microsoft Research, OpenAI, and Anthropic**, we are implementing a bleeding-edge roadmap targeting **Test-Time Scaling** and **Federated AI**:

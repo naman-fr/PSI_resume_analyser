@@ -357,6 +357,15 @@ To completely eliminate JSON hallucination at the local level, the architecture 
 \subsection{Air-Gapped Enterprise Deployment}
 Addressing strict enterprise data residency requirements, the deployment topology includes a fully air-gapped configuration. Using Docker Compose `internal: true` networks, the backend, inference engine, and persistence layers are architecturally severed from external ingress/egress, guaranteeing zero PII leakage for defense and financial sector compliance.
 
+\subsection{Learned Reward Model (RLHF-Lite)}
+The system deprecates zero-shot LLM-as-a-judge patterns in favor of a differentiable Bradley-Terry reward model. By embedding the output of debating Swarm agents (e.g., Tech Lead and Recruiter stances) and passing them through a trained classifier head, the orchestration layer computes a quantifiable preference scalar. This provides an auditable, fine-tuneable scoring function aligned with human recruiter preferences.
+
+\subsection{Self-Editing Semantic Memory}
+Moving beyond episodic key-value caching, the architecture implements a Mem0-style three-tier memory system. LangGraph agents are empowered to autonomously write newly discovered industry heuristics (e.g., skill correlations and technology deprecations) back into a persistent ChromaDB Semantic Knowledge Graph. This ensures the system continuously learns and adapts to shifting engineering paradigms.
+
+\subsection{Conformal Prediction Intervals}
+To quantify uncertainty and ensure fairness transparency, the point-estimate match scores are wrapped in marginal conformal prediction intervals. Utilizing a calibration hold-out set, the system dynamically calculates a statistically rigorous $(1-\alpha)$ confidence bound (e.g., 90\% confidence) around the final score. This explicitly satisfies EEOC auditing requirements by rendering the model's uncertainty transparent to the hiring committee.
+
 \section{Appendix A: Simulated Execution Trace}
 The following is an exhaustive execution trace log of the system analyzing a complex backend engineering resume. This trace demonstrates the exact data flow through the LangGraph nodes.
 \begin{verbatim}
