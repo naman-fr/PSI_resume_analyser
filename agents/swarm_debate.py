@@ -10,6 +10,7 @@ from typing import Dict, Any
 from langchain_core.messages import SystemMessage
 from agents.state import ResumeJDState
 from core.telemetry import TelemetryLogger
+from core.reward_model import reward_model
 
 logger = logging.getLogger(__name__)
 
@@ -81,20 +82,13 @@ Output a short paragraph outlining your stance, considering any external repo da
             
         tl_stance = tl_response.content if hasattr(tl_response, 'content') else str(tl_response)
         
-        # 3. Judge Agent
-        judge_prompt = f"""You are the VP of Engineering (The Judge).
-Heuristic System Score: {current_score}
-Recruiter says: {recruiter_stance}
-Tech Lead says: {tl_stance}
-Synthesize their arguments and decide on the final 'swarm_consensus' text. Provide a 2-3 sentence final verdict.
-"""
-        judge_response = llm.invoke([SystemMessage(content=judge_prompt)])
-        consensus = judge_response.content.strip() if hasattr(judge_response, 'content') else str(judge_response)
+        # 3. Judge Agent replaced by Bradley-Terry Reward Model (RLHF-lite)
+        adjusted_score, consensus = reward_model.predict_preference(recruiter_stance, tl_stance, current_score)
             
         debate_log = [
             {"agent": "Recruiter", "stance": recruiter_stance},
             {"agent": "Tech Lead", "stance": tl_stance},
-            {"agent": "Judge", "stance": consensus}
+            {"agent": "RewardModel (Judge)", "stance": f"Calculated Final Score: {adjusted_score}. Verdict: {consensus}"}
         ]
         
         TelemetryLogger.record_event(
@@ -108,7 +102,8 @@ Synthesize their arguments and decide on the final 'swarm_consensus' text. Provi
         
         return {
             "debate_log": debate_log,
-            "swarm_consensus": consensus
+            "swarm_consensus": consensus,
+            "match_score": adjusted_score  # Update the final score
         }
         
     except Exception as exc:
