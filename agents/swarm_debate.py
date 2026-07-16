@@ -11,6 +11,7 @@ from langchain_core.messages import SystemMessage
 from agents.state import ResumeJDState
 from core.telemetry import TelemetryLogger
 from core.reward_model import reward_model
+from core.memory import SemanticMemory
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ Output a short, punchy paragraph outlining your stance."""
 The recruiter says: "{recruiter_stance}"
 Evaluate this candidate purely on technical depth and architecture skills.
 Candidate: {candidate_summary[:1000]}
-If the candidate has a GitHub username, use your tools to analyze their repositories!
+If you notice a broader industry trend (e.g. 'Tool X implies Tool Y' or 'Candidates from Z lack Y'), prefix that sentence with 'INSIGHT:'.
 Output a short paragraph outlining your stance, considering any external repo data you fetched."""
         
         messages = [SystemMessage(content=tl_prompt)]
@@ -81,6 +82,12 @@ Output a short paragraph outlining your stance, considering any external repo da
             tl_response = llm_with_tools.invoke(messages)
             
         tl_stance = tl_response.content if hasattr(tl_response, 'content') else str(tl_response)
+        
+        # Self-Editing Memory: Extract insights from Tech Lead and write to semantic memory
+        for line in tl_stance.split('\n'):
+            if line.strip().startswith("INSIGHT:"):
+                fact = line.replace("INSIGHT:", "").strip()
+                SemanticMemory.write_learned_fact(domain="engineering_trends", fact=fact)
         
         # 3. Judge Agent replaced by Bradley-Terry Reward Model (RLHF-lite)
         adjusted_score, consensus = reward_model.predict_preference(recruiter_stance, tl_stance, current_score)

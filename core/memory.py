@@ -116,3 +116,29 @@ def time_str() -> str:
     """Helper to return current timestamp string."""
     import time
     return time.strftime("%Y-%m-%d %H:%M:%S")
+
+class SemanticMemory:
+    """Mem0-style self-updating Semantic Memory Graph (Fact Store)."""
+    
+    @classmethod
+    def write_learned_fact(cls, domain: str, fact: str):
+        """Allows agents to write generalized industry insights back to the knowledge graph."""
+        try:
+            from core.vector_store import VectorStoreManager, get_embedding_with_cache
+            collection = VectorStoreManager.get_collection("semantic_memory")
+            if collection is None:
+                return
+            
+            doc_id = VectorStoreManager.compute_sha256(fact)
+            embedding = get_embedding_with_cache("semantic_memory", fact, {"domain": domain})
+            collection.upsert(
+                ids=[doc_id],
+                embeddings=[embedding],
+                documents=[fact],
+                metadatas=[{"domain": domain}]
+            )
+            logger.info(f"Learned new semantic fact: {fact}")
+        except ImportError:
+            logger.warning("VectorStoreManager not available for SemanticMemory.")
+        except Exception as e:
+            logger.error(f"Failed to write to semantic memory: {e}")
